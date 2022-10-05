@@ -1,0 +1,12 @@
+prefix=@CMAKE_INSTALL_PREFIX@
+exec_prefix=@CMAKE_INSTALL_PREFIX@
+libdir=${exec_prefix}/@CMAKE_INSTALL_LIBDIR@
+includedir=${prefix}/@CMAKE_INSTALL_INCLUDEDIR@
+
+Name: @Junebug@
+Description: @A lightweight C++ game engine@
+Version: @0.1.0@
+
+Requires:
+Libs: -L${libdir} -ljunebug
+Cflags: -I${includedir}
