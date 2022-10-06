@@ -15,10 +15,10 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
 endif()
 
 add_library(${LIBNAME} SHARED
-    src/Junebug.cpp
-    src/dataLoading.cpp
-    src/Math.cpp
-    src/inputs.cpp
+    lib/Junebug.cpp
+    lib/dataLoading.cpp
+    lib/Math.cpp
+    lib/inputs.cpp
 )
 
 set_target_properties(${LIBNAME} PROPERTIES

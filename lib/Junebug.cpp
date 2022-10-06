@@ -96,9 +96,15 @@ void JGame::GenerateOutput()
 
     SDL_RenderClear(mRenderer);
 
+    OnGenerateOutputBegin();
+
+    OnGenerateOutputEnd();
+
     SDL_RenderPresent(mRenderer);
 }
 
 void JGame::OnInputsProcessed(const Uint8 *state) {}
 void JGame::OnUpdateStart(float deltaTime) {}
 void JGame::OnUpdateEnd(float deltaTime) {}
+void JGame::OnGenerateOutputBegin() {}
+void JGame::OnGenerateOutputEnd() {}

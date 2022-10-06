@@ -20,6 +20,9 @@ C++ is performant, but it's not easy to use. Junebug takes that performance and 
 -   [] A\* pathfinding
 -   [] Lots of math utilities
 
+## Known Bugs
+- Resizing the window breaks rendering
+
 ## Credits
 
 Based heavily on [Game Programming in C++]() by Sanjayyyyyy and the curriculum of USC's ITP 380.

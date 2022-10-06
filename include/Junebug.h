@@ -49,6 +49,8 @@ namespace Junebug
         void OnInputsProcessed(const Uint8 *state);
         void OnUpdateStart(float deltaTime);
         void OnUpdateEnd(float deltaTime);
+        void OnGenerateOutputBegin();
+        void OnGenerateOutputEnd();
 
     private:
         SDL_Window *mWindow;
@@ -76,7 +78,7 @@ namespace Junebug
         void UnloadData();
 
         // Inputs
-        std::unordered_map<std::string, std::vector<Uint8>> mInputMapping;
+        std::unordered_map<std::string, std::pair<std::vector<Uint8>, int>> mInputMapping;
         std::unordered_map<Uint8, int> mInputs;
         bool mAutoCloseOnQuit;
     };
