@@ -27,8 +27,9 @@ namespace Junebug
             Uint32 windowFlags{0};
             Uint32 renderFlags{SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC};
 
-            int windowX{SDL_WINDOWPOS_CENTERED};
-            int windowY{SDL_WINDOWPOS_CENTERED};
+            int windowX{SDL_WINDOWPOS_CENTERED}, windowY{SDL_WINDOWPOS_CENTERED};
+
+            uint32_t resolutionX{0}, resolutionY{0};
 
             int bufferCol[4]{0, 0, 0, 255};
 
@@ -46,27 +47,29 @@ namespace Junebug
         void SetInputMappings(
             std::vector<std::pair<std::string, std::vector<Uint8>>> inputMapping);
 
-        void OnInputsProcessed(const Uint8 *state);
-        void OnUpdateStart(float deltaTime);
-        void OnUpdateEnd(float deltaTime);
-        void OnGenerateOutputBegin();
-        void OnGenerateOutputEnd();
+        std::function<void(const Uint8 *state)> OnInputsProcessed;
+        std::function<void(float deltaTime)> OnUpdateStart;
+        std::function<void(float deltaTime)> OnUpdateEnd;
+        std::function<void()> OnGenerateOutputBegin;
+        std::function<void()> OnGenerateOutputEnd;
 
     private:
-        SDL_Window *mWindow;
-        SDL_Renderer *mRenderer;
+        SDL_Window *mWindow = nullptr;
+        SDL_Renderer *mRenderer = nullptr;
 
-        float mFPSTarget;
-        float mFPSMin;
+        float mFPSTarget = 1000.0f / 60.0f;
+        float mFPSMin = 1000.0f / 30.0f;
 
-        bool mGameIsRunning;
-        float mDeltaTime;
-        Uint32 mPrevTime;
+        bool mGameIsRunning = false;
+        float mDeltaTime = 0;
+        Uint32 mPrevTime = 0;
 
-        int mScreenWidth;
-        int mScreenHeight;
+        int mScreenWidth, mScreenHeight;
+        uint32_t mResolutionWidth, mResolutionHeight;
 
         int mBufferCol[4];
+
+        bool mFullscreen = false;
 
         // Core loop
         void ProcessInput();
@@ -81,5 +84,6 @@ namespace Junebug
         std::unordered_map<std::string, std::pair<std::vector<Uint8>, int>> mInputMapping;
         std::unordered_map<Uint8, int> mInputs;
         bool mAutoCloseOnQuit;
+        void FlushInputs();
     };
 }

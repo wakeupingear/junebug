@@ -4,6 +4,8 @@
 
 C++ is performant, but it's not easy to use. Junebug takes that performance and wraps it in various abstractions to make it easy to use. The goal is to make a stand in replacement for Game Maker Studio 2 that can scale to the needs of a production game.
 
+SDL2 v2.24.1
+
 ## Engine Features
 
 -   [] Entity Component System
@@ -21,7 +23,8 @@ C++ is performant, but it's not easy to use. Junebug takes that performance and 
 -   [] Lots of math utilities
 
 ## Known Bugs
-- Resizing the window breaks rendering
+
+-   Resizing the window breaks rendering
 
 ## Credits
 

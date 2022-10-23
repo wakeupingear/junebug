@@ -14,39 +14,68 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
   set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
 endif()
 
-add_library(${LIBNAME} SHARED
-    lib/Junebug.cpp
-    lib/dataLoading.cpp
-    lib/Math.cpp
-    lib/inputs.cpp
+add_library(${LIBNAME} STATIC
+    src/${LIBNAME}.cpp
+    src/dataLoading.cpp
+    src/mathLib.cpp
+    src/inputs.cpp
 )
 
 set_target_properties(${LIBNAME} PROPERTIES
     VERSION ${PROJECT_VERSION}
     SOVERSION 1
-    PUBLIC_HEADER include/${LIBNAME}.h)
-configure_file(${LIBNAME}.pc.in ${LIBNAME}.pc @ONLY)
-target_include_directories(${LIBNAME} PRIVATE include)
-target_include_directories(${LIBNAME} PRIVATE src)
-target_compile_features(${LIBNAME} PRIVATE cxx_std_17)
-
-include(FindPkgConfig)
-
-PKG_SEARCH_MODULE(SDL2 REQUIRED sdl2) 
-PKG_SEARCH_MODULE(SDL2IMAGE REQUIRED SDL2_image>=2.0.0)
-PKG_SEARCH_MODULE(SDL2MIXER REQUIRED SDL2_mixer)
-
-INCLUDE_DIRECTORIES(${SDL2_INCLUDE_DIRS} ${SDL2IMAGE_INCLUDE_DIRS})
-
-TARGET_LINK_LIBRARIES(
-    ${LIBNAME} 
-    ${SDL2_LIBRARIES} 
-    ${SDL2IMAGE_LIBRARIES}
-    ${SDL2MIXER_LIBRARIES}
+    PUBLIC_HEADER include/${LIBNAME}.h
 )
 
-install(TARGETS ${LIBNAME}
+if (WIN32)
+    include_directories(lib/GLEW/include)
+    include_directories(lib/SDL/include)
+    link_directories(lib/GLEW/lib/win/x64)
+    link_directories(lib/SDL/lib/win/x64)
+
+	target_link_libraries(${LIBNAME} SDL2 SDL2_image SDL2_mixer SDL2_ttf glew32 opengl32)
+
+    configure_file(${LIBNAME}.pc.in ${LIBNAME}.pc @ONLY)
+    target_include_directories(${LIBNAME} PRIVATE include)
+    target_include_directories(${LIBNAME} PRIVATE src)
+    target_compile_features(${LIBNAME} PRIVATE cxx_std_17)
+
+    TARGET_LINK_LIBRARIES(
+        ${LIBNAME} 
+        ${SDL2_LIBRARIES} 
+        ${SDL2IMAGE_LIBRARIES}
+        ${SDL2MIXER_LIBRARIES}
+    )
+
+    install(TARGETS ${LIBNAME}
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
-install(FILES ${CMAKE_BINARY_DIR}/${LIBNAME}.pc
+    install(FILES ${CMAKE_BINARY_DIR}/${LIBNAME}.pc
     DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/pkgconfig)
+else()
+    configure_file(${LIBNAME}.pc.in ${LIBNAME}.pc @ONLY)
+    target_include_directories(${LIBNAME} PRIVATE include)
+    target_include_directories(${LIBNAME} PRIVATE src)
+    target_compile_features(${LIBNAME} PRIVATE cxx_std_17)
+
+    include(FindPkgConfig)
+
+    PKG_SEARCH_MODULE(SDL2 REQUIRED sdl2) 
+    PKG_SEARCH_MODULE(SDL2IMAGE REQUIRED SDL2_image>=2.0.0)
+    PKG_SEARCH_MODULE(SDL2MIXER REQUIRED SDL2_mixer)
+
+    INCLUDE_DIRECTORIES(${SDL2_INCLUDE_DIRS} ${SDL2IMAGE_INCLUDE_DIRS})
+
+    TARGET_LINK_LIBRARIES(
+        ${LIBNAME} 
+        ${SDL2_LIBRARIES} 
+        ${SDL2IMAGE_LIBRARIES}
+        ${SDL2MIXER_LIBRARIES}
+    )
+
+    install(TARGETS ${LIBNAME}
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+    install(FILES ${CMAKE_BINARY_DIR}/${LIBNAME}.pc
+    DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/pkgconfig)
+endif()
