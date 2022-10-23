@@ -50,16 +50,22 @@ void JGame::ProcessInput()
     }
     mInputs = newInputs;
 
+    // Read mouse state
+    int x, y;
+    SDL_GetMouseState(&x, &y);
+    mMousePos.x = (float)x;
+    mMousePos.y = (float)y;
+
     // Default Events
-    if (Input("_quit_"))
+    if (Input(JB_INPUT_QUIT))
     {
         mGameIsRunning = false;
     }
-    if (Input("_fullscreen_") == 1)
+    if (Input(JB_INPUT_FULLSCREEN) == 1)
     {
         mFullscreen = !mFullscreen;
         SDL_SetWindowFullscreen(mWindow, mFullscreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0);
-        FlushInputs();
+        FlushPollEvents();
         SDL_ShowCursor(!mFullscreen);
 
         if (!mFullscreen)
@@ -87,15 +93,15 @@ void JGame::SetInputMapping(std::string key, std::vector<Uint8> inputs)
 }
 
 void JGame::SetInputMappings(
-    std::vector<std::pair<std::string, std::vector<Uint8>>> inputMapping)
+    std::vector<std::pair<std::string, std::vector<Uint8>>> inputMappings)
 {
-    for (auto &[name, inputs] : inputMapping)
+    for (auto &[name, inputs] : inputMappings)
     {
         JGame::SetInputMapping(name, inputs);
     }
 }
 
-void JGame::FlushInputs()
+void JGame::FlushPollEvents()
 {
     SDL_Event event;
     while (SDL_PollEvent(&event))

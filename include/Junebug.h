@@ -5,6 +5,7 @@
 #endif
 
 #include "utils.h"
+#include "mathLib.h"
 
 #include "SDL2/SDL.h"
 #include "SDL2/SDL_mixer.h"
@@ -19,8 +20,10 @@ namespace Junebug
     class JGame
     {
     public:
+        // Game constructor
         JGame();
 
+        // Options for initializing the game
         struct InitializeOptions
         {
             Uint32 initFlags{SDL_INIT_AUDIO | SDL_INIT_VIDEO};
@@ -37,15 +40,37 @@ namespace Junebug
 
             bool autoCloseOnQuit{true};
         };
+        // Initialize the game
+        // MUST be called before RunLoop
+        // \returns true if successful, false otherwise
         bool Initialize(int screenWidth, int screenHeight, InitializeOptions options);
 
+        // Clean up any resources used by the game
+        // Should be called after RunLoop() has finished and before the program exits
         void Shutdown();
+
+        // Initiates the self-contained game loop
+        // Run this after initializing the game
         void RunLoop();
 
+        // Check a given input name
+        // \param key The name of the input to check
+        // \returns number of frames the input has been held for
         int Input(std::string key);
+        // Set the input mapping for a given input name
+        // \param key The name of the input
+        // \param inputs A vector of SDL keycodes to map to the input
         void SetInputMapping(std::string key, std::vector<Uint8> inputs);
+        // Set a list of input mappings
+        // \param inputMapping A list of input mappings, where the each element is a pair with the input name and a vector of SDL keycodes
         void SetInputMappings(
-            std::vector<std::pair<std::string, std::vector<Uint8>>> inputMapping);
+            std::vector<std::pair<std::string, std::vector<Uint8>>> inputMappings);
+        // Get the current mouse position
+        // \returns Vector2 with the mouse position in screen coordinates
+        Vector2 GetMousePos();
+
+#define JB_INPUT_QUIT "__quit__"
+#define JB_INPUT_FULLSCREEN "__fullscreen__"
 
         std::function<void(const Uint8 *state)> OnInputsProcessed;
         std::function<void(float deltaTime)> OnUpdateStart;
@@ -71,9 +96,11 @@ namespace Junebug
 
         bool mFullscreen = false;
 
-        // Core loop
+        // Main input handling event
         void ProcessInput();
+        // Main update event
         void UpdateGame();
+        // Main draw event
         void GenerateOutput();
 
         // Overridable load funtions
@@ -84,6 +111,9 @@ namespace Junebug
         std::unordered_map<std::string, std::pair<std::vector<Uint8>, int>> mInputMapping;
         std::unordered_map<Uint8, int> mInputs;
         bool mAutoCloseOnQuit;
-        void FlushInputs();
+        // Flush all poll events
+        // Useful for events like window resizing
+        void FlushPollEvents();
+        Vector2 mMousePos = Vector2::Zero;
     };
 }

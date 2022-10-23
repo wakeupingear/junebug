@@ -99,3 +99,8 @@ void JGame::GenerateOutput()
 
     SDL_RenderPresent(mRenderer);
 }
+
+Vector2 JGame::GetMousePos()
+{
+    return mMousePos;
+}

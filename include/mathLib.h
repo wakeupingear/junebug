@@ -1,11 +1,11 @@
-// Math.h
-// Math library mostly for vectors, matrices, and quaternions
+// Credit to Sanjay Madhav
 
 #pragma once
 
 #include <cmath>
 #include <memory.h>
 #include <limits>
+#include <fstream>
 
 namespace Math
 {
@@ -128,6 +128,13 @@ public:
 	{
 		x = inX;
 		y = inY;
+	}
+
+	// Printable
+	[[nodiscard]] friend std::ostream &operator<<(std::ostream &os, const Vector2 &v)
+	{
+		os << "(" << v.x << ", " << v.y << ")";
+		return os;
 	}
 
 	// Vector addition (a + b)
@@ -277,6 +284,13 @@ public:
 		x = inX;
 		y = inY;
 		z = inZ;
+	}
+
+	// Printable
+	[[nodiscard]] friend std::ostream &operator<<(std::ostream &os, const Vector3 &v)
+	{
+		os << "(" << v.x << ", " << v.y << ", " << v.z << ")";
+		return os;
 	}
 
 	// Vector addition (a + b)
@@ -439,6 +453,15 @@ public:
 		return reinterpret_cast<const float *>(&mat[0][0]);
 	}
 
+	// Printable
+	[[nodiscard]] friend std::ostream &operator<<(std::ostream &os, const Matrix3 &m)
+	{
+		os << "[[" << m.mat[0][0] << ", " << m.mat[0][1] << ", " << m.mat[0][2] << "]" << std::endl;
+		os << " [" << m.mat[1][0] << ", " << m.mat[1][1] << ", " << m.mat[1][2] << "]" << std::endl;
+		os << " [" << m.mat[2][0] << ", " << m.mat[2][1] << ", " << m.mat[2][2] << "]]" << std::endl;
+		return os;
+	}
+
 	// Matrix multiplication
 	[[nodiscard]] friend Matrix3 operator*(const Matrix3 &left, const Matrix3 &right)
 	{
@@ -571,6 +594,16 @@ public:
 	const float *GetAsFloatPtr() const
 	{
 		return reinterpret_cast<const float *>(&mat[0][0]);
+	}
+
+	// Printable
+	[[nodiscard]] friend std::ostream &operator<<(std::ostream &os, const Matrix4 &m)
+	{
+		os << "[[" << m.mat[0][0] << ", " << m.mat[0][1] << ", " << m.mat[0][2] << ", " << m.mat[0][3] << "]" << std::endl;
+		os << " [" << m.mat[1][0] << ", " << m.mat[1][1] << ", " << m.mat[1][2] << ", " << m.mat[1][3] << "]" << std::endl;
+		os << " [" << m.mat[2][0] << ", " << m.mat[2][1] << ", " << m.mat[2][2] << ", " << m.mat[2][3] << "]" << std::endl;
+		os << " [" << m.mat[3][0] << ", " << m.mat[3][1] << ", " << m.mat[3][2] << ", " << m.mat[3][3] << "]]";
+		return os;
 	}
 
 	// Matrix multiplication (a * b)
@@ -990,6 +1023,13 @@ public:
 		retVal.w = p.w * q.w - Vector3::Dot(pv, qv);
 
 		return retVal;
+	}
+
+	// Printable
+	[[nodiscard]] friend std::ostream &operator<<(std::ostream &os, const Quaternion &q)
+	{
+		os << "(" << q.x << ", " << q.y << ", " << q.z << ", " << q.w << ")";
+		return os;
 	}
 
 	static const Quaternion Identity;
