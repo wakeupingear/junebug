@@ -1,6 +1,6 @@
-#include "Junebug.h"
+#include "JGame.h"
 
-using namespace Junebug;
+using namespace junebug;
 
 void JGame::ProcessInput()
 {
@@ -75,8 +75,8 @@ void JGame::ProcessInput()
         }
     }
 
-    if (OnInputsProcessed)
-        OnInputsProcessed(state);
+    // User-defined callback
+    OnInputsProcessed(state);
 }
 
 int JGame::Input(std::string key)

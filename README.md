@@ -6,26 +6,8 @@ C++ is performant, but it's not easy to use. Junebug takes that performance and 
 
 SDL2 v2.24.1
 
-## Engine Features
-
--   [] Entity Component System
--   [] Full sprite transformations (rotation, scale, etc.)
--   [] OpenGL 3.3+ rendering
--   [] Web support (via Emscripten)
--   [] iOS support (via Metal)
--   [] Android support (via Vulkan)
-
-## Included Implementations
-
--   [] Tilemaps
--   [] Parallax backgrounds
--   [] A\* pathfinding
--   [] Lots of math utilities
-
-## Known Bugs
-
--   Resizing the window breaks rendering
+Progress on [Trello](https://trello.com/b/jWgkCUmD/junebug)
 
 ## Credits
 
-Based heavily on [Game Programming in C++]() by Sanjayyyyyy and the curriculum of USC's ITP 380.
+Based heavily on [Game Programming in C++](https://books.google.com/books/about/Game_Programming_in_C++.html?id=VfxNDwAAQBAJ&source=kp_book_description) by Sanjay Madhav and the curriculum of USC's ITP 380.

@@ -1,6 +1,6 @@
-#include "Junebug.h"
+#include "JGame.h"
 
-using namespace Junebug;
+using namespace junebug;
 
 void JGame::LoadData() {}
 

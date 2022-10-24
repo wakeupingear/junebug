@@ -7,6 +7,7 @@
 #include <limits>
 #include <fstream>
 
+/// @brief A broad Math library containing constants, functions, and classes for 2D and 3D math
 namespace Math
 {
 	const float Pi = 3.1415926535f;
@@ -1034,17 +1035,3 @@ public:
 
 	static const Quaternion Identity;
 };
-
-namespace Color
-{
-	static const Vector3 Black(0.0f, 0.0f, 0.0f);
-	static const Vector3 White(1.0f, 1.0f, 1.0f);
-	static const Vector3 Red(1.0f, 0.0f, 0.0f);
-	static const Vector3 Green(0.0f, 1.0f, 0.0f);
-	static const Vector3 Blue(0.0f, 0.0f, 1.0f);
-	static const Vector3 Yellow(1.0f, 1.0f, 0.0f);
-	static const Vector3 LightYellow(1.0f, 1.0f, 0.88f);
-	static const Vector3 LightBlue(0.68f, 0.85f, 0.9f);
-	static const Vector3 LightPink(1.0f, 0.71f, 0.76f);
-	static const Vector3 LightGreen(0.56f, 0.93f, 0.56f);
-}
