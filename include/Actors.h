@@ -1,11 +1,10 @@
 #pragma once
-
 #ifndef NAMESPACES
 #define NAMESPACES
 #endif
 
-#include "mathLib.h"
-#include "color.h"
+#include "MathLib.h"
+#include "Color.h"
 
 #include <functional>
 
@@ -36,11 +35,37 @@ namespace junebug
         /// @param dt The time since the last update
         void Update(float dt);
 
+        // Vector of attached components
+        std::vector<class Component *> mComponents;
+        // Returns component of type T, or null if doesn't exist
+        template <typename T>
+        T *GetComponent() const
+        {
+            for (auto c : mComponents)
+            {
+                T *t = dynamic_cast<T *>(c);
+                if (t != nullptr)
+                {
+                    return t;
+                }
+            }
+
+            return nullptr;
+        }
+
+        // Check if the actor persists between scenes
+        /// @return true if the actor persists between scenes, false otherwise
+        inline bool IsPersistent() const { return mPersistent; }
+
+    protected:
         // User-defined callback
         virtual void OnUpdate(float dt){};
 
-    private:
+        // Actor state
         ActorState mState = ActorState::Active;
+
+        // Actor persistence
+        bool mPersistent = false;
     };
 
     /// @brief A VisualActor is an actor that has a visual representation, including a texture, position, rotation, scale, and color.
@@ -79,6 +104,10 @@ namespace junebug
         Color GetColor() const;
 
     private:
+        friend class Component;
+        // Add a component to the actor
+        void AddComponent(class Component *c);
+
         Vector2 mPosition{0, 0};
         float mRotation{0};
         Vector2 mScale{1, 1};

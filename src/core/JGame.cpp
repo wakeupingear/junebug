@@ -1,5 +1,6 @@
 #include "JGame.h"
 #include "Actors.h"
+#include "Camera.h"
 
 #include <iostream>
 #include <algorithm>
@@ -31,8 +32,6 @@ bool JGame::Initialize(int screenWidth, int screenHeight, GameOptions newOptions
 
     mScreenWidth = screenWidth;
     mScreenHeight = screenHeight;
-    mResolutionWidth = options.resolutionX > 0 ? options.resolutionX : screenWidth;
-    mResolutionHeight = options.resolutionY > 0 ? options.resolutionY : screenHeight;
 
     if (SDL_Init(options.initFlags) != 0)
         return false;
@@ -50,18 +49,10 @@ bool JGame::Initialize(int screenWidth, int screenHeight, GameOptions newOptions
     return true;
 }
 
-JGame::GameOptions JGame::GetOptions()
+JGame::GameOptions &JGame::GetOptions()
 {
-    if (firstGame)
-        return firstGame->options;
-    else
-        return {};
-}
-
-void JGame::SetOptions(GameOptions newOptions)
-{
-    if (firstGame)
-        firstGame->ProcessOptions(newOptions);
+    mOptionsUpdated = true;
+    return options;
 }
 
 void JGame::ProcessOptions(GameOptions newOptions)
@@ -74,6 +65,16 @@ void JGame::ProcessOptions(GameOptions newOptions)
         SDL_SetWindowPosition(mWindow, options.windowX, options.windowY);
         SDL_SetWindowSize(mWindow, mScreenWidth, mScreenHeight);
     }
+}
+
+int JGame::GetScreenWidth()
+{
+    return mScreenWidth;
+}
+
+int JGame::GetScreenHeight()
+{
+    return mScreenHeight;
 }
 
 void JGame::Shutdown()
@@ -132,6 +133,13 @@ void JGame::UpdateGame()
 
     // User-defined callback
     OnUpdateEnd(mDeltaTime);
+
+    // Update options
+    if (mOptionsUpdated)
+    {
+        ProcessOptions(options);
+        mOptionsUpdated = false;
+    }
 }
 
 void JGame::GenerateOutput()
@@ -147,6 +155,10 @@ void JGame::GenerateOutput()
 
     // User-defined callback
     OnRenderStart();
+
+    // Render cameras
+    for (Camera *camera : mCameras)
+        camera->Render();
 
     // User-defined callback
     OnRenderEnd();
@@ -167,4 +179,19 @@ void JGame::AddActor(PureActor *actor)
 void JGame::RemoveActor(PureActor *actor)
 {
     mActors.erase(std::remove(mActors.begin(), mActors.end(), actor), mActors.end());
+}
+
+const std::vector<PureActor *> &JGame::GetActors() const
+{
+    return mActors;
+}
+
+void JGame::AddCamera(Camera *camera)
+{
+    mCameras.push_back(camera);
+}
+
+void JGame::RemoveCamera(Camera *camera)
+{
+    mCameras.erase(std::remove(mCameras.begin(), mCameras.end(), camera), mCameras.end());
 }

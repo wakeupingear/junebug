@@ -1,4 +1,7 @@
 #include "Actors.h"
+#include "Component.h"
+
+#include <algorithm>
 
 using namespace junebug;
 
@@ -45,4 +48,11 @@ void VisualActor::SetColor(const Color &color)
 Color VisualActor::GetColor() const
 {
     return mColor;
+}
+
+void VisualActor::AddComponent(Component *c)
+{
+    mComponents.emplace_back(c);
+    std::sort(mComponents.begin(), mComponents.end(), [](Component *a, Component *b)
+              { return a->GetUpdateOrder() < b->GetUpdateOrder(); });
 }

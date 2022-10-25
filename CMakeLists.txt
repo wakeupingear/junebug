@@ -15,14 +15,21 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
 endif()
 
 add_library(${LIBNAME} STATIC
-    src/JGame.cpp
-    src/dataLoading.cpp
-    src/inputs.cpp
-    src/mathLib.cpp
-    src/color.cpp
+    src/core/JGame.cpp
+    src/core/coreDataLoading.cpp
+    src/core/coreInputs.cpp
+    src/core/coreSprites.cpp
+
+    src/MathLib.cpp
+    src/Color.cpp
+    
+    src/Camera.cpp
 
     src/actors/PureActor.cpp
     src/actors/VisualActor.cpp
+    src/Component.cpp
+
+    src/Sprite.cpp
 )
 
 set_target_properties(${LIBNAME} PROPERTIES

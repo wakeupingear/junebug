@@ -1,11 +1,10 @@
 #pragma once
-
 #ifndef NAMESPACES
 #define NAMESPACES
 #endif
 
 #include "utils.h"
-#include "mathLib.h"
+#include "MathLib.h"
 
 #include "SDL2/SDL.h"
 #include "SDL2/SDL_mixer.h"
@@ -38,8 +37,6 @@ namespace junebug
 
             int windowX{SDL_WINDOWPOS_CENTERED}, windowY{SDL_WINDOWPOS_CENTERED};
 
-            uint32_t resolutionX{0}, resolutionY{0};
-
             int bufferCol[4]{0, 0, 0, 255};
 
             std::string title{"Junebug Game"};
@@ -52,9 +49,12 @@ namespace junebug
         bool Initialize(int screenWidth, int screenHeight, GameOptions options);
 
         // Get a reference to the game's options
-        static GameOptions GetOptions();
-        // Set the game's options
-        static void SetOptions(GameOptions options);
+        GameOptions &GetOptions();
+
+        // Get the game's screen width
+        int GetScreenWidth();
+        // Get the game's screen height
+        int GetScreenHeight();
 
         // Clean up any resources used by the game
         // Should be called after RunLoop() has finished and before the program exits
@@ -80,44 +80,84 @@ namespace junebug
         /// @returns Vector2 with the mouse position in screen coordinates
         Vector2 GetMousePos();
 
-        // Add an actor to the game
-        void AddActor(class PureActor *actor);
-        // Remove an actor from the game
-        void RemoveActor(class PureActor *actor);
-
 #define JB_INPUT_QUIT "__quit__"
 #define JB_INPUT_FULLSCREEN "__fullscreen__"
 
         // Overridable callback when inputs are processed
+        /// @param state The current SDL input state
         virtual void OnInputsProcessed(const Uint8 *state){};
         // Overridable callback before the game is updated
+        /// @param deltaTime The time since the last update
         virtual void OnUpdateStart(float dt){};
         // Overridable callback after the game is updated
+        /// @param deltaTime The time since the last update
         virtual void OnUpdateEnd(float dt){};
         // Overridable callback before the game is rendered
         virtual void OnRenderStart(){};
         // Overridable callback after the game is rendered
         virtual void OnRenderEnd(){};
 
+        // Add an actor to the game
+        /// @param actor The actor to add
+        void AddActor(class PureActor *actor);
+        // Remove an actor from the game
+        /// @param actor The actor to remove
+        void RemoveActor(class PureActor *actor);
+        // Get a const reference to the list of actors
+        /// @returns A const reference to the list of actors
+        const std::vector<class PureActor *> &GetActors() const;
+
+        // Add a camera to the game
+        /// @param camera The camera to add
+        void AddCamera(class Camera *camera);
+        // Remove a camera from the game
+        /// @param camera The camera to remove
+        void RemoveCamera(class Camera *camera);
+
+        // Add a sprite instance to the game
+        /// @param sprite The sprite to add
+        void AddSprite(class Sprite *sprite);
+        // Remove a sprite instance from the game
+        /// @param sprite The sprite to remove
+        void RemoveSprite(class Sprite *sprite);
+        // Load a texture from a file
+        /// @param path The path to the texture file
+        /// @returns A pointer to the loaded texture
+        SDL_Texture *GetTexture(std::string fileName);
+
     protected:
+        // The global game instance
         inline static JGame *firstGame = nullptr;
 
+        // The game's options
         GameOptions options;
+        // Internal function to set the game's options
         void ProcessOptions(GameOptions options);
+        // Tracks whether the options have been changed
+        // If true, ProcessOptions() will be called before the next update
+        bool mOptionsUpdated = false;
 
+        // The game's window
         SDL_Window *mWindow = nullptr;
+        // The game's renderer
         SDL_Renderer *mRenderer = nullptr;
 
+        // The game's target framerate in milliseconds
         Uint32 mFPSTarget = 1000 / 60;
+        // The minimum framerate to maintain if the game is running slowly
         Uint32 mFPSMin = 1000 / 30;
 
+        // Internal boolean to track whether the game is running
         bool mGameIsRunning = false;
+        // Current time between frames
         float mDeltaTime = 0;
+        // The timestamp of the last frame
         Uint32 mPrevTime = 0;
 
+        // The game's screen size
         int mScreenWidth, mScreenHeight;
-        uint32_t mResolutionWidth, mResolutionHeight;
 
+        // Whether the game is currently in fullscreen mode
         bool mFullscreen = false;
 
         // Main input handling event
@@ -143,5 +183,13 @@ namespace junebug
 
         // Actor list
         std::vector<class PureActor *> mActors;
+
+        // Camera list
+        std::vector<class Camera *> mCameras;
+
+        // Texture map
+        std::unordered_map<std::string, SDL_Texture *> mTextures;
+        // Sprite list
+        std::vector<class Sprite *> mSprites;
     };
 }
