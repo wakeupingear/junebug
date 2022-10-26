@@ -16,7 +16,7 @@ Sprite::~Sprite()
     JGame::Get()->RemoveSprite(this);
 }
 
-void Sprite::Draw(Camera *cam)
+void Sprite::Draw(Camera *cam, SDL_Renderer *renderer)
 {
     if (mTexture && IsVisible())
     {
@@ -31,15 +31,13 @@ void Sprite::Draw(Camera *cam)
 
         // Draw (have to convert angle from radians to degrees, and clockwise to counter)
 
-        /*
         SDL_RenderCopyEx(renderer,
                          mTexture,
                          nullptr,
                          &r,
-                         -Math::ToDegrees(mOwner->GetRotation()),
+                         -mOwner->GetRotation(),
                          nullptr,
                          SDL_FLIP_NONE);
-        */
     }
 }
 

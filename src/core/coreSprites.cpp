@@ -41,3 +41,8 @@ SDL_Texture *JGame::GetTexture(std::string fileName)
     mTextures.insert(std::make_pair(fileName, texture));
     return texture;
 }
+
+const std::vector<Sprite *> &JGame::GetSprites() const
+{
+    return mSprites;
+}

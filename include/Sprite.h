@@ -21,7 +21,7 @@ namespace junebug
         ~Sprite();
 
         // Draw this sprite
-        virtual void Draw(class Camera *cam);
+        virtual void Draw(class Camera *cam, SDL_Renderer *renderer);
         // Update the Sprite animation
         void Update(float deltaTime) override;
         // Set the texture to draw for this psirte

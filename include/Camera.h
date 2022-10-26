@@ -5,6 +5,8 @@
 
 #include "MathLib.h"
 
+#include "SDL2/SDL.h"
+
 namespace junebug
 {
     class Camera
@@ -22,7 +24,9 @@ namespace junebug
         Vector2 screenSize;
 
     private:
-        void Render();
+        void Render(SDL_Renderer *renderer);
+
+        SDL_Texture* renderTex = nullptr;
 
         friend class JGame;
     };

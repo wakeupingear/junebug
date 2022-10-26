@@ -74,6 +74,8 @@ namespace junebug
     public:
         // Position constructor
         VisualActor(Vector2 pos);
+        // Position and image constructor
+        VisualActor(Vector2 pos, std::string imagePath, int drawOrder = 100);
 
         // Set the position of the actor
         /// @param pos The new position of the actor
@@ -103,10 +105,16 @@ namespace junebug
         /// @returns const Color
         Color GetColor() const;
 
+        // Get the sprite of the actor
+        /// @returns Sprite*
+        class Sprite *GetSprite() const { return mSprite; }
+
     private:
         friend class Component;
         // Add a component to the actor
         void AddComponent(class Component *c);
+
+        Sprite *mSprite = nullptr;
 
         Vector2 mPosition{0, 0};
         float mRotation{0};

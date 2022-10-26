@@ -42,6 +42,8 @@ namespace junebug
             std::string title{"Junebug Game"};
 
             bool autoCloseOnQuit{true};
+
+            bool createDefaultCamera{true};
         };
         // Initialize the game
         // MUST be called before RunLoop
@@ -124,6 +126,9 @@ namespace junebug
         /// @param path The path to the texture file
         /// @returns A pointer to the loaded texture
         SDL_Texture *GetTexture(std::string fileName);
+        // Get a const reference to the list of sprites
+        /// @returns A const reference to the list of sprites
+        const std::vector<class Sprite *> &GetSprites() const;
 
     protected:
         // The global game instance

@@ -1,13 +1,38 @@
 #include "Actors.h"
 #include "Component.h"
+#include "Sprite.h"
+#include "JGame.h"
 
 #include <algorithm>
+#include <filesystem>
+namespace fs = std::filesystem;
 
 using namespace junebug;
 
 VisualActor::VisualActor(Vector2 pos) : PureActor()
 {
     SetPosition(pos);
+}
+
+VisualActor::VisualActor(Vector2 pos, std::string imagePath, int drawOrder) : VisualActor(pos)
+{
+    Sprite *spr = new Sprite(this, drawOrder);
+
+    print("Loading image: " + imagePath);
+    const fs::path path(imagePath);
+    std::error_code ec;
+    if (fs::is_directory(path, ec))
+    {
+        spr->SetAnimation(imagePath);
+    }
+    if (ec)
+        std::cerr << "Error in is_directory: " << ec.message() << std::endl;
+    if (fs::is_regular_file(path, ec))
+    {
+        spr->SetTexture(JGame::Get()->GetTexture(imagePath));
+    }
+    if (ec)
+        std::cerr << "Error in is_regular_file: " << ec.message() << std::endl;
 }
 
 void VisualActor::SetPosition(const Vector2 &pos)

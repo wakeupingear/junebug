@@ -28,10 +28,10 @@ JGame *JGame::Get()
 
 bool JGame::Initialize(int screenWidth, int screenHeight, GameOptions newOptions = {})
 {
-    ProcessOptions(newOptions);
-
     mScreenWidth = screenWidth;
     mScreenHeight = screenHeight;
+
+    ProcessOptions(newOptions);
 
     if (SDL_Init(options.initFlags) != 0)
         return false;
@@ -64,6 +64,11 @@ void JGame::ProcessOptions(GameOptions newOptions)
         SDL_SetWindowTitle(mWindow, options.title.c_str());
         SDL_SetWindowPosition(mWindow, options.windowX, options.windowY);
         SDL_SetWindowSize(mWindow, mScreenWidth, mScreenHeight);
+    }
+
+    if (options.createDefaultCamera && mCameras.empty())
+    {
+        new Camera();
     }
 }
 
@@ -158,7 +163,8 @@ void JGame::GenerateOutput()
 
     // Render cameras
     for (Camera *camera : mCameras)
-        camera->Render();
+        camera->Render(mRenderer);
+    SDL_RenderSetViewport(mRenderer, NULL);
 
     // User-defined callback
     OnRenderEnd();
