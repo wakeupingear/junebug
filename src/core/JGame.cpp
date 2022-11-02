@@ -40,8 +40,6 @@ bool JGame::Initialize(int screenWidth, int screenHeight, GameOptions newOptions
     mRenderer = SDL_CreateRenderer(
         mWindow, -1, options.windowFlags);
 
-    mAutoCloseOnQuit = options.autoCloseOnQuit;
-
     Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048);
 
     LoadData();
@@ -69,6 +67,15 @@ void JGame::ProcessOptions(GameOptions newOptions)
     if (options.createDefaultCamera && mCameras.empty())
     {
         new Camera();
+    }
+
+    if (options.detectFps)
+    {
+        int displayIndex = SDL_GetWindowDisplayIndex(mWindow);
+        SDL_DisplayMode displayMode;
+        SDL_GetCurrentDisplayMode(displayIndex, &displayMode);
+        options.fpsTarget = 1000 / displayMode.refresh_rate;
+        print("Targeting display refresh rate of " + std::to_string(displayMode.refresh_rate) + " fps");
     }
 }
 
@@ -111,9 +118,9 @@ void JGame::UpdateGame()
     do
     {
         timeDiff = SDL_GetTicks() - mPrevTime;
-    } while (timeDiff < mFPSTarget);
-    if (timeDiff > mFPSMin)
-        timeDiff = mFPSMin;
+    } while (timeDiff < options.fpsTarget);
+    if (timeDiff > options.fpsMin)
+        timeDiff = options.fpsMin;
     mPrevTime = SDL_GetTicks();
     mDeltaTime = (float)(timeDiff) / 1000.0f;
 
@@ -149,22 +156,45 @@ void JGame::UpdateGame()
 
 void JGame::GenerateOutput()
 {
+    SDL_Rect windowR;
+    windowR.x = 0;
+    windowR.y = 0;
+    SDL_GetWindowSize(mWindow, &windowR.w, &windowR.h);
+    // SDL_RenderSetViewport(mRenderer, &windowR);
+
     SDL_SetRenderDrawColor(
         mRenderer,
         options.bufferCol[0],
         options.bufferCol[1],
         options.bufferCol[2],
         options.bufferCol[3]);
-
     SDL_RenderClear(mRenderer);
 
     // User-defined callback
     OnRenderStart();
 
     // Render cameras
+    mRenderTarget = GetRenderTexture(Vec2((float)mScreenWidth, (float)mScreenHeight), mRenderer, mRenderTarget);
+
     for (Camera *camera : mCameras)
-        camera->Render(mRenderer);
-    SDL_RenderSetViewport(mRenderer, NULL);
+    {
+        if (true)
+        {
+            SDL_Texture *tex = camera->Render(mRenderer);
+            SDL_SetRenderTarget(mRenderer, mRenderTarget);
+            SDL_Rect destR;
+            destR.x = (int)camera->screenPos.x;
+            destR.y = (int)camera->screenPos.y;
+            destR.w = (int)camera->screenSize.x;
+            destR.h = (int)camera->screenSize.y;
+            SDL_RenderCopy(mRenderer, tex, NULL, &destR);
+        }
+    }
+
+    SDL_SetRenderTarget(mRenderer, NULL);
+    SDL_RenderSetViewport(mRenderer, &windowR);
+    SDL_RenderClear(mRenderer);
+    SDL_RenderCopy(mRenderer, mRenderTarget, NULL, &windowR);
 
     // User-defined callback
     OnRenderEnd();
@@ -172,7 +202,7 @@ void JGame::GenerateOutput()
     SDL_RenderPresent(mRenderer);
 }
 
-Vector2 JGame::GetMousePos()
+Vec2 JGame::GetMousePos()
 {
     return mMousePos;
 }

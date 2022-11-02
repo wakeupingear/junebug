@@ -1,10 +1,10 @@
 #include "MathLib.h"
 
-const Vector2 Vector2::Zero(0.0f, 0.0f);
-const Vector2 Vector2::UnitX(1.0f, 0.0f);
-const Vector2 Vector2::UnitY(0.0f, 1.0f);
-const Vector2 Vector2::NegUnitX(-1.0f, 0.0f);
-const Vector2 Vector2::NegUnitY(0.0f, -1.0f);
+const Vec2 Vec2::Zero(0.0f, 0.0f);
+const Vec2 Vec2::UnitX(1.0f, 0.0f);
+const Vec2 Vec2::UnitY(0.0f, 1.0f);
+const Vec2 Vec2::NegUnitX(-1.0f, 0.0f);
+const Vec2 Vec2::NegUnitY(0.0f, -1.0f);
 
 const Vector3 Vector3::Zero(0.0f, 0.0f, 0.f);
 const Vector3 Vector3::UnitX(1.0f, 0.0f, 0.0f);
@@ -34,9 +34,9 @@ const Matrix4 Matrix4::Identity(m4Ident);
 
 const Quaternion Quaternion::Identity(0.0f, 0.0f, 0.0f, 1.0f);
 
-Vector2 Vector2::Transform(const Vector2 &vec, const Matrix3 &mat, float w /*= 1.0f*/)
+Vec2 Vec2::Transform(const Vec2 &vec, const Matrix3 &mat, float w /*= 1.0f*/)
 {
-	Vector2 retVal;
+	Vec2 retVal;
 	retVal.x = vec.x * mat.mat[0][0] + vec.y * mat.mat[1][0] + w * mat.mat[2][0];
 	retVal.y = vec.x * mat.mat[0][1] + vec.y * mat.mat[1][1] + w * mat.mat[2][1];
 	// ignore w since we aren't returning a new value for it...

@@ -25,5 +25,5 @@ namespace junebug
     /// @param texture An optional pointer to the render texture
     /// @param enableForRenderer Whether or not to enable the texture for the renderer
     /// @return A pointer to the render texture
-    SDL_Texture *GetRenderTexture(Vector2 size, SDL_Renderer *renderer, SDL_Texture *texture = nullptr, bool enableForRenderer = false);
+    SDL_Texture *GetRenderTexture(Vec2 size, SDL_Renderer *renderer, SDL_Texture *texture = nullptr, bool enableForRenderer = false);
 }

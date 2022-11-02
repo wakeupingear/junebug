@@ -13,7 +13,7 @@ void JGame::ProcessInput()
         switch (event.type)
         {
         case SDL_QUIT:
-            if (mAutoCloseOnQuit)
+            if (options.autoCloseOnQuit)
                 mGameIsRunning = false;
             break;
         case SDL_WINDOWEVENT:

@@ -41,9 +41,18 @@ namespace junebug
 
             std::string title{"Junebug Game"};
 
+            // Whether the game should close itself on a SDL_QUIT event
             bool autoCloseOnQuit{true};
 
+            // Whether the game should automatically create a camera
             bool createDefaultCamera{true};
+
+            // The game's target framerate in milliseconds
+            Uint32 fpsTarget{1000 / 60};
+            // The minimum framerate to maintain if the game is running slowly
+            Uint32 fpsMin{1000 / 30};
+            // Whether the game should automatically target the display's refresh rate
+            bool detectFps{true};
         };
         // Initialize the game
         // MUST be called before RunLoop
@@ -79,8 +88,8 @@ namespace junebug
         void SetInputMappings(
             std::vector<std::pair<std::string, std::vector<Uint8>>> inputMappings);
         // Get the current mouse position
-        /// @returns Vector2 with the mouse position in screen coordinates
-        Vector2 GetMousePos();
+        /// @returns Vec2 with the mouse position in screen coordinates
+        Vec2 GetMousePos();
 
 #define JB_INPUT_QUIT "__quit__"
 #define JB_INPUT_FULLSCREEN "__fullscreen__"
@@ -147,11 +156,6 @@ namespace junebug
         // The game's renderer
         SDL_Renderer *mRenderer = nullptr;
 
-        // The game's target framerate in milliseconds
-        Uint32 mFPSTarget = 1000 / 60;
-        // The minimum framerate to maintain if the game is running slowly
-        Uint32 mFPSMin = 1000 / 30;
-
         // Internal boolean to track whether the game is running
         bool mGameIsRunning = false;
         // Current time between frames
@@ -180,17 +184,18 @@ namespace junebug
         // Inputs
         std::unordered_map<std::string, std::pair<std::vector<Uint8>, int>> mInputMapping;
         std::unordered_map<Uint8, int> mInputs;
-        bool mAutoCloseOnQuit;
         // Flush all poll events
         // Useful for events like window resizing
         void FlushPollEvents();
-        Vector2 mMousePos = Vector2::Zero;
+        Vec2 mMousePos = Vec2::Zero;
 
         // Actor list
         std::vector<class PureActor *> mActors;
 
         // Camera list
         std::vector<class Camera *> mCameras;
+        // Game render target
+        SDL_Texture *mRenderTarget = nullptr;
 
         // Texture map
         std::unordered_map<std::string, SDL_Texture *> mTextures;

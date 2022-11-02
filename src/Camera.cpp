@@ -5,15 +5,15 @@
 
 using namespace junebug;
 
-Camera::Camera() : Camera(Vector2::Zero, Vector2((float)JGame::Get()->GetScreenWidth(), (float)JGame::Get()->GetScreenHeight()))
+Camera::Camera() : Camera(Vec2::Zero, Vec2((float)JGame::Get()->GetScreenWidth(), (float)JGame::Get()->GetScreenHeight()))
 {
 }
 
-Camera::Camera(Vector2 pos, Vector2 size) : Camera(pos, size, pos, size)
+Camera::Camera(Vec2 pos, Vec2 size) : Camera(pos, size, Vec2::Zero, size)
 {
 }
 
-Camera::Camera(Vector2 pos, Vector2 size, Vector2 screenPos, Vector2 screenSize) : pos(pos), size(size), screenPos(screenPos), screenSize(screenSize)
+Camera::Camera(Vec2 pos, Vec2 size, Vec2 screenPos, Vec2 screenSize) : pos(pos), size(size), screenPos(screenPos), screenSize(screenSize)
 {
     JGame::Get()->AddCamera(this);
 }
@@ -23,7 +23,7 @@ Camera::~Camera()
     JGame::Get()->RemoveCamera(this);
 }
 
-void Camera::Render(SDL_Renderer *renderer)
+SDL_Texture *Camera::Render(SDL_Renderer *renderer)
 {
     SDL_Rect r;
     r.x = (int)screenPos.x;
@@ -38,8 +38,10 @@ void Camera::Render(SDL_Renderer *renderer)
     for (Sprite *sprite : game->GetSprites())
     {
         if (sprite->IsVisible())
+        {
             sprite->Draw(this, renderer);
+        }
     }
 
-    SDL_SetRenderTarget(renderer, NULL);
+    return renderTex;
 }

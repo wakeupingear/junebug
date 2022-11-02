@@ -9,12 +9,12 @@ namespace fs = std::filesystem;
 
 using namespace junebug;
 
-VisualActor::VisualActor(Vector2 pos) : PureActor()
+VisualActor::VisualActor(Vec2 pos) : PureActor()
 {
     SetPosition(pos);
 }
 
-VisualActor::VisualActor(Vector2 pos, std::string imagePath, int drawOrder) : VisualActor(pos)
+VisualActor::VisualActor(Vec2 pos, std::string imagePath, int drawOrder) : VisualActor(pos)
 {
     Sprite *spr = new Sprite(this, drawOrder);
 
@@ -35,12 +35,12 @@ VisualActor::VisualActor(Vector2 pos, std::string imagePath, int drawOrder) : Vi
         std::cerr << "Error in is_regular_file: " << ec.message() << std::endl;
 }
 
-void VisualActor::SetPosition(const Vector2 &pos)
+void VisualActor::SetPosition(const Vec2 &pos)
 {
     mPosition = pos;
 }
 
-Vector2 VisualActor::GetPosition() const
+Vec2 VisualActor::GetPosition() const
 {
     return mPosition;
 }
@@ -55,12 +55,12 @@ float VisualActor::GetRotation() const
     return mRotation;
 }
 
-void VisualActor::SetScale(const Vector2 &scale)
+void VisualActor::SetScale(const Vec2 &scale)
 {
     mScale = scale;
 }
 
-Vector2 VisualActor::GetScale() const
+Vec2 VisualActor::GetScale() const
 {
     return mScale;
 }

@@ -2,7 +2,7 @@
 
 namespace junebug
 {
-    SDL_Texture *GetRenderTexture(Vector2 size, SDL_Renderer *renderer, SDL_Texture *texture, bool enableForRenderer)
+    SDL_Texture *GetRenderTexture(Vec2 size, SDL_Renderer *renderer, SDL_Texture *texture, bool enableForRenderer)
     {
         int texW, texH;
         if (texture)

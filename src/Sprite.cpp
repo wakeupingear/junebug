@@ -20,7 +20,7 @@ void Sprite::Draw(Camera *cam, SDL_Renderer *renderer)
 {
     if (mTexture && IsVisible())
     {
-        Vector2 camPos = Vector2::Zero; // JGame::Get()->GetCameraPos();
+        Vec2 camPos = cam->pos;
 
         SDL_Rect r;
         r.w = static_cast<int>(mTexWidth * mOwner->GetScale().x);

@@ -108,18 +108,18 @@ namespace Math
 }
 
 // 2D Vector
-class Vector2
+class Vec2
 {
 public:
 	float x;
 	float y;
 
-	Vector2()
+	Vec2()
 		: x(0.0f), y(0.0f)
 	{
 	}
 
-	explicit Vector2(float inX, float inY)
+	explicit Vec2(float inX, float inY)
 		: x(inX), y(inY)
 	{
 	}
@@ -132,45 +132,45 @@ public:
 	}
 
 	// Printable
-	[[nodiscard]] friend std::ostream &operator<<(std::ostream &os, const Vector2 &v)
+	[[nodiscard]] friend std::ostream &operator<<(std::ostream &os, const Vec2 &v)
 	{
 		os << "(" << v.x << ", " << v.y << ")";
 		return os;
 	}
 
 	// Vector addition (a + b)
-	[[nodiscard]] friend Vector2 operator+(const Vector2 &a, const Vector2 &b)
+	[[nodiscard]] friend Vec2 operator+(const Vec2 &a, const Vec2 &b)
 	{
-		return Vector2(a.x + b.x, a.y + b.y);
+		return Vec2(a.x + b.x, a.y + b.y);
 	}
 
 	// Vector subtraction (a - b)
-	[[nodiscard]] friend Vector2 operator-(const Vector2 &a, const Vector2 &b)
+	[[nodiscard]] friend Vec2 operator-(const Vec2 &a, const Vec2 &b)
 	{
-		return Vector2(a.x - b.x, a.y - b.y);
+		return Vec2(a.x - b.x, a.y - b.y);
 	}
 
 	// Component-wise multiplication
 	// (a.x * b.x, ...)
-	[[nodiscard]] friend Vector2 operator*(const Vector2 &a, const Vector2 &b)
+	[[nodiscard]] friend Vec2 operator*(const Vec2 &a, const Vec2 &b)
 	{
-		return Vector2(a.x * b.x, a.y * b.y);
+		return Vec2(a.x * b.x, a.y * b.y);
 	}
 
 	// Scalar multiplication
-	[[nodiscard]] friend Vector2 operator*(const Vector2 &vec, float scalar)
+	[[nodiscard]] friend Vec2 operator*(const Vec2 &vec, float scalar)
 	{
-		return Vector2(vec.x * scalar, vec.y * scalar);
+		return Vec2(vec.x * scalar, vec.y * scalar);
 	}
 
 	// Scalar multiplication
-	[[nodiscard]] friend Vector2 operator*(float scalar, const Vector2 &vec)
+	[[nodiscard]] friend Vec2 operator*(float scalar, const Vec2 &vec)
 	{
-		return Vector2(vec.x * scalar, vec.y * scalar);
+		return Vec2(vec.x * scalar, vec.y * scalar);
 	}
 
 	// Scalar *=
-	Vector2 &operator*=(float scalar)
+	Vec2 &operator*=(float scalar)
 	{
 		x *= scalar;
 		y *= scalar;
@@ -178,7 +178,7 @@ public:
 	}
 
 	// Vector +=
-	Vector2 &operator+=(const Vector2 &right)
+	Vec2 &operator+=(const Vec2 &right)
 	{
 		x += right.x;
 		y += right.y;
@@ -186,7 +186,7 @@ public:
 	}
 
 	// Vector -=
-	Vector2 &operator-=(const Vector2 &right)
+	Vec2 &operator-=(const Vec2 &right)
 	{
 		x -= right.x;
 		y -= right.y;
@@ -214,45 +214,45 @@ public:
 	}
 
 	// Normalize the provided vector
-	[[nodiscard]] static Vector2 Normalize(const Vector2 &vec)
+	[[nodiscard]] static Vec2 Normalize(const Vec2 &vec)
 	{
-		Vector2 temp = vec;
+		Vec2 temp = vec;
 		temp.Normalize();
 		return temp;
 	}
 
 	// Dot product between two vectors (a dot b)
-	[[nodiscard]] static float Dot(const Vector2 &a, const Vector2 &b)
+	[[nodiscard]] static float Dot(const Vec2 &a, const Vec2 &b)
 	{
 		return (a.x * b.x + a.y * b.y);
 	}
 
 	// Lerp from A to B by f
-	[[nodiscard]] static Vector2 Lerp(const Vector2 &a, const Vector2 &b, float f)
+	[[nodiscard]] static Vec2 Lerp(const Vec2 &a, const Vec2 &b, float f)
 	{
-		return Vector2(a + f * (b - a));
+		return Vec2(a + f * (b - a));
 	}
 
 	// Reflect V about (normalized) N
-	[[nodiscard]] static Vector2 Reflect(const Vector2 &v, const Vector2 &n)
+	[[nodiscard]] static Vec2 Reflect(const Vec2 &v, const Vec2 &n)
 	{
-		return v - 2.0f * Vector2::Dot(v, n) * n;
+		return v - 2.0f * Vec2::Dot(v, n) * n;
 	}
 
 	// Transform vector by matrix
-	[[nodiscard]] static Vector2 Transform(const Vector2 &vec, const class Matrix3 &mat, float w = 1.0f);
+	[[nodiscard]] static Vec2 Transform(const Vec2 &vec, const class Matrix3 &mat, float w = 1.0f);
 
 	// Get distance between two points
-	[[nodiscard]] static float Distance(const Vector2 &a, const Vector2 &b)
+	[[nodiscard]] static float Distance(const Vec2 &a, const Vec2 &b)
 	{
 		return (a - b).Length();
 	}
 
-	static const Vector2 Zero;
-	static const Vector2 UnitX;
-	static const Vector2 UnitY;
-	static const Vector2 NegUnitX;
-	static const Vector2 NegUnitY;
+	static const Vec2 Zero;
+	static const Vec2 UnitX;
+	static const Vec2 UnitY;
+	static const Vec2 NegUnitX;
+	static const Vec2 NegUnitY;
 };
 
 // 3D Vector
@@ -536,7 +536,7 @@ public:
 		return Matrix3(temp);
 	}
 
-	[[nodiscard]] static Matrix3 CreateScale(const Vector2 &scaleVector)
+	[[nodiscard]] static Matrix3 CreateScale(const Vec2 &scaleVector)
 	{
 		return CreateScale(scaleVector.x, scaleVector.y);
 	}
@@ -561,7 +561,7 @@ public:
 	}
 
 	// Create a translation matrix (on the xy-plane)
-	[[nodiscard]] static Matrix3 CreateTranslation(const Vector2 &trans)
+	[[nodiscard]] static Matrix3 CreateTranslation(const Vec2 &trans)
 	{
 		float temp[3][3] =
 			{

@@ -13,20 +13,20 @@ namespace junebug
     {
     public:
         Camera();
-        Camera(Vector2 pos, Vector2 size);
-        Camera(Vector2 pos, Vector2 size, Vector2 screenPos, Vector2 screenSize);
+        Camera(Vec2 pos, Vec2 size);
+        Camera(Vec2 pos, Vec2 size, Vec2 screenPos, Vec2 screenSize);
         ~Camera();
 
-        Vector2 pos;
-        Vector2 size;
+        Vec2 pos;
+        Vec2 size;
 
-        Vector2 screenPos;
-        Vector2 screenSize;
+        Vec2 screenPos;
+        Vec2 screenSize;
 
     private:
-        void Render(SDL_Renderer *renderer);
+        SDL_Texture *Render(SDL_Renderer *renderer);
 
-        SDL_Texture* renderTex = nullptr;
+        SDL_Texture *renderTex = nullptr;
 
         friend class JGame;
     };
