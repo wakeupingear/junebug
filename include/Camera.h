@@ -13,15 +13,17 @@ namespace junebug
     {
     public:
         Camera();
-        Camera(Vec2 pos, Vec2 size);
-        Camera(Vec2 pos, Vec2 size, Vec2 screenPos, Vec2 screenSize);
+        Camera(Vec2<float> pos, Vec2<int> size);
+        Camera(Vec2<int> pos, Vec2<int> size);
+        Camera(Vec2<float> pos, Vec2<int> size, Vec2<float> screenPos, Vec2<int> screenSize);
+        Camera(Vec2<int> pos, Vec2<int> size, Vec2<int> screenPos, Vec2<int> screenSize);
         ~Camera();
 
-        Vec2 pos;
-        Vec2 size;
+        Vec2<float> pos;
+        Vec2<int> size;
 
-        Vec2 screenPos;
-        Vec2 screenSize;
+        Vec2<float> screenPos;
+        Vec2<int> screenSize;
 
     private:
         SDL_Texture *Render(SDL_Renderer *renderer);

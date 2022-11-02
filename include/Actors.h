@@ -74,16 +74,18 @@ namespace junebug
     {
     public:
         // Position constructor
-        VisualActor(Vec2 pos);
+        VisualActor(Vec2<float> pos);
+        VisualActor(Vec2<int> pos);
         // Position and image constructor
-        VisualActor(Vec2 pos, std::string imagePath, int drawOrder = 100);
+        VisualActor(Vec2<float> pos, std::string imagePath, int drawOrder = 100);
+        VisualActor(Vec2<int> pos, std::string imagePath, int drawOrder = 100);
 
         // Set the position of the actor
         /// @param pos The new position of the actor
-        void SetPosition(const Vec2 &pos);
+        void SetPosition(const Vec2<float> &pos);
         // Set the position of the actor
         /// @returns const Vec2
-        Vec2 GetPosition() const;
+        Vec2<float> GetPosition() const;
 
         // Set the rotation of the actor
         /// @param rot The new rotation of the actor
@@ -94,10 +96,10 @@ namespace junebug
 
         // Set the scale of the actor
         /// @param scale The new scale of the actor
-        void SetScale(const Vec2 &scale);
+        void SetScale(const Vec2<float> &scale);
         // Get the scale of the actor
         /// @returns const Vec2
-        Vec2 GetScale() const;
+        Vec2<float> GetScale() const;
 
         // Set the color of the actor
         /// @param color The new color of the actor
@@ -117,9 +119,9 @@ namespace junebug
 
         Sprite *mSprite = nullptr;
 
-        Vec2 mPosition{0, 0};
+        Vec2<float> mPosition{0, 0};
         float mRotation{0};
-        Vec2 mScale{1, 1};
+        Vec2<float> mScale{1, 1};
         Color mColor{1, 1, 1};
     };
 

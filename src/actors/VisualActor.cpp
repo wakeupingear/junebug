@@ -9,12 +9,15 @@ namespace fs = std::filesystem;
 
 using namespace junebug;
 
-VisualActor::VisualActor(Vec2 pos) : PureActor()
+VisualActor::VisualActor(Vec2<float> pos) : PureActor()
 {
     SetPosition(pos);
 }
+VisualActor::VisualActor(Vec2<int> pos) : VisualActor(Vec2<float>((float)pos.x, (float)pos.y))
+{
+}
 
-VisualActor::VisualActor(Vec2 pos, std::string imagePath, int drawOrder) : VisualActor(pos)
+VisualActor::VisualActor(Vec2<float> pos, std::string imagePath, int drawOrder) : VisualActor(pos)
 {
     Sprite *spr = new Sprite(this, drawOrder);
 
@@ -34,13 +37,16 @@ VisualActor::VisualActor(Vec2 pos, std::string imagePath, int drawOrder) : Visua
     if (ec)
         std::cerr << "Error in is_regular_file: " << ec.message() << std::endl;
 }
+VisualActor::VisualActor(Vec2<int> pos, std::string imagePath, int drawOrder) : VisualActor(Vec2<float>((float)pos.x, (float)pos.y), imagePath, drawOrder)
+{
+}
 
-void VisualActor::SetPosition(const Vec2 &pos)
+void VisualActor::SetPosition(const Vec2<float> &pos)
 {
     mPosition = pos;
 }
 
-Vec2 VisualActor::GetPosition() const
+Vec2<float> VisualActor::GetPosition() const
 {
     return mPosition;
 }
@@ -55,12 +61,12 @@ float VisualActor::GetRotation() const
     return mRotation;
 }
 
-void VisualActor::SetScale(const Vec2 &scale)
+void VisualActor::SetScale(const Vec2<float> &scale)
 {
     mScale = scale;
 }
 
-Vec2 VisualActor::GetScale() const
+Vec2<float> VisualActor::GetScale() const
 {
     return mScale;
 }

@@ -20,7 +20,7 @@ void Sprite::Draw(Camera *cam, SDL_Renderer *renderer)
 {
     if (mTexture && IsVisible())
     {
-        Vec2 camPos = cam->pos;
+        Vec2<float> camPos = cam->pos;
 
         SDL_Rect r;
         r.w = static_cast<int>(mTexWidth * mOwner->GetScale().x);

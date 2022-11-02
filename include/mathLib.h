@@ -108,24 +108,25 @@ namespace Math
 }
 
 // 2D Vector
+template <typename T = float>
 class Vec2
 {
 public:
-	float x;
-	float y;
+	T x;
+	T y;
 
 	Vec2()
 		: x(0.0f), y(0.0f)
 	{
 	}
 
-	explicit Vec2(float inX, float inY)
+	explicit Vec2(T inX, T inY)
 		: x(inX), y(inY)
 	{
 	}
 
 	// Set both components in one line
-	void Set(float inX, float inY)
+	void Set(T inX, T inY)
 	{
 		x = inX;
 		y = inY;
@@ -248,39 +249,40 @@ public:
 		return (a - b).Length();
 	}
 
-	static const Vec2 Zero;
-	static const Vec2 UnitX;
-	static const Vec2 UnitY;
-	static const Vec2 NegUnitX;
-	static const Vec2 NegUnitY;
+	static const Vec2<T> Zero;
+	static const Vec2<T> UnitX;
+	static const Vec2<T> UnitY;
+	static const Vec2<T> NegUnitX;
+	static const Vec2<T> NegUnitY;
 };
 
 // 3D Vector
-class Vector3
+template <typename T = float>
+class Vec3
 {
 public:
-	float x;
-	float y;
-	float z;
+	T x;
+	T y;
+	T z;
 
-	Vector3()
+	Vec3()
 		: x(0.0f), y(0.0f), z(0.0f)
 	{
 	}
 
-	explicit Vector3(float inX, float inY, float inZ)
+	explicit Vec3(T inX, T inY, T inZ)
 		: x(inX), y(inY), z(inZ)
 	{
 	}
 
 	// Cast to a const float pointer
-	const float *GetAsFloatPtr() const
+	const T *GetAsFloatPtr() const
 	{
-		return reinterpret_cast<const float *>(&x);
+		return reinterpret_cast<const T *>(&x);
 	}
 
 	// Set all three components in one line
-	void Set(float inX, float inY, float inZ)
+	void Set(T inX, T inY, T inZ)
 	{
 		x = inX;
 		y = inY;
@@ -288,44 +290,44 @@ public:
 	}
 
 	// Printable
-	[[nodiscard]] friend std::ostream &operator<<(std::ostream &os, const Vector3 &v)
+	[[nodiscard]] friend std::ostream &operator<<(std::ostream &os, const Vec3 &v)
 	{
 		os << "(" << v.x << ", " << v.y << ", " << v.z << ")";
 		return os;
 	}
 
 	// Vector addition (a + b)
-	[[nodiscard]] friend Vector3 operator+(const Vector3 &a, const Vector3 &b)
+	[[nodiscard]] friend Vec3 operator+(const Vec3 &a, const Vec3 &b)
 	{
-		return Vector3(a.x + b.x, a.y + b.y, a.z + b.z);
+		return Vec3(a.x + b.x, a.y + b.y, a.z + b.z);
 	}
 
 	// Vector subtraction (a - b)
-	[[nodiscard]] friend Vector3 operator-(const Vector3 &a, const Vector3 &b)
+	[[nodiscard]] friend Vec3 operator-(const Vec3 &a, const Vec3 &b)
 	{
-		return Vector3(a.x - b.x, a.y - b.y, a.z - b.z);
+		return Vec3(a.x - b.x, a.y - b.y, a.z - b.z);
 	}
 
 	// Component-wise multiplication
-	[[nodiscard]] friend Vector3 operator*(const Vector3 &left, const Vector3 &right)
+	[[nodiscard]] friend Vec3 operator*(const Vec3 &left, const Vec3 &right)
 	{
-		return Vector3(left.x * right.x, left.y * right.y, left.z * right.z);
+		return Vec3(left.x * right.x, left.y * right.y, left.z * right.z);
 	}
 
 	// Scalar multiplication
-	[[nodiscard]] friend Vector3 operator*(const Vector3 &vec, float scalar)
+	[[nodiscard]] friend Vec3 operator*(const Vec3 &vec, float scalar)
 	{
-		return Vector3(vec.x * scalar, vec.y * scalar, vec.z * scalar);
+		return Vec3(vec.x * scalar, vec.y * scalar, vec.z * scalar);
 	}
 
 	// Scalar multiplication
-	[[nodiscard]] friend Vector3 operator*(float scalar, const Vector3 &vec)
+	[[nodiscard]] friend Vec3 operator*(T scalar, const Vec3 &vec)
 	{
-		return Vector3(vec.x * scalar, vec.y * scalar, vec.z * scalar);
+		return Vec3(vec.x * scalar, vec.y * scalar, vec.z * scalar);
 	}
 
 	// Scalar *=
-	Vector3 &operator*=(float scalar)
+	Vec3 &operator*=(T scalar)
 	{
 		x *= scalar;
 		y *= scalar;
@@ -334,7 +336,7 @@ public:
 	}
 
 	// Vector +=
-	Vector3 &operator+=(const Vector3 &right)
+	Vec3 &operator+=(const Vec3 &right)
 	{
 		x += right.x;
 		y += right.y;
@@ -343,7 +345,7 @@ public:
 	}
 
 	// Vector -=
-	Vector3 &operator-=(const Vector3 &right)
+	Vec3 &operator-=(const Vec3 &right)
 	{
 		x -= right.x;
 		y -= right.y;
@@ -352,7 +354,7 @@ public:
 	}
 
 	// Length squared of vector
-	[[nodiscard]] float LengthSq() const
+	[[nodiscard]] T LengthSq() const
 	{
 		return (x * x + y * y + z * z);
 	}
@@ -373,23 +375,23 @@ public:
 	}
 
 	// Normalize the provided vector
-	[[nodiscard]] static Vector3 Normalize(const Vector3 &vec)
+	[[nodiscard]] static Vec3 Normalize(const Vec3 &vec)
 	{
-		Vector3 temp = vec;
+		Vec3 temp = vec;
 		temp.Normalize();
 		return temp;
 	}
 
 	// Dot product between two vectors (a dot b)
-	[[nodiscard]] static float Dot(const Vector3 &a, const Vector3 &b)
+	[[nodiscard]] static float Dot(const Vec3 &a, const Vec3 &b)
 	{
 		return (a.x * b.x + a.y * b.y + a.z * b.z);
 	}
 
 	// Cross product between two vectors (a cross b)
-	[[nodiscard]] static Vector3 Cross(const Vector3 &a, const Vector3 &b)
+	[[nodiscard]] static Vec3 Cross(const Vec3 &a, const Vec3 &b)
 	{
-		Vector3 temp;
+		Vec3 temp;
 		temp.x = a.y * b.z - a.z * b.y;
 		temp.y = a.z * b.x - a.x * b.z;
 		temp.z = a.x * b.y - a.y * b.x;
@@ -397,39 +399,39 @@ public:
 	}
 
 	// Lerp from A to B by f
-	[[nodiscard]] static Vector3 Lerp(const Vector3 &a, const Vector3 &b, float f)
+	[[nodiscard]] static Vec3 Lerp(const Vec3 &a, const Vec3 &b, float f)
 	{
-		return Vector3(a + f * (b - a));
+		return Vec3(a + f * (b - a));
 	}
 
 	// Reflect V about (normalized) N
-	[[nodiscard]] static Vector3 Reflect(const Vector3 &v, const Vector3 &n)
+	[[nodiscard]] static Vec3 Reflect(const Vec3 &v, const Vec3 &n)
 	{
-		return v - 2.0f * Vector3::Dot(v, n) * n;
+		return v - 2.0f * Vec3::Dot(v, n) * n;
 	}
 
-	[[nodiscard]] static Vector3 Transform(const Vector3 &vec, const class Matrix4 &mat, float w = 1.0f);
+	[[nodiscard]] static Vec3 Transform(const Vec3 &vec, const class Matrix4 &mat, float w = 1.0f);
 	// This will transform the vector and renormalize the w component
-	[[nodiscard]] static Vector3 TransformWithPerspDiv(const Vector3 &vec, const class Matrix4 &mat, float w = 1.0f);
+	[[nodiscard]] static Vec3 TransformWithPerspDiv(const Vec3 &vec, const class Matrix4 &mat, float w = 1.0f);
 
-	// Transform a Vector3 by a quaternion
-	[[nodiscard]] static Vector3 Transform(const Vector3 &v, const class Quaternion &q);
+	// Transform a Vec3 by a quaternion
+	[[nodiscard]] static Vec3 Transform(const Vec3 &v, const class Quaternion &q);
 
 	// Get distance between two points
-	[[nodiscard]] static float Distance(const Vector3 &a, const Vector3 &b)
+	[[nodiscard]] static float Distance(const Vec3 &a, const Vec3 &b)
 	{
 		return (a - b).Length();
 	}
 
-	static const Vector3 Zero;
-	static const Vector3 UnitX;
-	static const Vector3 UnitY;
-	static const Vector3 UnitZ;
-	static const Vector3 NegUnitX;
-	static const Vector3 NegUnitY;
-	static const Vector3 NegUnitZ;
-	static const Vector3 Infinity;
-	static const Vector3 NegInfinity;
+	static const Vec3<T> Zero;
+	static const Vec3<T> UnitX;
+	static const Vec3<T> UnitY;
+	static const Vec3<T> UnitZ;
+	static const Vec3<T> NegUnitX;
+	static const Vec3<T> NegUnitY;
+	static const Vec3<T> NegUnitZ;
+	static const Vec3<T> Infinity;
+	static const Vec3<T> NegInfinity;
 };
 
 // 3x3 Matrix
@@ -536,7 +538,7 @@ public:
 		return Matrix3(temp);
 	}
 
-	[[nodiscard]] static Matrix3 CreateScale(const Vec2 &scaleVector)
+	[[nodiscard]] static Matrix3 CreateScale(const Vec2<float> &scaleVector)
 	{
 		return CreateScale(scaleVector.x, scaleVector.y);
 	}
@@ -561,7 +563,7 @@ public:
 	}
 
 	// Create a translation matrix (on the xy-plane)
-	[[nodiscard]] static Matrix3 CreateTranslation(const Vec2 &trans)
+	[[nodiscard]] static Matrix3 CreateTranslation(const Vec2<float> &trans)
 	{
 		float temp[3][3] =
 			{
@@ -724,36 +726,36 @@ public:
 	void Invert();
 
 	// Get the translation component of the matrix
-	[[nodiscard]] Vector3 GetTranslation() const
+	[[nodiscard]] Vec3<float> GetTranslation() const
 	{
-		return Vector3(mat[3][0], mat[3][1], mat[3][2]);
+		return Vec3(mat[3][0], mat[3][1], mat[3][2]);
 	}
 
 	// Get the X axis of the matrix (forward)
-	[[nodiscard]] Vector3 GetXAxis() const
+	[[nodiscard]] Vec3<float> GetXAxis() const
 	{
-		return Vector3::Normalize(Vector3(mat[0][0], mat[0][1], mat[0][2]));
+		return Vec3<float>::Normalize(Vec3(mat[0][0], mat[0][1], mat[0][2]));
 	}
 
 	// Get the Y axis of the matrix (left)
-	[[nodiscard]] Vector3 GetYAxis() const
+	[[nodiscard]] Vec3<float> GetYAxis() const
 	{
-		return Vector3::Normalize(Vector3(mat[1][0], mat[1][1], mat[1][2]));
+		return Vec3<float>::Normalize(Vec3(mat[1][0], mat[1][1], mat[1][2]));
 	}
 
 	// Get the Z axis of the matrix (up)
-	[[nodiscard]] Vector3 GetZAxis() const
+	[[nodiscard]] Vec3<float> GetZAxis() const
 	{
-		return Vector3::Normalize(Vector3(mat[2][0], mat[2][1], mat[2][2]));
+		return Vec3<float>::Normalize(Vec3(mat[2][0], mat[2][1], mat[2][2]));
 	}
 
 	// Extract the scale component from the matrix
-	[[nodiscard]] Vector3 GetScale() const
+	[[nodiscard]] Vec3<float> GetScale() const
 	{
-		Vector3 retVal;
-		retVal.x = Vector3(mat[0][0], mat[0][1], mat[0][2]).Length();
-		retVal.y = Vector3(mat[1][0], mat[1][1], mat[1][2]).Length();
-		retVal.z = Vector3(mat[2][0], mat[2][1], mat[2][2]).Length();
+		Vec3 retVal;
+		retVal.x = Vec3(mat[0][0], mat[0][1], mat[0][2]).Length();
+		retVal.y = Vec3(mat[1][0], mat[1][1], mat[1][2]).Length();
+		retVal.z = Vec3(mat[2][0], mat[2][1], mat[2][2]).Length();
 		return retVal;
 	}
 
@@ -769,7 +771,7 @@ public:
 		return Matrix4(temp);
 	}
 
-	[[nodiscard]] static Matrix4 CreateScale(const Vector3 &scaleVector)
+	[[nodiscard]] static Matrix4 CreateScale(const Vec3<float> &scaleVector)
 	{
 		return CreateScale(scaleVector.x, scaleVector.y, scaleVector.z);
 	}
@@ -822,7 +824,7 @@ public:
 	// Create a rotation matrix from a quaternion
 	[[nodiscard]] static Matrix4 CreateFromQuaternion(const class Quaternion &q);
 
-	[[nodiscard]] static Matrix4 CreateTranslation(const Vector3 &trans)
+	[[nodiscard]] static Matrix4 CreateTranslation(const Vec3<float> &trans)
 	{
 		float temp[4][4] =
 			{
@@ -833,15 +835,15 @@ public:
 		return Matrix4(temp);
 	}
 
-	[[nodiscard]] static Matrix4 CreateLookAt(const Vector3 &eye, const Vector3 &target, const Vector3 &up)
+	[[nodiscard]] static Matrix4 CreateLookAt(const Vec3<float> &eye, const Vec3<float> &target, const Vec3<float> &up)
 	{
-		Vector3 zaxis = Vector3::Normalize(target - eye);
-		Vector3 xaxis = Vector3::Normalize(Vector3::Cross(up, zaxis));
-		Vector3 yaxis = Vector3::Normalize(Vector3::Cross(zaxis, xaxis));
-		Vector3 trans;
-		trans.x = -Vector3::Dot(xaxis, eye);
-		trans.y = -Vector3::Dot(yaxis, eye);
-		trans.z = -Vector3::Dot(zaxis, eye);
+		Vec3<float> zaxis = Vec3<float>::Normalize(target - eye);
+		Vec3<float> xaxis = Vec3<float>::Normalize(Vec3<float>::Cross(up, zaxis));
+		Vec3<float> yaxis = Vec3<float>::Normalize(Vec3<float>::Cross(zaxis, xaxis));
+		Vec3<float> trans;
+		trans.x = -Vec3<float>::Dot(xaxis, eye);
+		trans.y = -Vec3<float>::Dot(yaxis, eye);
+		trans.z = -Vec3<float>::Dot(zaxis, eye);
 
 		float temp[4][4] =
 			{
@@ -915,7 +917,7 @@ public:
 	// Construct the quaternion from an axis and angle
 	// It is assumed that axis is already normalized,
 	// and the angle is in radians
-	explicit Quaternion(const Vector3 &axis, float angle)
+	explicit Quaternion(const Vec3<float> &axis, float angle)
 	{
 		float scalar = Math::Sin(angle / 2.0f);
 		x = axis.x * scalar;
@@ -1012,16 +1014,16 @@ public:
 
 		// Vector component is:
 		// ps * qv + qs * pv + pv x qv
-		Vector3 qv(q.x, q.y, q.z);
-		Vector3 pv(p.x, p.y, p.z);
-		Vector3 newVec = p.w * qv + q.w * pv + Vector3::Cross(pv, qv);
+		Vec3<float> qv(q.x, q.y, q.z);
+		Vec3<float> pv(p.x, p.y, p.z);
+		Vec3<float> newVec = p.w * qv + q.w * pv + Vec3<float>::Cross(pv, qv);
 		retVal.x = newVec.x;
 		retVal.y = newVec.y;
 		retVal.z = newVec.z;
 
 		// Scalar component is:
 		// ps * qs - pv . qv
-		retVal.w = p.w * q.w - Vector3::Dot(pv, qv);
+		retVal.w = p.w * q.w - Vec3<float>::Dot(pv, qv);
 
 		return retVal;
 	}

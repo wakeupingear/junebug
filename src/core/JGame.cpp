@@ -74,7 +74,8 @@ void JGame::ProcessOptions(GameOptions newOptions)
         int displayIndex = SDL_GetWindowDisplayIndex(mWindow);
         SDL_DisplayMode displayMode;
         SDL_GetCurrentDisplayMode(displayIndex, &displayMode);
-        if (displayMode.refresh_rate>0) {
+        if (displayMode.refresh_rate > 0)
+        {
             options.fpsTarget = 1000 / displayMode.refresh_rate;
             print("Targeting display refresh rate of " + std::to_string(displayMode.refresh_rate) + " fps");
         }
@@ -176,7 +177,7 @@ void JGame::GenerateOutput()
     OnRenderStart();
 
     // Render cameras
-    mRenderTarget = GetRenderTexture(Vec2((float)mScreenWidth, (float)mScreenHeight), mRenderer, mRenderTarget);
+    mRenderTarget = GetRenderTexture(Vec2<int>(mScreenWidth, mScreenHeight), mRenderer, mRenderTarget);
 
     for (Camera *camera : mCameras)
     {
@@ -204,7 +205,7 @@ void JGame::GenerateOutput()
     SDL_RenderPresent(mRenderer);
 }
 
-Vec2 JGame::GetMousePos()
+Vec2<int> JGame::GetMousePos()
 {
     return mMousePos;
 }

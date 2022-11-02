@@ -89,7 +89,7 @@ namespace junebug
             std::vector<std::pair<std::string, std::vector<Uint8>>> inputMappings);
         // Get the current mouse position
         /// @returns Vec2 with the mouse position in screen coordinates
-        Vec2 GetMousePos();
+        Vec2<int> GetMousePos();
 
 #define JB_INPUT_QUIT "__quit__"
 #define JB_INPUT_FULLSCREEN "__fullscreen__"
@@ -187,7 +187,7 @@ namespace junebug
         // Flush all poll events
         // Useful for events like window resizing
         void FlushPollEvents();
-        Vec2 mMousePos = Vec2::Zero;
+        Vec2<int> mMousePos = Vec2<int>::Zero;
 
         // Actor list
         std::vector<class PureActor *> mActors;

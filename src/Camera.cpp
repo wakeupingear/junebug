@@ -5,17 +5,23 @@
 
 using namespace junebug;
 
-Camera::Camera() : Camera(Vec2::Zero, Vec2((float)JGame::Get()->GetScreenWidth(), (float)JGame::Get()->GetScreenHeight()))
+Camera::Camera() : Camera(Vec2<>::Zero, Vec2<int>(JGame::Get()->GetScreenWidth(), JGame::Get()->GetScreenHeight()))
 {
 }
 
-Camera::Camera(Vec2 pos, Vec2 size) : Camera(pos, size, Vec2::Zero, size)
+Camera::Camera(Vec2<float> pos, Vec2<int> size) : Camera(pos, size, Vec2<>::Zero, size)
+{
+}
+Camera::Camera(Vec2<int> pos, Vec2<int> size) : Camera(Vec2<float>((float)pos.x, (float)pos.y), size)
 {
 }
 
-Camera::Camera(Vec2 pos, Vec2 size, Vec2 screenPos, Vec2 screenSize) : pos(pos), size(size), screenPos(screenPos), screenSize(screenSize)
+Camera::Camera(Vec2<float> pos, Vec2<int> size, Vec2<float> screenPos, Vec2<int> screenSize) : pos(pos), size(size), screenPos(screenPos), screenSize(screenSize)
 {
     JGame::Get()->AddCamera(this);
+}
+Camera::Camera(Vec2<int> pos, Vec2<int> size, Vec2<int> screenPos, Vec2<int> screenSize) : Camera(Vec2<float>((float)pos.x, (float)pos.y), size, Vec2<float>((float)screenPos.x, (float)screenPos.y), screenSize)
+{
 }
 
 Camera::~Camera()

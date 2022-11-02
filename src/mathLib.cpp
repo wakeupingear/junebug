@@ -1,20 +1,22 @@
 #include "MathLib.h"
 
-const Vec2 Vec2::Zero(0.0f, 0.0f);
-const Vec2 Vec2::UnitX(1.0f, 0.0f);
-const Vec2 Vec2::UnitY(0.0f, 1.0f);
-const Vec2 Vec2::NegUnitX(-1.0f, 0.0f);
-const Vec2 Vec2::NegUnitY(0.0f, -1.0f);
+const Vec2<float> Vec2<float>::Zero(0.0f, 0.0f);
+const Vec2<int> Vec2<int>::Zero(0, 0);
+const Vec2<float> Vec2<float>::UnitX(1.0f, 0.0f);
+const Vec2<float> Vec2<float>::UnitY(0.0f, 1.0f);
+const Vec2<float> Vec2<float>::NegUnitX(-1.0f, 0.0f);
+const Vec2<float> Vec2<float>::NegUnitY(0.0f, -1.0f);
 
-const Vector3 Vector3::Zero(0.0f, 0.0f, 0.f);
-const Vector3 Vector3::UnitX(1.0f, 0.0f, 0.0f);
-const Vector3 Vector3::UnitY(0.0f, 1.0f, 0.0f);
-const Vector3 Vector3::UnitZ(0.0f, 0.0f, 1.0f);
-const Vector3 Vector3::NegUnitX(-1.0f, 0.0f, 0.0f);
-const Vector3 Vector3::NegUnitY(0.0f, -1.0f, 0.0f);
-const Vector3 Vector3::NegUnitZ(0.0f, 0.0f, -1.0f);
-const Vector3 Vector3::Infinity(Math::Infinity, Math::Infinity, Math::Infinity);
-const Vector3 Vector3::NegInfinity(Math::NegInfinity, Math::NegInfinity, Math::NegInfinity);
+const Vec3<float> Vec3<float>::Zero(0.0f, 0.0f, 0.f);
+const Vec3<int> Vec3<int>::Zero(0, 0, 0);
+const Vec3<float> Vec3<float>::UnitX(1.0f, 0.0f, 0.0f);
+const Vec3<float> Vec3<float>::UnitY(0.0f, 1.0f, 0.0f);
+const Vec3<float> Vec3<float>::UnitZ(0.0f, 0.0f, 1.0f);
+const Vec3<float> Vec3<float>::NegUnitX(-1.0f, 0.0f, 0.0f);
+const Vec3<float> Vec3<float>::NegUnitY(0.0f, -1.0f, 0.0f);
+const Vec3<float> Vec3<float>::NegUnitZ(0.0f, 0.0f, -1.0f);
+const Vec3<float> Vec3<float>::Infinity(Math::Infinity, Math::Infinity, Math::Infinity);
+const Vec3<float> Vec3<float>::NegInfinity(Math::NegInfinity, Math::NegInfinity, Math::NegInfinity);
 
 static float m3Ident[3][3] =
 	{
@@ -34,18 +36,20 @@ const Matrix4 Matrix4::Identity(m4Ident);
 
 const Quaternion Quaternion::Identity(0.0f, 0.0f, 0.0f, 1.0f);
 
-Vec2 Vec2::Transform(const Vec2 &vec, const Matrix3 &mat, float w /*= 1.0f*/)
+template <typename T>
+Vec2<T> Vec2<T>::Transform(const Vec2<T> &vec, const Matrix3 &mat, float w /*= 1.0f*/)
 {
-	Vec2 retVal;
+	Vec2<T> retVal;
 	retVal.x = vec.x * mat.mat[0][0] + vec.y * mat.mat[1][0] + w * mat.mat[2][0];
 	retVal.y = vec.x * mat.mat[0][1] + vec.y * mat.mat[1][1] + w * mat.mat[2][1];
 	// ignore w since we aren't returning a new value for it...
 	return retVal;
 }
 
-Vector3 Vector3::Transform(const Vector3 &vec, const Matrix4 &mat, float w /*= 1.0f*/)
+template <typename T>
+Vec3<T> Vec3<T>::Transform(const Vec3<T> &vec, const Matrix4 &mat, float w /*= 1.0f*/)
 {
-	Vector3 retVal;
+	Vec3<T> retVal;
 	retVal.x = vec.x * mat.mat[0][0] + vec.y * mat.mat[1][0] +
 			   vec.z * mat.mat[2][0] + w * mat.mat[3][0];
 	retVal.y = vec.x * mat.mat[0][1] + vec.y * mat.mat[1][1] +
@@ -57,9 +61,10 @@ Vector3 Vector3::Transform(const Vector3 &vec, const Matrix4 &mat, float w /*= 1
 }
 
 // This will transform the vector and renormalize the w component
-Vector3 Vector3::TransformWithPerspDiv(const Vector3 &vec, const Matrix4 &mat, float w /*= 1.0f*/)
+template <typename T>
+Vec3<T> Vec3<T>::TransformWithPerspDiv(const Vec3<T> &vec, const Matrix4 &mat, float w /*= 1.0f*/)
 {
-	Vector3 retVal;
+	Vec3<T> retVal;
 	retVal.x = vec.x * mat.mat[0][0] + vec.y * mat.mat[1][0] +
 			   vec.z * mat.mat[2][0] + w * mat.mat[3][0];
 	retVal.y = vec.x * mat.mat[0][1] + vec.y * mat.mat[1][1] +
@@ -76,13 +81,14 @@ Vector3 Vector3::TransformWithPerspDiv(const Vector3 &vec, const Matrix4 &mat, f
 	return retVal;
 }
 
-// Transform a Vector3 by a quaternion
-Vector3 Vector3::Transform(const Vector3 &v, const Quaternion &q)
+// Transform a Vec3 by a quaternion
+template <typename T>
+Vec3<T> Vec3<T>::Transform(const Vec3<T> &v, const Quaternion &q)
 {
 	// v + 2.0*cross(q.xyz, cross(q.xyz,v) + q.w*v);
-	Vector3 qv(q.x, q.y, q.z);
-	Vector3 retVal = v;
-	retVal += 2.0f * Vector3::Cross(qv, Vector3::Cross(qv, v) + q.w * v);
+	Vec3<T> qv(q.x, q.y, q.z);
+	Vec3 retVal = v;
+	retVal += 2.0f * Vec3::Cross(qv, Vec3::Cross(qv, v) + q.w * v);
 	return retVal;
 }
 

@@ -16,6 +16,9 @@ void JGame::ProcessInput()
             if (options.autoCloseOnQuit)
                 mGameIsRunning = false;
             break;
+        case SDL_MOUSEMOTION:
+            mMousePos = Vec2(event.motion.x, event.motion.y);
+            break;
         case SDL_WINDOWEVENT:
             if (event.window.event == SDL_WINDOWEVENT_CLOSE && event.window.windowID == SDL_GetWindowID(mWindow))
                 mGameIsRunning = false;
@@ -23,7 +26,7 @@ void JGame::ProcessInput()
             {
                 mScreenWidth = event.window.data1;
                 mScreenHeight = event.window.data2;
-                //SDL_SetWindowSize(mWindow, mScreenWidth, mScreenHeight);
+                // SDL_SetWindowSize(mWindow, mScreenWidth, mScreenHeight);
                 print("Window resized to", mScreenWidth, mScreenHeight);
             }
             break;
@@ -53,8 +56,8 @@ void JGame::ProcessInput()
     // Read mouse state
     int x, y;
     SDL_GetMouseState(&x, &y);
-    mMousePos.x = (float)x;
-    mMousePos.y = (float)y;
+    mMousePos.x = x;
+    mMousePos.y = y;
 
     // Default Events
     if (Input(JB_INPUT_QUIT))
