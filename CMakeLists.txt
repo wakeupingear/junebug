@@ -56,6 +56,32 @@ if (WIN32)
     PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
     install(FILES ${CMAKE_BINARY_DIR}/${LIBNAME}.pc
     DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/pkgconfig)
+elseif (APPLE)
+    include_directories(lib/GLEW/include)
+    include_directories(lib/SDL/include)
+    link_directories(lib/GLEW/lib/mac)
+    link_directories(lib/SDL/lib/mac)
+
+	target_link_libraries(${LIBNAME} SDL2 SDL2_image SDL2_mixer SDL2_ttf)
+
+    configure_file(${LIBNAME}.pc.in ${LIBNAME}.pc @ONLY)
+    target_include_directories(${LIBNAME} PRIVATE include)
+    target_include_directories(${LIBNAME} PRIVATE src)
+    target_compile_features(${LIBNAME} PRIVATE cxx_std_17)
+
+    TARGET_LINK_LIBRARIES(
+        ${LIBNAME} 
+        ${SDL2_LIBRARIES} 
+        ${SDL2IMAGE_LIBRARIES}
+        ${SDL2MIXER_LIBRARIES}
+    )
+
+    install(TARGETS ${LIBNAME}
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+    install(FILES ${CMAKE_BINARY_DIR}/${LIBNAME}.pc
+    DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/pkgconfig)
+
 else()
     configure_file(${LIBNAME}.pc.in ${LIBNAME}.pc @ONLY)
     target_include_directories(${LIBNAME} PRIVATE include)

@@ -74,8 +74,10 @@ void JGame::ProcessOptions(GameOptions newOptions)
         int displayIndex = SDL_GetWindowDisplayIndex(mWindow);
         SDL_DisplayMode displayMode;
         SDL_GetCurrentDisplayMode(displayIndex, &displayMode);
-        options.fpsTarget = 1000 / displayMode.refresh_rate;
-        print("Targeting display refresh rate of " + std::to_string(displayMode.refresh_rate) + " fps");
+        if (displayMode.refresh_rate>0) {
+            options.fpsTarget = 1000 / displayMode.refresh_rate;
+            print("Targeting display refresh rate of " + std::to_string(displayMode.refresh_rate) + " fps");
+        }
     }
 }
 

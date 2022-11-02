@@ -3,7 +3,7 @@
 #define NAMESPACES
 #endif
 
-#include "utils.h"
+#include "Utils.h"
 #include "MathLib.h"
 
 #include "SDL2/SDL.h"

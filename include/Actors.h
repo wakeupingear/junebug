@@ -7,6 +7,7 @@
 #include "Color.h"
 
 #include <functional>
+#include <vector>
 
 namespace junebug
 {

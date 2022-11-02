@@ -23,7 +23,7 @@ void JGame::ProcessInput()
             {
                 mScreenWidth = event.window.data1;
                 mScreenHeight = event.window.data2;
-                SDL_SetWindowSize(mWindow, mScreenWidth, mScreenHeight);
+                //SDL_SetWindowSize(mWindow, mScreenWidth, mScreenHeight);
                 print("Window resized to", mScreenWidth, mScreenHeight);
             }
             break;
