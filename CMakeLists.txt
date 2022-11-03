@@ -14,7 +14,9 @@ add_library(${LIBNAME} STATIC
 
     src/MathLib.cpp
     src/Color.cpp
-    src/Utils.cpp
+    
+    src/Utils/dev.cpp
+    src/Utils/twerp.cpp
     
     src/Camera.cpp
 
@@ -66,6 +68,7 @@ elseif (APPLE)
 
     configure_file(${LIBNAME}.pc.in ${LIBNAME}.pc @ONLY)
     target_include_directories(${LIBNAME} PRIVATE include)
+    target_include_directories(${LIBNAME} PRIVATE include/utils)
     target_include_directories(${LIBNAME} PRIVATE src)
     target_compile_features(${LIBNAME} PRIVATE cxx_std_17)
 

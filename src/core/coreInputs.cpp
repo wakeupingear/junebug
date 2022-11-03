@@ -7,6 +7,10 @@ void JGame::ProcessInput()
     SDL_Event event;
     std::unordered_map<Uint8, int> newInputs;
 
+    // Read keyboard state
+    const Uint8 *state = SDL_GetKeyboardState(NULL);
+    Uint8 extraStates[256] = {0};
+
     // Read poll events
     while (SDL_PollEvent(&event))
     {
@@ -19,6 +23,8 @@ void JGame::ProcessInput()
         case SDL_MOUSEMOTION:
             mMousePos = Vec2(event.motion.x, event.motion.y);
             break;
+        case SDL_MOUSEBUTTONDOWN:
+            extraStates[event.button.button + MOUSE_LEFT - 1] = 1;
         case SDL_WINDOWEVENT:
             if (event.window.event == SDL_WINDOWEVENT_CLOSE && event.window.windowID == SDL_GetWindowID(mWindow))
                 mGameIsRunning = false;
@@ -35,14 +41,13 @@ void JGame::ProcessInput()
         }
     }
 
-    // Read keyboard state
-    const Uint8 *state = SDL_GetKeyboardState(NULL);
+    // Loop through all inputs
     for (auto &[key, inputs] : mInputMapping)
     {
         inputs.second = 0;
         for (auto input : inputs.first)
         {
-            if (state[input])
+            if (state[input] || extraStates[input])
             {
                 auto loc = mInputs.find(input);
                 int val = loc != mInputs.end() ? loc->second + 1 : 1;

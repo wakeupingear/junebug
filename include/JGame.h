@@ -5,6 +5,7 @@
 
 #include "Utils.h"
 #include "MathLib.h"
+#include "InputNames.h"
 
 #include "SDL2/SDL.h"
 #include "SDL2/SDL_mixer.h"
@@ -180,6 +181,11 @@ namespace junebug
         virtual void LoadData();
         // Overridable function for unloading game resources on shutdown
         virtual void UnloadData();
+
+        // Overridable callback for before an update
+        virtual void OnPreUpdate();
+        // Overridable callback for after an update
+        virtual void OnPostUpdate();
 
         // Inputs
         std::unordered_map<std::string, std::pair<std::vector<Uint8>, int>> mInputMapping;

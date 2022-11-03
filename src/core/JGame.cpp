@@ -108,11 +108,18 @@ void JGame::RunLoop()
     {
         ProcessInput();
         if (mGameIsRunning)
+        {
+            OnPreUpdate();
             UpdateGame();
+            OnPostUpdate();
+        }
         if (mGameIsRunning)
             GenerateOutput();
     }
 }
+
+void JGame::OnPreUpdate() {}
+void JGame::OnPostUpdate() {}
 
 void JGame::UpdateGame()
 {
