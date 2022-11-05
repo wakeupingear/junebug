@@ -29,6 +29,7 @@ namespace junebug
 
 #define Twerp_Undefined -127.0f
 #define Twerp_Back_DefaultBounciness 1.5f
+#define Twerp_Bounce_DefaultBounciness 7.5625f
     enum TwerpType
     {
         TWERP_LINEAR,
@@ -65,13 +66,13 @@ namespace junebug
         TWERP_COUNT
     };
 
-    // Fancy lerp function with various curve types
+    // Fancy lerp function with various curve types.
     // Credit to PixelatedPope
-    /// @param type The type of curve to use
     /// @param start The start value
     /// @param end The end value
     /// @param pos The position on the curve
+    /// @param type The type of curve to use
     /// @param looped OPTIONAL Whether or not the curve is looped
     /// @return The value at the given position on the curve
-    float Twerp(TwerpType _type, float _start, float _end, float _pos, bool _looped = false, float _opt1 = Twerp_Undefined, float _opt2 = Twerp_Undefined);
+    float Twerp(float _start, float _end, float _pos, TwerpType _type = TWERP_LINEAR, bool _looped = false, float _opt1 = Twerp_Undefined, float _opt2 = Twerp_Undefined);
 }

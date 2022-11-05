@@ -16,6 +16,12 @@ namespace Math
 	const float Infinity = std::numeric_limits<float>::infinity();
 	const float NegInfinity = -std::numeric_limits<float>::infinity();
 
+	template <typename T>
+	[[nodiscard]] inline int Sign(T val)
+	{
+		return (T(0) < val) - (val < T(0));
+	}
+
 	[[nodiscard]] inline float ToRadians(float degrees)
 	{
 		return degrees * Pi / 180.0f;
@@ -74,6 +80,11 @@ namespace Math
 	[[nodiscard]] inline float Tan(float angle)
 	{
 		return tanf(angle);
+	}
+
+	[[nodiscard]] inline float Asin(float value)
+	{
+		return asinf(value);
 	}
 
 	[[nodiscard]] inline float Acos(float value)

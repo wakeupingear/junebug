@@ -12,7 +12,10 @@ using namespace junebug;
 JGame::JGame()
 {
     if (!firstGame)
+    {
+        SDL_SetMainReady();
         firstGame = this;
+    }
 }
 
 JGame::~JGame()
@@ -26,28 +29,7 @@ JGame *JGame::Get()
     return firstGame;
 }
 
-bool JGame::Initialize(int screenWidth, int screenHeight, GameOptions newOptions = {})
-{
-    mScreenWidth = screenWidth;
-    mScreenHeight = screenHeight;
-
-    ProcessOptions(newOptions);
-
-    if (SDL_Init(options.initFlags) != 0)
-        return false;
-    mWindow = SDL_CreateWindow(
-        options.title.c_str(), options.windowX, options.windowY, screenWidth, screenHeight, options.windowFlags);
-    mRenderer = SDL_CreateRenderer(
-        mWindow, -1, options.windowFlags);
-
-    Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048);
-
-    LoadData();
-
-    return true;
-}
-
-JGame::GameOptions &JGame::GetOptions()
+JGame::GameOptions &JGame::Options()
 {
     mOptionsUpdated = true;
     return options;
@@ -100,8 +82,24 @@ void JGame::Shutdown()
     SDL_Quit();
 }
 
-void JGame::RunLoop()
+bool JGame::Run(int screenWidth, int screenHeight, GameOptions extraOptions)
 {
+    mScreenWidth = screenWidth;
+    mScreenHeight = screenHeight;
+
+    ProcessOptions(extraOptions);
+
+    if (SDL_Init(options.initFlags) != 0)
+        return false;
+    mWindow = SDL_CreateWindow(
+        options.title.c_str(), options.windowX, options.windowY, screenWidth, screenHeight, options.windowFlags);
+    mRenderer = SDL_CreateRenderer(
+        mWindow, -1, options.windowFlags);
+
+    Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048);
+
+    LoadData();
+
     mGameIsRunning = true;
 
     while (mGameIsRunning)
@@ -116,6 +114,10 @@ void JGame::RunLoop()
         if (mGameIsRunning)
             GenerateOutput();
     }
+
+    Shutdown();
+
+    return true;
 }
 
 void JGame::OnPreUpdate() {}

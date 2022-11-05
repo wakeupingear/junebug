@@ -55,13 +55,9 @@ namespace junebug
             // Whether the game should automatically target the display's refresh rate
             bool detectFps{true};
         };
-        // Initialize the game
-        // MUST be called before RunLoop
-        /// @returns true if successful, false otherwise
-        bool Initialize(int screenWidth, int screenHeight, GameOptions options);
 
         // Get a reference to the game's options
-        GameOptions &GetOptions();
+        GameOptions &Options();
 
         // Get the game's screen width
         int GetScreenWidth();
@@ -72,9 +68,9 @@ namespace junebug
         // Should be called after RunLoop() has finished and before the program exits
         void Shutdown();
 
-        // Initiates the self-contained game loop
-        // Run this after initializing the game
-        void RunLoop();
+        // Run the game
+        /// @returns true if successful, false otherwise
+        bool Run(int screenWidth, int screenHeight, GameOptions extraOptions = {});
 
         // Check a given input name
         /// @param key The name of the input to check
