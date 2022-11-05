@@ -18,6 +18,16 @@ namespace junebug
         ((std::cout << args << ' '), ...) << std::endl;
     };
 
+    static std::ofstream __logStream__("log.txt", std::ofstream::out);
+
+    // Log a message
+    /// @param ...args Any number of arguments to print. Types must support << operator
+    template <typename... T>
+    inline void log(T... args)
+    {
+        ((__logStream__ << args << ' '), ...) << std::endl;
+    };
+
     // Get a render texture with the given size.
     // You MUST store the return value of this function as it may contain a new texture in the case that the old one was invalid
     /// @param size The size of the render texture

@@ -6,6 +6,7 @@ cmake_minimum_required(VERSION 3.9)
 project(${LIBNAME} VERSION 0.1.0 DESCRIPTION "A lightweight C++ game engine")
 include(GNUInstallDirs)
 
+file(GLOB_RECURSE LIB_SRC "lib/*.cpp")
 add_library(${LIBNAME} STATIC
     src/core/JGame.cpp
     src/core/coreDataLoading.cpp
@@ -25,6 +26,7 @@ add_library(${LIBNAME} STATIC
     src/Component.cpp
 
     src/Sprite.cpp
+    ${LIB_SRC}
 )
 
 set_target_properties(${LIBNAME} PROPERTIES
@@ -39,19 +41,15 @@ if (WIN32)
     link_directories(lib/GLEW/lib/win/x64)
     link_directories(lib/SDL/lib/win/x64)
 
-	target_link_libraries(${LIBNAME} SDL2 SDL2_image SDL2_mixer SDL2_ttf glew32 opengl32)
+    include_directories(lib/discord_game_sdk)
+    link_directories(lib/discord_game_sdk/lib/x86_64)
+
+	target_link_libraries(${LIBNAME} SDL2 SDL2_image SDL2_mixer SDL2_ttf glew32 opengl32 discord_game_sdk)
 
     configure_file(${LIBNAME}.pc.in ${LIBNAME}.pc @ONLY)
     target_include_directories(${LIBNAME} PRIVATE include)
     target_include_directories(${LIBNAME} PRIVATE src)
     target_compile_features(${LIBNAME} PRIVATE cxx_std_17)
-
-    TARGET_LINK_LIBRARIES(
-        ${LIBNAME} 
-        ${SDL2_LIBRARIES} 
-        ${SDL2IMAGE_LIBRARIES}
-        ${SDL2MIXER_LIBRARIES}
-    )
 
     install(TARGETS ${LIBNAME}
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
@@ -68,7 +66,6 @@ elseif (APPLE)
 
     configure_file(${LIBNAME}.pc.in ${LIBNAME}.pc @ONLY)
     target_include_directories(${LIBNAME} PRIVATE include)
-    target_include_directories(${LIBNAME} PRIVATE include/utils)
     target_include_directories(${LIBNAME} PRIVATE src)
     target_compile_features(${LIBNAME} PRIVATE cxx_std_17)
 

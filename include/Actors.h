@@ -27,7 +27,7 @@ namespace junebug
         // Default constructor
         PureActor();
         // Default destructor
-        ~PureActor();
+        virtual ~PureActor();
 
         ActorState GetState() const { return mState; }
         void SetState(ActorState state) { mState = state; }
