@@ -26,6 +26,9 @@ add_library(${LIBNAME} STATIC
     src/Component.cpp
 
     src/Sprite.cpp
+
+    src/Files.cpp
+
     ${LIB_SRC}
 )
 
@@ -38,6 +41,7 @@ set_target_properties(${LIBNAME} PROPERTIES
 if (WIN32)
     include_directories(lib/GLEW/include)
     include_directories(lib/SDL/include)
+    include_directories(lib/rapidjson/include)
     link_directories(lib/GLEW/lib/win/x64)
     link_directories(lib/SDL/lib/win/x64)
 
