@@ -13,7 +13,7 @@ namespace junebug
     // Print a message to the console
     /// @param ...args Any number of arguments to print. Types must support << operator
     template <typename... T>
-    inline void print(T... args)
+    void print(T... args)
     {
         ((std::cout << args << ' '), ...) << std::endl;
     };
@@ -23,7 +23,7 @@ namespace junebug
     // Log a message
     /// @param ...args Any number of arguments to print. Types must support << operator
     template <typename... T>
-    inline void log(T... args)
+    void log(T... args)
     {
         ((__logStream__ << args << ' '), ...) << std::endl;
     };

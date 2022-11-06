@@ -30,7 +30,7 @@ Json::~Json()
 {
 }
 
-std::string Json::Stringify()
+std::string Json::Stringify() const
 {
     StringBuffer buffer;
     Writer<StringBuffer> writer(buffer);

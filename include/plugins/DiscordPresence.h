@@ -71,7 +71,7 @@ namespace junebug
         DiscordPresence(long long clientId) : mClientId(clientId)
         {
             discord::Core *core{};
-            auto result = discord::Core::Create(clientId, DiscordCreateFlags_Default, &core);
+            auto result = discord::Core::Create(clientId, DiscordCreateFlags_NoRequireDiscord, &core);
             mState.core.reset(core);
             if (!mState.core)
             {

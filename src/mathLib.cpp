@@ -1,22 +1,22 @@
 #include "MathLib.h"
 
-const Vec2<float> Vec2<float>::Zero(0.0f, 0.0f);
-const Vec2<int> Vec2<int>::Zero(0, 0);
-const Vec2<float> Vec2<float>::UnitX(1.0f, 0.0f);
-const Vec2<float> Vec2<float>::UnitY(0.0f, 1.0f);
-const Vec2<float> Vec2<float>::NegUnitX(-1.0f, 0.0f);
-const Vec2<float> Vec2<float>::NegUnitY(0.0f, -1.0f);
+template<> const Vec2<float> Vec2<float>::Zero(0.0f, 0.0f);
+template<> const Vec2<int> Vec2<int>::Zero(0, 0);
+template<> const Vec2<float> Vec2<float>::UnitX(1.0f, 0.0f);
+template<> const Vec2<float> Vec2<float>::UnitY(0.0f, 1.0f);
+template<> const Vec2<float> Vec2<float>::NegUnitX(-1.0f, 0.0f);
+template<> const Vec2<float> Vec2<float>::NegUnitY(0.0f, -1.0f);
 
-const Vec3<float> Vec3<float>::Zero(0.0f, 0.0f, 0.f);
-const Vec3<int> Vec3<int>::Zero(0, 0, 0);
-const Vec3<float> Vec3<float>::UnitX(1.0f, 0.0f, 0.0f);
-const Vec3<float> Vec3<float>::UnitY(0.0f, 1.0f, 0.0f);
-const Vec3<float> Vec3<float>::UnitZ(0.0f, 0.0f, 1.0f);
-const Vec3<float> Vec3<float>::NegUnitX(-1.0f, 0.0f, 0.0f);
-const Vec3<float> Vec3<float>::NegUnitY(0.0f, -1.0f, 0.0f);
-const Vec3<float> Vec3<float>::NegUnitZ(0.0f, 0.0f, -1.0f);
-const Vec3<float> Vec3<float>::Infinity(Math::Infinity, Math::Infinity, Math::Infinity);
-const Vec3<float> Vec3<float>::NegInfinity(Math::NegInfinity, Math::NegInfinity, Math::NegInfinity);
+template<> const Vec3<float> Vec3<float>::Zero(0.0f, 0.0f, 0.f);
+template<> const Vec3<int> Vec3<int>::Zero(0, 0, 0);
+template<> const Vec3<float> Vec3<float>::UnitX(1.0f, 0.0f, 0.0f);
+template<> const Vec3<float> Vec3<float>::UnitY(0.0f, 1.0f, 0.0f);
+template<> const Vec3<float> Vec3<float>::UnitZ(0.0f, 0.0f, 1.0f);
+template<> const Vec3<float> Vec3<float>::NegUnitX(-1.0f, 0.0f, 0.0f);
+template<> const Vec3<float> Vec3<float>::NegUnitY(0.0f, -1.0f, 0.0f);
+template<> const Vec3<float> Vec3<float>::NegUnitZ(0.0f, 0.0f, -1.0f);
+template<> const Vec3<float> Vec3<float>::Infinity(Math::Infinity, Math::Infinity, Math::Infinity);
+template<> const Vec3<float> Vec3<float>::NegInfinity(Math::NegInfinity, Math::NegInfinity, Math::NegInfinity);
 
 static float m3Ident[3][3] =
 	{

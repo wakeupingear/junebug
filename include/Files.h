@@ -10,6 +10,7 @@
 #include "rapidjson/stringbuffer.h"
 
 #include <string>
+#include <fstream>
 
 using namespace rapidjson;
 
@@ -23,9 +24,15 @@ namespace junebug
         Json(Document &doc);
         ~Json();
 
-        std::string Stringify();
+        std::string Stringify() const;
 
         Document *GetDoc();
+
+        friend std::ostream &operator<<(std::ostream &os,   Json &json) {
+            std::string str = json.Stringify();
+            os<<str;
+            return os;
+        }
 
     private:
         Document doc;

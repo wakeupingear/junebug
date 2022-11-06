@@ -15,6 +15,33 @@
 #include <string>
 #include <functional>
 
+// Options for initializing the game
+struct GameOptions
+{
+    Uint32 initFlags{SDL_INIT_AUDIO | SDL_INIT_VIDEO};
+    Uint32 windowFlags{0};
+    Uint32 renderFlags{SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC};
+
+    int windowX{SDL_WINDOWPOS_CENTERED}, windowY{SDL_WINDOWPOS_CENTERED};
+
+    int bufferCol[4]{0, 0, 0, 255};
+
+    std::string title{"Junebug Game"};
+
+    // Whether the game should close itself on a SDL_QUIT event
+    bool autoCloseOnQuit{true};
+
+    // Whether the game should automatically create a camera
+    bool createDefaultCamera{true};
+
+    // The game's target framerate in milliseconds
+    Uint32 fpsTarget{1000 / 60};
+    // The minimum framerate to maintain if the game is running slowly
+    Uint32 fpsMin{1000 / 30};
+    // Whether the game should automatically target the display's refresh rate
+    bool detectFps{true};
+};
+
 /// @brief The Junebug namespace contains all of the Junebug classes and functions
 namespace junebug
 {
@@ -28,33 +55,6 @@ namespace junebug
         ~JGame();
         // Get the global game instance
         static JGame *Get();
-
-        // Options for initializing the game
-        struct GameOptions
-        {
-            Uint32 initFlags{SDL_INIT_AUDIO | SDL_INIT_VIDEO};
-            Uint32 windowFlags{0};
-            Uint32 renderFlags{SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC};
-
-            int windowX{SDL_WINDOWPOS_CENTERED}, windowY{SDL_WINDOWPOS_CENTERED};
-
-            int bufferCol[4]{0, 0, 0, 255};
-
-            std::string title{"Junebug Game"};
-
-            // Whether the game should close itself on a SDL_QUIT event
-            bool autoCloseOnQuit{true};
-
-            // Whether the game should automatically create a camera
-            bool createDefaultCamera{true};
-
-            // The game's target framerate in milliseconds
-            Uint32 fpsTarget{1000 / 60};
-            // The minimum framerate to maintain if the game is running slowly
-            Uint32 fpsMin{1000 / 30};
-            // Whether the game should automatically target the display's refresh rate
-            bool detectFps{true};
-        };
 
         // Get a reference to the game's options
         GameOptions &Options();
