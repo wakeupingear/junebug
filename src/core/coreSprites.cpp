@@ -28,6 +28,7 @@ SDL_Texture *JGame::GetTexture(std::string fileName)
     if (it != mTextures.end())
         return it->second;
 
+    Print("Loading image: " + fileName);
     SDL_Surface *surface = IMG_Load(fileName.c_str());
     SDL_Texture *texture = SDL_CreateTextureFromSurface(mRenderer, surface);
     SDL_FreeSurface(surface);

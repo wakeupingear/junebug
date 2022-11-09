@@ -127,12 +127,16 @@ public:
 	T y;
 
 	Vec2()
-		: x(0.0f), y(0.0f)
 	{
 	}
 
 	explicit Vec2(T inX, T inY)
 		: x(inX), y(inY)
+	{
+	}
+
+	explicit Vec2(T *inArray)
+		: x(inArray[0]), y(inArray[1])
 	{
 	}
 
@@ -283,6 +287,11 @@ public:
 
 	explicit Vec3(T inX, T inY, T inZ)
 		: x(inX), y(inY), z(inZ)
+	{
+	}
+
+	explicit Vec3(T *inArray)
+		: x(inArray[0]), y(inArray[1]), z(inArray[2])
 	{
 	}
 

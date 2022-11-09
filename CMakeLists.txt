@@ -12,11 +12,13 @@ add_library(${LIBNAME} STATIC
     src/core/coreDataLoading.cpp
     src/core/coreInputs.cpp
     src/core/coreSprites.cpp
+    src/core/coreScenes.cpp
 
     src/MathLib.cpp
+    src/RandLib.cpp
     src/Color.cpp
     
-    src/Utils/dev.cpp
+    src/Utils/Utils.cpp
     src/Utils/twerp.cpp
     
     src/Camera.cpp
@@ -46,7 +48,7 @@ if (WIN32)
     link_directories(lib/SDL/lib/win/x64)
 
     include_directories(lib/discord_game_sdk)
-    link_directories(lib/discord_game_sdk/lib/x86)
+    link_directories(lib/discord_game_sdk/lib/x86_64)
 
 	target_link_libraries(${LIBNAME} SDL2 SDL2_image SDL2_mixer SDL2_ttf glew32 opengl32 discord_game_sdk)
 

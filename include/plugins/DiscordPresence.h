@@ -155,14 +155,14 @@ namespace junebug
         void ClearActivity()
         {
             mState.core->ActivityManager().ClearActivity([](discord::Result result)
-                                                         { log(((result == discord::Result::Ok) ? "Succeeded" : "Failed"), "clearing activity!"); });
+                                                         { Log(((result == discord::Result::Ok) ? "Succeeded" : "Failed"), "clearing activity!"); });
         };
 
     protected:
         void UpdateActivity()
         {
             mState.core->ActivityManager().UpdateActivity(*mActivity, [](discord::Result result)
-                                                          { log(((result == discord::Result::Ok) ? "Succeeded" : "Failed"), "updating activity!"); });
+                                                          { Log(((result == discord::Result::Ok) ? "Succeeded" : "Failed"), "updating activity!"); });
         };
 
     private:

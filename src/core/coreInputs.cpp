@@ -21,7 +21,10 @@ void JGame::ProcessInput()
                 mGameIsRunning = false;
             break;
         case SDL_MOUSEMOTION:
-            mMousePos = Vec2(event.motion.x, event.motion.y);
+            int w, h;
+            SDL_GetWindowSize(mWindow, &w, &h);
+            mMousePos.x = event.motion.x * mScreenWidth / w;
+            mMousePos.y = event.motion.y * mScreenHeight / h;
             break;
         case SDL_MOUSEBUTTONDOWN:
             extraStates[event.button.button + MOUSE_LEFT - 1] = 1;
@@ -33,7 +36,7 @@ void JGame::ProcessInput()
                 mScreenWidth = event.window.data1;
                 mScreenHeight = event.window.data2;
                 // SDL_SetWindowSize(mWindow, mScreenWidth, mScreenHeight);
-                print("Window resized to", mScreenWidth, mScreenHeight);
+                Print("Window resized to", mScreenWidth, mScreenHeight);
             }
             break;
         default:
@@ -58,12 +61,6 @@ void JGame::ProcessInput()
     }
     mInputs = newInputs;
 
-    // Read mouse state
-    int x, y;
-    SDL_GetMouseState(&x, &y);
-    mMousePos.x = x;
-    mMousePos.y = y;
-
     // Default Events
     if (Input(JB_INPUT_QUIT))
     {
@@ -74,7 +71,6 @@ void JGame::ProcessInput()
         mFullscreen = !mFullscreen;
         SDL_SetWindowFullscreen(mWindow, mFullscreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0);
         FlushPollEvents();
-        SDL_ShowCursor(!mFullscreen);
 
         if (!mFullscreen)
         {

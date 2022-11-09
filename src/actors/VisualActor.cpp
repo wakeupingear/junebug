@@ -21,7 +21,6 @@ VisualActor::VisualActor(Vec2<float> pos, std::string imagePath, int drawOrder) 
 {
     Sprite *spr = new Sprite(this, drawOrder);
 
-    print("Loading image: " + imagePath);
     const fs::path path(imagePath);
     std::error_code ec;
     if (fs::is_directory(path, ec))

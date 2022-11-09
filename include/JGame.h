@@ -5,6 +5,7 @@
 
 #include "Utils.h"
 #include "MathLib.h"
+#include "RandLib.h"
 #include "InputNames.h"
 
 #include "SDL2/SDL.h"
@@ -14,37 +15,78 @@
 #include <unordered_map>
 #include <string>
 #include <functional>
-
-// Options for initializing the game
-struct GameOptions
-{
-    Uint32 initFlags{SDL_INIT_AUDIO | SDL_INIT_VIDEO};
-    Uint32 windowFlags{0};
-    Uint32 renderFlags{SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC};
-
-    int windowX{SDL_WINDOWPOS_CENTERED}, windowY{SDL_WINDOWPOS_CENTERED};
-
-    int bufferCol[4]{0, 0, 0, 255};
-
-    std::string title{"Junebug Game"};
-
-    // Whether the game should close itself on a SDL_QUIT event
-    bool autoCloseOnQuit{true};
-
-    // Whether the game should automatically create a camera
-    bool createDefaultCamera{true};
-
-    // The game's target framerate in milliseconds
-    Uint32 fpsTarget{1000 / 60};
-    // The minimum framerate to maintain if the game is running slowly
-    Uint32 fpsMin{1000 / 30};
-    // Whether the game should automatically target the display's refresh rate
-    bool detectFps{true};
-};
+#include <queue>
 
 /// @brief The Junebug namespace contains all of the Junebug classes and functions
 namespace junebug
 {
+#pragma region Map Macros
+#define __MAP_OUT__
+#define __EVAL0__(...) __VA_ARGS__
+#define __EVAL1__(...) __EVAL0__(__EVAL0__(__EVAL0__(__VA_ARGS__)))
+#define __EVAL2__(...) __EVAL1__(__EVAL1__(__EVAL1__(__VA_ARGS__)))
+#define __EVAL3__(...) __EVAL2__(__EVAL2__(__EVAL2__(__VA_ARGS__)))
+#define __EVAL4__(...) __EVAL3__(__EVAL3__(__EVAL3__(__VA_ARGS__)))
+#define __EVAL__(...) __EVAL4__(__EVAL4__(__EVAL4__(__VA_ARGS__)))
+#define __MAP_END__(...)
+#define __MAP_GET_END__() 0, __MAP_END__
+#define ____MAP_NEXT__0__(item, next, ...) next __MAP_OUT__
+#define ____MAP_NEXT__1__(item, next) __EVAL0__(____MAP_NEXT__0__(item, next, 0))
+#define __MAP_NEXT__(item, next) ____MAP_NEXT__1__(__MAP_GET_END__ item, next)
+#define __MAP0__(f, x, peek, ...) f(x) __MAP_NEXT__(peek, __MAP1__)(f, peek, __VA_ARGS__)
+#define __MAP1__(f, x, peek, ...) f(x) __MAP_NEXT__(peek, __MAP0__)(f, peek, __VA_ARGS__)
+#define MAP(f, ...) __EVAL__(__MAP1__(f, __VA_ARGS__, (), 0))
+#pragma endregion
+
+    // Options for initializing the game
+    struct GameOptions
+    {
+        Uint32 initFlags{SDL_INIT_AUDIO | SDL_INIT_VIDEO};
+        Uint32 windowFlags{0};
+        Uint32 renderFlags{SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC};
+
+        int windowX{SDL_WINDOWPOS_CENTERED}, windowY{SDL_WINDOWPOS_CENTERED};
+
+        int bufferCol[4]{0, 0, 0, 255};
+
+        std::string title{"Junebug Game"};
+
+        // Whether the game should close itself on a SDL_QUIT event
+        bool autoCloseOnQuit{true};
+
+        // Whether the game should automatically create a camera
+        bool createDefaultCamera{true};
+
+        // The game's target framerate in milliseconds
+        Uint32 fpsTarget{1000 / 60};
+        // The minimum framerate to maintain if the game is running slowly
+        Uint32 fpsMin{1000 / 30};
+        // Whether the game should automatically target the display's refresh rate
+        bool detectFps{true};
+
+        int randomSeed{-1};
+
+        bool showCursor{true};
+
+        std::string windowIcon{""};
+
+        std::string startingScene{""};
+    };
+
+    struct Layer
+    {
+        std::string name{""};
+        int depth{0};
+        bool visible{true};
+    };
+
+    struct Scene
+    {
+        std::string name{""};
+        Vec2<int> size;
+        std::vector<Layer> layers;
+    };
+
     /// @brief The JGame class is the main class for the Junebug engine. It contains the game loop and handles all of the SDL2 initialization and shutdown.
     class JGame
     {
@@ -70,7 +112,7 @@ namespace junebug
 
         // Run the game
         /// @returns true if successful, false otherwise
-        bool Run(int screenWidth, int screenHeight, GameOptions extraOptions = {});
+        bool Run(int screenWidth, int screenHeight);
 
         // Check a given input name
         /// @param key The name of the input to check
@@ -135,6 +177,17 @@ namespace junebug
         // Get a const reference to the list of sprites
         /// @returns A const reference to the list of sprites
         const std::vector<class Sprite *> &GetSprites() const;
+
+        // Load a scene from a file or JSON string
+        /// @param scene The scene to load
+        void LoadScene(std::string);
+        // Get the current scene
+        /// @returns A const reference to the current scene
+        const Scene &GetCurrentScene() const;
+
+        typedef std::unordered_map<std::string, class PureActor *(*)(Vec2<int> pos)> factory_map;
+        // Actor name to class map
+        factory_map mActorConstructors;
 
     protected:
         // The global game instance
@@ -203,5 +256,12 @@ namespace junebug
         std::unordered_map<std::string, SDL_Texture *> mTextures;
         // Sprite list
         std::vector<class Sprite *> mSprites;
+
+        // Scene
+        Scene mScene;
+        // Queue of scenes to load
+        std::queue<std::string> mSceneQueue;
+        // Helper function to load queued scenes
+        void LoadQueuedScenes();
     };
-}
+};

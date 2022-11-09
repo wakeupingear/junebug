@@ -215,8 +215,8 @@ typedef enum
 
     // Custom keycodes
     MOUSE_LEFT,
-    MOUSE_RIGHT,
     MOUSE_MIDDLE,
+    MOUSE_RIGHT,
     MOUSE_X1,
     MOUSE_X2,
 } KEYS;

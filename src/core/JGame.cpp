@@ -59,7 +59,24 @@ void JGame::ProcessOptions(GameOptions newOptions)
         if (displayMode.refresh_rate > 0 && displayMode.refresh_rate <= 10000)
         {
             options.fpsTarget = 1000 / displayMode.refresh_rate;
-            print("Targeting display refresh rate of " + std::to_string(displayMode.refresh_rate) + " fps");
+            PrintLog("Targeting display refresh rate of " + std::to_string(displayMode.refresh_rate) + " fps");
+        }
+    }
+
+    if (options.randomSeed == -1)
+        srand((unsigned int)time(NULL));
+    else
+        srand((unsigned int)options.randomSeed);
+
+    SDL_ShowCursor(options.showCursor);
+
+    if (options.windowIcon != "" && mWindow)
+    {
+        SDL_Surface *icon = IMG_Load(options.windowIcon.c_str());
+        if (icon)
+        {
+            SDL_SetWindowIcon(mWindow, icon);
+            SDL_FreeSurface(icon);
         }
     }
 }
@@ -82,12 +99,10 @@ void JGame::Shutdown()
     SDL_Quit();
 }
 
-bool JGame::Run(int screenWidth, int screenHeight, GameOptions extraOptions)
+bool JGame::Run(int screenWidth, int screenHeight)
 {
     mScreenWidth = screenWidth;
     mScreenHeight = screenHeight;
-
-    ProcessOptions(extraOptions);
 
     if (SDL_Init(options.initFlags) != 0)
         return false;
@@ -98,7 +113,21 @@ bool JGame::Run(int screenWidth, int screenHeight, GameOptions extraOptions)
 
     Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048);
 
+    if (mOptionsUpdated)
+    {
+        ProcessOptions(options);
+        mOptionsUpdated = false;
+    }
+
+    JB_REGISTER_ACTORS(VisualActor);
+
     LoadData();
+
+    if (options.startingScene != "")
+    {
+        LoadScene(options.startingScene);
+        LoadQueuedScenes();
+    }
 
     mGameIsRunning = true;
 
@@ -113,6 +142,7 @@ bool JGame::Run(int screenWidth, int screenHeight, GameOptions extraOptions)
         }
         if (mGameIsRunning)
             GenerateOutput();
+        LoadQueuedScenes();
     }
 
     Shutdown();
@@ -142,7 +172,16 @@ void JGame::UpdateGame()
     // Update actors
     auto tempActors = mActors;
     for (PureActor *actor : tempActors)
-        actor->Update(mDeltaTime);
+    {
+        if (actor->GetState() == ActorState::Active)
+            actor->Update(mDeltaTime);
+        else if (actor->GetState() == ActorState::Started)
+        {
+            actor->SetState(ActorState::Active);
+            actor->OnFirstUpdate(mDeltaTime);
+            actor->Update(mDeltaTime);
+        }
+    }
 
     std::vector<PureActor *> destroyActors;
     for (PureActor *actor : mActors)

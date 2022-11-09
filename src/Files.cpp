@@ -38,7 +38,17 @@ std::string Json::Stringify() const
     return buffer.GetString();
 }
 
-Document* Json::GetDoc()
+Document *Json::GetDoc()
 {
     return &doc;
+}
+
+bool Json::IsValid() const
+{
+    return !doc.HasParseError();
+}
+
+GenericMemberIterator<false, UTF8<>, MemoryPoolAllocator<>> Json::Get(std::string key)
+{
+    return doc.FindMember(key.c_str());
 }

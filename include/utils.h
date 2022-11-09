@@ -4,16 +4,26 @@
 #endif
 
 #include "MathLib.h"
+#include "Compatability.h"
 
 #include "SDL2/SDL.h"
 #include <iostream>
+#include <chrono>
+#include <iomanip>
+#include <sstream>
+#include <string>
+#include <time.h>
 
 namespace junebug
 {
+    // Get the current time in milliseconds
+    /// @return The current time in milliseconds
+    std::string PrintTime();
+
     // Print a message to the console
     /// @param ...args Any number of arguments to print. Types must support << operator
     template <typename... T>
-    void print(T... args)
+    inline void Print(T... args)
     {
         ((std::cout << args << ' '), ...) << std::endl;
     };
@@ -23,9 +33,19 @@ namespace junebug
     // Log a message
     /// @param ...args Any number of arguments to print. Types must support << operator
     template <typename... T>
-    void log(T... args)
+    void Log(T... args)
     {
+        __logStream__ << "[" << PrintTime() << "] ";
         ((__logStream__ << args << ' '), ...) << std::endl;
+    };
+
+    // Print and log a message
+    /// @param ...args Any number of arguments to print. Types must support << operator
+    template <typename... T>
+    inline void PrintLog(T... args)
+    {
+        Print(args...);
+        Log(args...);
     };
 
     // Get a render texture with the given size.
@@ -85,4 +105,10 @@ namespace junebug
     /// @param looped OPTIONAL Whether or not the curve is looped
     /// @return The value at the given position on the curve
     float Twerp(float _start, float _end, float _pos, TwerpType _type = TWERP_LINEAR, bool _looped = false, float _opt1 = Twerp_Undefined, float _opt2 = Twerp_Undefined);
-}
+
+    // Check if a string ends with another string
+    /// @param str The string to check
+    /// @param ending The ending to check for
+    /// @return Whether or not the string ends with the ending
+    bool StringEndsWith(const std::string &str, const std::string &ending);
+};
