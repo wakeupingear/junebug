@@ -181,6 +181,11 @@ namespace junebug
         // Load a scene from a file or JSON string
         /// @param scene The scene to load
         void LoadScene(std::string);
+        // Reload the current scene
+        void ReloadScene();
+        // Check if a scene is loaded
+        /// @returns true if a scene is loaded, false otherwise
+        bool IsSceneLoaded();
         // Get the current scene
         /// @returns A const reference to the current scene
         const Scene &GetCurrentScene() const;

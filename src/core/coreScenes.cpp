@@ -9,6 +9,17 @@ void JGame::LoadScene(std::string scene)
     mSceneQueue.push(scene);
 }
 
+void JGame::ReloadScene()
+{
+    if (IsSceneLoaded())
+        mSceneQueue.push(mScene.name);
+}
+
+bool JGame::IsSceneLoaded()
+{
+    return mScene.name != "";
+}
+
 const Scene &JGame::GetCurrentScene() const
 {
     return mScene;
