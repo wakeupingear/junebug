@@ -75,8 +75,7 @@ namespace junebug
             mState.core.reset(core);
             if (!mState.core)
             {
-                std::cout << "Failed to instantiate discord core! (err " << static_cast<int>(result)
-                          << ")\n";
+                Log("Failed to instantiate discord core! (err ", static_cast<int>(result), ")");
                 return;
             }
 

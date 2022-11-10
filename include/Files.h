@@ -63,7 +63,7 @@ namespace junebug
             return def;
         }
         template <typename T>
-        static T GetNumber(GenericObject<false, Value> &obj, std::string key, T def = 0)
+        static T GetNumber(const GenericObject<false, Value> &obj, std::string key, T def = 0)
         {
             if (obj.HasMember(key.c_str()))
                 return GetNumber(obj[key.c_str()], def);
@@ -71,7 +71,7 @@ namespace junebug
         }
 
         template <typename T>
-        static Vec2<T> GetVec2(GenericObject<false, Value> &obj, std::string key, Vec2<T> def = Vec2<T>::Zero)
+        static Vec2<T> GetVec2(const GenericObject<false, Value> &obj, std::string key, Vec2<T> def = Vec2<T>::Zero)
         {
             Vec2<T> res(def);
 
@@ -93,7 +93,7 @@ namespace junebug
         }
 
         template <typename T>
-        static Vec3<T> GetVec3(GenericObject<false, Value> &obj, std::string key, Vec3<T> def = Vec3<T>::Zero)
+        static Vec3<T> GetVec3(const GenericObject<false, Value> &obj, std::string key, Vec3<T> def = Vec3<T>::Zero)
         {
             Vec3<T> res(def);
 
@@ -145,7 +145,7 @@ namespace junebug
 
             return def;
         }
-        static bool GetBool(GenericObject<false, Value> &obj, std::string key, bool def = false)
+        static bool GetBool(const GenericObject<false, Value> &obj, std::string key, bool def = false)
         {
             if (obj.HasMember(key.c_str()))
                 return GetBool(obj[key.c_str()], def);
@@ -173,7 +173,7 @@ namespace junebug
 
             return def;
         }
-        static std::string GetString(GenericObject<false, Value> &obj, std::string key, std::string def = "")
+        static std::string GetString(const GenericObject<false, Value> &obj, std::string key, std::string def = "")
         {
             if (obj.HasMember(key.c_str()))
                 return GetString(obj[key.c_str()], def);

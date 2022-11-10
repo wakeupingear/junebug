@@ -77,6 +77,7 @@ namespace junebug
     {
         std::string name{""};
         int depth{0};
+        std::string id{""};
         bool visible{true};
     };
 
@@ -84,7 +85,7 @@ namespace junebug
     {
         std::string name{""};
         Vec2<int> size;
-        std::vector<Layer> layers;
+        std::unordered_map<std::string, Layer> layers;
     };
 
     /// @brief The JGame class is the main class for the Junebug engine. It contains the game loop and handles all of the SDL2 initialization and shutdown.

@@ -69,9 +69,10 @@ void JGame::LoadQueuedScenes()
             }
             for (PureActor *actor : destroyActors)
                 delete actor;
+            mScene.layers.clear();
 
             // Load the new scene
-            auto &sizeRef = sceneInfo->Get("size")->value.GetArray();
+            const auto &sizeRef = sceneInfo->Get("size")->value.GetArray();
             if (sizeRef.Size() != 2)
             {
                 PrintLog("Scene", sceneStr, "has invalid size");
@@ -82,23 +83,25 @@ void JGame::LoadQueuedScenes()
             // Load the layers
             if (sceneInfo->Get("layers")->value.IsArray())
             {
-                auto &layersRef = sceneInfo->Get("layers")->value.GetArray();
+                const auto &layersRef = sceneInfo->Get("layers")->value.GetArray();
                 newScene.layers.reserve(layersRef.Size());
-                for (auto &layerRef : layersRef)
+                for (auto &layerRef : layersRef) {
                     if (layerRef.IsObject())
                     {
-                        auto &layerObj = layerRef.GetObject();
-                        if (!layerObj.FindMember("name")->value.IsString() || !layerObj.FindMember("depth")->value.IsInt())
-                            continue;
+                        const auto &layerObj = layerRef.GetObject();
+                        std::string id = Json::GetString(layerObj, "id");
+                        if (id == "") continue;
 
                         Layer layer;
-                        layer.name = layerObj["name"].GetString();
-                        layer.depth = layerObj["depth"].GetInt();
+                        layer.id = id;
+                        layer.name = Json::GetString(layerObj, "name");
+                        layer.depth = Json::GetNumber<int>(layerObj, "depth");
                         if (layerObj.HasMember("visible"))
                             layer.visible = layerObj["visible"].GetBool();
 
-                        newScene.layers.push_back(layer);
+                        newScene.layers[layer.id] = layer;
                     }
+                }
             }
 
             // Load the actors
@@ -106,11 +109,11 @@ void JGame::LoadQueuedScenes()
             {
                 Vec2<int> tempPos;
 
-                auto &actorsRef = sceneInfo->Get("actors")->value.GetArray();
+                const auto &actorsRef = sceneInfo->Get("actors")->value.GetArray();
                 for (auto &actorRef : actorsRef)
                     if (actorRef.IsObject())
                     {
-                        auto &actorObj = actorRef.GetObject();
+                        const auto &actorObj = actorRef.GetObject();
                         std::string type = Json::GetString(actorObj, "type");
                         if (type == "")
                             continue;
@@ -125,12 +128,23 @@ void JGame::LoadQueuedScenes()
                         PureActor *actor = it->second(Json::GetVec2<int>(actorObj, "pos"));
                         actor->SetPersistent(Json::GetBool(actorObj, "persistent"));
 
+                        std::string layerId = Json::GetString(actorObj, "layer");
+                        if (layerId != "") {
+                            auto it = newScene.layers.find(layerId);
+                            if (it != newScene.layers.end()) {
+                                actor->SetDepth(it->second.depth);
+                            }
+                        }
+
                         VisualActor *visualActor = dynamic_cast<VisualActor *>(actor);
                         if (visualActor)
                         {
                             visualActor->SetScale(Json::GetVec2<float>(actorObj, "scale", Vec2(1.0f, 1.0f)));
                             visualActor->SetRotation(Json::GetNumber<float>(actorObj, "rotation"));
                         }
+
+                        if (visualActor) Print(*visualActor);
+                        else Print(*actor);
                     }
             }
 

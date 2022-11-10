@@ -41,6 +41,18 @@ namespace junebug
         // Default destructor
         virtual ~PureActor();
 
+        // ToString
+        virtual void ToString(std::ostream &out) const
+        {
+            out << "Depth(" << mDepth << ")";
+        }
+        // Printable
+        [[nodiscard]] friend std::ostream &operator<<(std::ostream &os, const PureActor &v)
+        {
+            v.ToString(os);
+            return os;
+        }
+
         // Get the actor's state
         ActorState GetState() const { return mState; }
         // Set the actor's state
@@ -82,7 +94,10 @@ namespace junebug
 
         // Internal function to create an instance of a class
         template <typename T>
-        static PureActor *__createInstance__(Vec2<int> pos) { return new T(pos); }
+        static PureActor *__createInstance__(Vec2<int> pos) { return new T(pos); };
+
+        // Set the actor's depth
+        void SetDepth(int newDepth) { mDepth = newDepth; };
 
     protected:
         friend class JGame;
@@ -96,6 +111,9 @@ namespace junebug
 
         // Actor persistence
         bool mPersistent = false;
+
+        //Actor depth
+        int mDepth = 0;
     };
 
     /// @brief A VisualActor is an actor that has a visual representation, including a texture, position, rotation, scale, and color.
@@ -108,6 +126,13 @@ namespace junebug
         // Position and image constructor
         VisualActor(Vec2<float> pos, std::string imagePath, int drawOrder = 100);
         VisualActor(Vec2<int> pos, std::string imagePath, int drawOrder = 100);
+
+        // ToString
+        virtual void ToString(std::ostream &out) const override
+        {
+            out << "Pos" << mPosition << " Scale" << mScale << " ";
+            PureActor::ToString(out);
+        };
 
         // Set the position of the actor
         /// @param pos The new position of the actor
