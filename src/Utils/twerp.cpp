@@ -8,7 +8,7 @@ namespace junebug
         if (_type < 0 || _type >= TwerpType::TWERP_COUNT)
             return 0.0f;
 
-        _pos = Math::Clamp(_looped ? fmod(_pos, 1.0f) : _pos, 0.0f, 1.0f);
+        _pos = Clamp(_looped ? fmod(_pos, 1.0f) : _pos, 0.0f, 1.0f);
         float _chng = _end - _start;
         float _mid = (_start + _end) / 2;
 
@@ -102,9 +102,9 @@ namespace junebug
                 return _end;
 
             _p = _d * _e;
-            _s = (Math::Sign(_chng) == -1) ? _p * 0.25f : _p / (2 * Math::Pi) * Math::Asin(1);
+            _s = (Sign(_chng) == -1) ? _p * 0.25f : _p / (2 * Pi) * Asin(1);
 
-            return _chng * pow(2.0f, -10 * _pos) * sin((_pos * _d - _s) * (2 * Math::Pi) / _p) + _chng + _start;
+            return _chng * pow(2.0f, -10 * _pos) * sin((_pos * _d - _s) * (2 * Pi) / _p) + _chng + _start;
         }
         case TWERP_IN_ELASTIC:
         {
@@ -118,9 +118,9 @@ namespace junebug
                 return _end;
 
             _p = _d * _e;
-            _s = Math::Sign(_chng) == -1 ? _p * 0.25f : _p / (2 * Math::Pi) * Math::Asin(1);
+            _s = Sign(_chng) == -1 ? _p * 0.25f : _p / (2 * Pi) * Asin(1);
 
-            return -(_chng * pow(2.0f, 10 * (--_pos)) * sin((_pos * _d - _s) * (Math::Pi * 2) / _p)) + _start;
+            return -(_chng * pow(2.0f, 10 * (--_pos)) * sin((_pos * _d - _s) * (Pi * 2) / _p)) + _start;
         }
 
         case TWERP_INOUT_EXPO:
@@ -156,11 +156,11 @@ namespace junebug
             return _chng * _pos * _pos * _pos * _pos * _pos + _start;
 
         case TWERP_INOUT_SINE:
-            return _chng * 0.5f * (1 - cos(Math::Pi * _pos)) + _start;
+            return _chng * 0.5f * (1 - cos(Pi * _pos)) + _start;
         case TWERP_OUT_SINE:
-            return _chng * sin(_pos * Math::Pi / 2.0f) + _start;
+            return _chng * sin(_pos * Pi / 2.0f) + _start;
         case TWERP_IN_SINE:
-            return _chng * (1 - cos(_pos * Math::Pi / 2.0f)) + _start;
+            return _chng * (1 - cos(_pos * Pi / 2.0f)) + _start;
 
         default:
             return 0;

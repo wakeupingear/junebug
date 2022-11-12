@@ -80,7 +80,7 @@ void JGame::ProcessInput()
     }
 
     // User-defined callback
-    OnInputsProcessed(state);
+    InputsProcessed(state);
 }
 
 int JGame::Input(std::string key)

@@ -53,4 +53,20 @@ namespace junebug
     {
         return str.size() >= suffix.size() && str.compare(str.size() - suffix.size(), suffix.size(), suffix) == 0;
     }
+
+    std::string GetFileName(const std::string &path)
+    {
+        size_t lastSlash = path.find_last_of("\\/");
+        if (lastSlash == std::string::npos)
+            return path;
+        return path.substr(lastSlash + 1);
+    }
+
+    std::string TrimFileExtension(const std::string &fileName)
+    {
+        size_t lastDot = fileName.find_last_of(".");
+        if (lastDot == std::string::npos)
+            return fileName;
+        return fileName.substr(0, lastDot);
+    }
 }

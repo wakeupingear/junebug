@@ -1,14 +1,16 @@
 // Credit to Sanjay Madhav
 
 #pragma once
+#ifndef NAMESPACES
+#define NAMESPACES
+#endif
 
 #include <cmath>
 #include <memory.h>
 #include <limits>
 #include <fstream>
 
-/// @brief A broad Math library containing constants, functions, and classes for 2D and 3D math
-namespace Math
+namespace junebug
 {
 	const float Pi = 3.1415926535f;
 	const float TwoPi = Pi * 2.0f;
@@ -200,6 +202,12 @@ public:
 		y += right.y;
 		return *this;
 	}
+	// Vector +
+	template <typename U>
+	[[nodiscard]] Vec2 operator+(const Vec2<U> &right) const
+	{
+		return Vec2(x + right.x, y + right.y);
+	}
 
 	// Vector -=
 	Vec2 &operator-=(const Vec2 &right)
@@ -207,6 +215,12 @@ public:
 		x -= right.x;
 		y -= right.y;
 		return *this;
+	}
+	// Vector -
+	template <typename U>
+	[[nodiscard]] Vec2 operator-(const Vec2<U> &right) const
+	{
+		return Vec2(x - right.x, y - right.y);
 	}
 
 	// Length squared of vector
@@ -218,7 +232,7 @@ public:
 	// Length of vector
 	[[nodiscard]] float Length() const
 	{
-		return (Math::Sqrt(LengthSq()));
+		return (junebug::Sqrt(LengthSq()));
 	}
 
 	// Normalize this vector
@@ -264,7 +278,13 @@ public:
 		return (a - b).Length();
 	}
 
+	[[nodiscard]] static Vec2 LengthDir(float length, float angle)
+	{
+		return Vec2(length * junebug::Cos(ToRadians(angle)), -length * junebug::Sin(ToRadians(angle)));
+	}
+
 	static const Vec2<T> Zero;
+	static const Vec2<T> One;
 	static const Vec2<T> UnitX;
 	static const Vec2<T> UnitY;
 	static const Vec2<T> NegUnitX;
@@ -382,7 +402,7 @@ public:
 	// Length of vector
 	[[nodiscard]] float Length() const
 	{
-		return (Math::Sqrt(LengthSq()));
+		return (junebug::Sqrt(LengthSq()));
 	}
 
 	// Normalize this vector
@@ -444,6 +464,7 @@ public:
 	}
 
 	static const Vec3<T> Zero;
+	static const Vec3<T> One;
 	static const Vec3<T> UnitX;
 	static const Vec3<T> UnitY;
 	static const Vec3<T> UnitZ;
@@ -575,8 +596,8 @@ public:
 	{
 		float temp[3][3] =
 			{
-				{Math::Cos(theta), Math::Sin(theta), 0.0f},
-				{-Math::Sin(theta), Math::Cos(theta), 0.0f},
+				{junebug::Cos(theta), junebug::Sin(theta), 0.0f},
+				{-junebug::Sin(theta), junebug::Cos(theta), 0.0f},
 				{0.0f, 0.0f, 1.0f},
 			};
 		return Matrix3(temp);
@@ -808,8 +829,8 @@ public:
 		float temp[4][4] =
 			{
 				{1.0f, 0.0f, 0.0f, 0.0f},
-				{0.0f, Math::Cos(theta), Math::Sin(theta), 0.0f},
-				{0.0f, -Math::Sin(theta), Math::Cos(theta), 0.0f},
+				{0.0f, junebug::Cos(theta), junebug::Sin(theta), 0.0f},
+				{0.0f, -junebug::Sin(theta), junebug::Cos(theta), 0.0f},
 				{0.0f, 0.0f, 0.0f, 1.0f},
 			};
 		return Matrix4(temp);
@@ -820,9 +841,9 @@ public:
 	{
 		float temp[4][4] =
 			{
-				{Math::Cos(theta), 0.0f, -Math::Sin(theta), 0.0f},
+				{junebug::Cos(theta), 0.0f, -junebug::Sin(theta), 0.0f},
 				{0.0f, 1.0f, 0.0f, 0.0f},
-				{Math::Sin(theta), 0.0f, Math::Cos(theta), 0.0f},
+				{junebug::Sin(theta), 0.0f, junebug::Cos(theta), 0.0f},
 				{0.0f, 0.0f, 0.0f, 1.0f},
 			};
 		return Matrix4(temp);
@@ -833,8 +854,8 @@ public:
 	{
 		float temp[4][4] =
 			{
-				{Math::Cos(theta), Math::Sin(theta), 0.0f, 0.0f},
-				{-Math::Sin(theta), Math::Cos(theta), 0.0f, 0.0f},
+				{junebug::Cos(theta), junebug::Sin(theta), 0.0f, 0.0f},
+				{-junebug::Sin(theta), junebug::Cos(theta), 0.0f, 0.0f},
 				{0.0f, 0.0f, 1.0f, 0.0f},
 				{0.0f, 0.0f, 0.0f, 1.0f},
 			};
@@ -887,7 +908,7 @@ public:
 
 	[[nodiscard]] static Matrix4 CreatePerspectiveFOV(float fovY, float width, float height, float near, float far)
 	{
-		float yScale = Math::Cot(fovY / 2.0f);
+		float yScale = junebug::Cot(fovY / 2.0f);
 		float xScale = yScale * height / width;
 		float temp[4][4] =
 			{
@@ -939,11 +960,11 @@ public:
 	// and the angle is in radians
 	explicit Quaternion(const Vec3<float> &axis, float angle)
 	{
-		float scalar = Math::Sin(angle / 2.0f);
+		float scalar = junebug::Sin(angle / 2.0f);
 		x = axis.x * scalar;
 		y = axis.y * scalar;
 		z = axis.z * scalar;
-		w = Math::Cos(angle / 2.0f);
+		w = junebug::Cos(angle / 2.0f);
 	}
 
 	// Directly set the internal components
@@ -969,7 +990,7 @@ public:
 
 	[[nodiscard]] float Length() const
 	{
-		return Math::Sqrt(LengthSq());
+		return junebug::Sqrt(LengthSq());
 	}
 
 	void Normalize()
@@ -993,10 +1014,10 @@ public:
 	[[nodiscard]] static Quaternion Lerp(const Quaternion &a, const Quaternion &b, float f)
 	{
 		Quaternion retVal;
-		retVal.x = Math::Lerp(a.x, b.x, f);
-		retVal.y = Math::Lerp(a.y, b.y, f);
-		retVal.z = Math::Lerp(a.z, b.z, f);
-		retVal.w = Math::Lerp(a.w, b.w, f);
+		retVal.x = junebug::Lerp(a.x, b.x, f);
+		retVal.y = junebug::Lerp(a.y, b.y, f);
+		retVal.z = junebug::Lerp(a.z, b.z, f);
+		retVal.w = junebug::Lerp(a.w, b.w, f);
 		retVal.Normalize();
 		return retVal;
 	}
@@ -1006,17 +1027,17 @@ public:
 	{
 		float dot = (a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w);
 		// Can't compute this if the quaternions are collinear
-		if (Math::Abs(dot) > 0.9995f)
+		if (junebug::Abs(dot) > 0.9995f)
 		{
 			return Lerp(a, b, f);
 		}
 
-		dot = Math::Clamp(dot, -1.0f, 1.0f);
-		float halfTheta = Math::Acos(dot);
-		float sinHalfTheta = Math::Sqrt(1.0f - dot * dot);
+		dot = junebug::Clamp(dot, -1.0f, 1.0f);
+		float halfTheta = junebug::Acos(dot);
+		float sinHalfTheta = junebug::Sqrt(1.0f - dot * dot);
 
-		float ratioA = Math::Sin((1.0f - f) * halfTheta) / sinHalfTheta;
-		float ratioB = Math::Sin(f * halfTheta) / sinHalfTheta;
+		float ratioA = junebug::Sin((1.0f - f) * halfTheta) / sinHalfTheta;
+		float ratioB = junebug::Sin(f * halfTheta) / sinHalfTheta;
 
 		Quaternion retVal;
 		retVal.x = a.x * ratioA + b.x * ratioB;

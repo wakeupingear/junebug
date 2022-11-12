@@ -6,13 +6,22 @@ cmake_minimum_required(VERSION 3.9)
 project(${LIBNAME} VERSION 0.1.0 DESCRIPTION "A lightweight C++ game engine")
 include(GNUInstallDirs)
 
-file(GLOB_RECURSE LIB_SRC "lib/*.cpp")
+file(GLOB_RECURSE LIB_SRC_CPP "lib/*.cpp")
+file(GLOB_RECURSE LIB_PLUGINS_CPP "plugins/*.cpp")
+file(GLOB_RECURSE LIB_SRC_C "lib/*.c")
+set_source_files_properties(
+    ${LIB_SRC_CPP}
+    ${LIB_SRC_C}
+    PROPERTIES
+    COMPILE_FLAGS "-w"
+)
 add_library(${LIBNAME} STATIC
     src/core/JGame.cpp
     src/core/coreDataLoading.cpp
     src/core/coreInputs.cpp
     src/core/coreSprites.cpp
     src/core/coreScenes.cpp
+    src/core/coreFonts.cpp
 
     src/MathLib.cpp
     src/RandLib.cpp
@@ -20,6 +29,8 @@ add_library(${LIBNAME} STATIC
     
     src/Utils/Utils.cpp
     src/Utils/twerp.cpp
+    
+    src/Rendering.cpp
     
     src/Camera.cpp
 
@@ -31,7 +42,9 @@ add_library(${LIBNAME} STATIC
 
     src/Files.cpp
 
-    ${LIB_SRC}
+    ${LIB_SRC_CPP}
+    ${LIB_SRC_C}
+    ${LIB_PLUGINS_CPP}
 )
 
 set_target_properties(${LIBNAME} PROPERTIES
@@ -44,11 +57,12 @@ if (WIN32)
     include_directories(lib/GLEW/include)
     include_directories(lib/SDL/include)
     include_directories(lib/rapidjson/include)
+    include_directories(lib/SDL_FontCache)
     link_directories(lib/GLEW/lib/win/x64)
     link_directories(lib/SDL/lib/win/x64)
 
-    include_directories(lib/discord_game_sdk)
-    link_directories(lib/discord_game_sdk/lib/x86_64)
+    include_directories(plugins/discord/discord_game_sdk)
+    link_directories(plugins/discord/discord_game_sdk/lib/x86_64)
 
 	target_link_libraries(${LIBNAME} SDL2 SDL2_image SDL2_mixer SDL2_ttf glew32 opengl32 discord_game_sdk)
 

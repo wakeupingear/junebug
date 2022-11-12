@@ -56,7 +56,7 @@ namespace junebug
 
         // Update the actor in the game loop
         /// @param dt The time since the last update
-        void Update(float dt);
+        void InternalUpdate(float dt);
 
         // Vector of attached components
         std::vector<class Component *> mComponents;
@@ -85,11 +85,14 @@ namespace junebug
         static PureActor *__createInstance__(Vec2<int> pos) { return new T(pos); }
 
     protected:
+        friend class Component;
         friend class JGame;
-        // User-defined callback
-        virtual void OnUpdate(float dt){};
-        // User-defined callback
-        virtual void OnFirstUpdate(float dt){};
+        // Add a component to the actor
+        void AddComponent(class Component *c);
+        // User-defined function to every frame when the actor updates
+        virtual void Update(float dt){};
+        // User-defined function to run on the first frame update of an actor
+        virtual void FirstUpdate(float dt){};
 
         // Actor state
         ActorState mState = ActorState::Started;
@@ -106,8 +109,19 @@ namespace junebug
         VisualActor(Vec2<float> pos);
         VisualActor(Vec2<int> pos);
         // Position and image constructor
-        VisualActor(Vec2<float> pos, std::string imagePath, int drawOrder = 100);
-        VisualActor(Vec2<int> pos, std::string imagePath, int drawOrder = 100);
+        VisualActor(Vec2<float> pos, std::string imagePath);
+        VisualActor(Vec2<int> pos, std::string imagePath);
+
+        // Actor visibility
+        void SetVisible(bool visible) { mVisible = visible; }
+        bool IsVisible() const { return mVisible; }
+
+        // Set the color of the actor
+        /// @param color The new color of the actor
+        void SetColor(const Color &color);
+        // Get the color of the actor
+        /// @returns const Color
+        Color GetColor() const;
 
         // Set the position of the actor
         /// @param pos The new position of the actor
@@ -130,28 +144,18 @@ namespace junebug
         /// @returns const Vec2
         Vec2<float> GetScale() const;
 
-        // Set the color of the actor
-        /// @param color The new color of the actor
-        void SetColor(const Color &color);
-        // Get the color of the actor
-        /// @returns const Color
-        Color GetColor() const;
-
-        // Get the sprite of the actor
-        /// @returns Sprite*
-        class Sprite *GetSprite() const { return mSprite; }
-
     protected:
-        friend class Component;
-        // Add a component to the actor
-        void AddComponent(class Component *c);
+        friend class Camera;
+        // User-defined function to run every frame when the actor draws
+        virtual void Draw();
 
-        Sprite *mSprite = nullptr;
+        std::string mSpritePath;
+        bool mVisible{true};
+        Color mColor = Color::White;
 
         Vec2<float> mPosition{0, 0};
         float mRotation{0};
         Vec2<float> mScale{1, 1};
-        Color mColor{1, 1, 1};
     };
 
     /// @brief A PhysicalActor is a VisualActor that has a physical representation, including velocity, acceleration, collider, and mass.

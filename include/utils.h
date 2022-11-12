@@ -5,6 +5,7 @@
 
 #include "MathLib.h"
 #include "Compatability.h"
+#include "Rendering.h"
 
 #include "SDL2/SDL.h"
 #include <iostream>
@@ -111,4 +112,13 @@ namespace junebug
     /// @param ending The ending to check for
     /// @return Whether or not the string ends with the ending
     bool StringEndsWith(const std::string &str, const std::string &ending);
+
+    // Get the name of a file from a path
+    /// @param path The path to get the file name from
+    /// @return The file name
+    std::string GetFileName(const std::string &path);
+    // Trim the file extension from a file name
+    /// @param fileName The file name to trim
+    /// @return The file name without the extension
+    std::string TrimFileExtension(const std::string &fileName);
 };

@@ -36,7 +36,7 @@ void JGame::LoadQueuedScenes()
             if (sceneStr[0] == '{')
                 sceneInfo = new Json(sceneStr);
             else if (!StringEndsWith(sceneStr, ".json"))
-                sceneInfo = new Json("assets/scenes/" + sceneStr + ".json");
+                sceneInfo = new Json(GetAssetPaths().scenes + sceneStr + ".json");
             else
                 sceneInfo = new Json(sceneStr + ".json");
 
@@ -133,7 +133,7 @@ void JGame::LoadQueuedScenes()
                 newScene.name = newScene.name.substr(slashPos + 1);
 
             mScene = newScene;
-            Print("Loaded scene", mScene.name, "with", mScene.layers.size(), "layer(s) and", mActors.size() - numPersistentActors, "actor(s)");
+            // Print("Loaded scene", mScene.name, "with", mScene.layers.size(), "layer(s) and", mActors.size() - numPersistentActors, "actor(s)");
         }
         catch (std::exception &e)
         {

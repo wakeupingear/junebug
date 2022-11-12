@@ -7,10 +7,12 @@
 #include "MathLib.h"
 #include "RandLib.h"
 #include "InputNames.h"
+#include "Color.h"
 
 #include "SDL2/SDL.h"
 #include "SDL2/SDL_mixer.h"
 #include "SDL2/SDL_image.h"
+#include "SDL_FontCache.h"
 #include <vector>
 #include <unordered_map>
 #include <string>
@@ -135,17 +137,29 @@ namespace junebug
 
         // Overridable callback when inputs are processed
         /// @param state The current SDL input state
-        virtual void OnInputsProcessed(const Uint8 *state){};
+        virtual void InputsProcessed(const Uint8 *state){};
         // Overridable callback before the game is updated
         /// @param deltaTime The time since the last update
-        virtual void OnUpdateStart(float dt){};
+        virtual void UpdateStart(float dt){};
         // Overridable callback after the game is updated
         /// @param deltaTime The time since the last update
-        virtual void OnUpdateEnd(float dt){};
+        virtual void UpdateEnd(float dt){};
         // Overridable callback before the game is rendered
-        virtual void OnRenderStart(){};
+        virtual void RenderStart(){};
         // Overridable callback after the game is rendered
-        virtual void OnRenderEnd(){};
+        virtual void RenderEnd(){};
+
+        // Get the renderer
+        SDL_Renderer *GetRenderer() { return mRenderer; }
+        // Get the window
+        SDL_Window *GetWindow() { return mWindow; }
+
+        // Add a sprite to the cache
+        /// @param name The name of the sprite
+        /// @param sprite The sprite to add
+        void AddSprite(std::string name, class Sprite *sprite);
+        // Get a const reference to the sprite cache
+        const std::unordered_map<std::string, class Sprite *> &GetSpriteCache() { return mSpriteCache; }
 
         // Add an actor to the game
         /// @param actor The actor to add
@@ -163,20 +177,17 @@ namespace junebug
         // Remove a camera from the game
         /// @param camera The camera to remove
         void RemoveCamera(class Camera *camera);
+        // Set the active camera
+        /// @param camera The camera to set as active
+        void SetActiveCamera(class Camera *camera) { mActiveCamera = camera; }
+        // Get the active camera
+        /// @returns The active camera
+        class Camera *GetActiveCamera() { return mActiveCamera; }
 
-        // Add a sprite instance to the game
-        /// @param sprite The sprite to add
-        void AddSprite(class Sprite *sprite);
-        // Remove a sprite instance from the game
-        /// @param sprite The sprite to remove
-        void RemoveSprite(class Sprite *sprite);
         // Load a texture from a file
         /// @param path The path to the texture file
         /// @returns A pointer to the loaded texture
         SDL_Texture *GetTexture(std::string fileName);
-        // Get a const reference to the list of sprites
-        /// @returns A const reference to the list of sprites
-        const std::vector<class Sprite *> &GetSprites() const;
 
         // Load a scene from a file or JSON string
         /// @param scene The scene to load
@@ -188,6 +199,34 @@ namespace junebug
         typedef std::unordered_map<std::string, class PureActor *(*)(Vec2<int> pos)> factory_map;
         // Actor name to class map
         factory_map mActorConstructors;
+
+        // Get the current font
+        /// @returns A pointer to the current font
+        FC_Font *GetCurrentFont() { return mCurrentFont; }
+        // Add a font to the game
+        /// @param path The path to the font file
+        /// @param size The size of the font
+        /// @returns A pointer to the loaded font
+        FC_Font *AddFont(std::string path, int size, int style = TTF_STYLE_NORMAL, Color color = Color::White);
+        // Remove a font from the game
+        /// @param name The name of the font to remove
+        /// @returns true if the font was removed, false otherwise
+        bool RemoveFont(std::string name);
+        // Set the default font
+        /// @param name The name of the font to set as default
+        /// @returns true if font exists, false otherwise
+        bool SetFont(std::string name);
+
+        // The default paths appended to various asset lookups by file path
+        struct AssetPaths
+        {
+            std::string sprites{"assets/sprites/"};
+            std::string fonts{"assets/fonts/"};
+            std::string scenes{"assets/scenes/"};
+        };
+        // Get the asset paths
+        /// @returns A reference to the asset paths
+        AssetPaths &GetAssetPaths() { return mAssetPaths; }
 
     protected:
         // The global game instance
@@ -232,9 +271,9 @@ namespace junebug
         virtual void UnloadData();
 
         // Overridable callback for before an update
-        virtual void OnPreUpdate();
+        virtual void PreUpdate();
         // Overridable callback for after an update
-        virtual void OnPostUpdate();
+        virtual void PostUpdate();
 
         // Inputs
         std::unordered_map<std::string, std::pair<std::vector<Uint8>, int>> mInputMapping;
@@ -251,11 +290,13 @@ namespace junebug
         std::vector<class Camera *> mCameras;
         // Game render target
         SDL_Texture *mRenderTarget = nullptr;
+        // Active camera
+        class Camera *mActiveCamera = nullptr;
 
         // Texture map
         std::unordered_map<std::string, SDL_Texture *> mTextures;
-        // Sprite list
-        std::vector<class Sprite *> mSprites;
+        // Sprite cache
+        std::unordered_map<std::string, class Sprite *> mSpriteCache;
 
         // Scene
         Scene mScene;
@@ -263,5 +304,13 @@ namespace junebug
         std::queue<std::string> mSceneQueue;
         // Helper function to load queued scenes
         void LoadQueuedScenes();
+
+        // Current font
+        FC_Font *mCurrentFont = nullptr;
+        // Font map
+        std::unordered_map<std::string, FC_Font *> mFonts;
+
+        // Asset paths
+        AssetPaths mAssetPaths;
     };
 };
