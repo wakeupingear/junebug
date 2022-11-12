@@ -3,8 +3,8 @@
 #define NAMESPACES
 #endif
 
-#include "Component.h"
 #include "Color.h"
+#include "MathLib.h"
 
 #include "SDL2/SDL.h"
 #include <vector>
@@ -13,28 +13,22 @@
 
 namespace junebug
 {
-    class Sprite : public Component
+    class Sprite
     {
     public:
-        // (Lower draw order corresponds with further back)
-        Sprite(class VisualActor *owner, int drawOrder = 100);
+        Sprite();
         ~Sprite();
 
         // Draw this sprite
-        virtual void Draw(class Camera *cam, SDL_Renderer *renderer);
-        // Update the Sprite animation
-        void Update(float deltaTime) override;
+        void Draw(class Camera *cam, SDL_Renderer *renderer, const Vec2<float> &pos, const Vec2<float> &size = Vec2<float>::One, const float rotation = 0.0f, Color color = Color::White);
         // Set the texture to draw for this psirte
         virtual void SetTexture(SDL_Texture *texture);
 
-        // Get the draw order for this sprite
-        int GetDrawOrder() const { return mDrawOrder; }
-        // Get the width/height of the texture
+        // Get the height of the texture
         int GetTexHeight() const { return mTexHeight; }
+        // Get the height of the texture
         int GetTexWidth() const { return mTexWidth; }
-
-        bool IsVisible() const { return mIsVisible && mColor.a > 0.0f; }
-        void SetIsVisible(bool visible) { mIsVisible = visible; }
+        // Get the height of the texture
 
         // Add an animation of the corresponding name to the animation map
         void AddAnimation(const std::string &name,
@@ -57,13 +51,10 @@ namespace junebug
 
     protected:
         // Texture to draw
-        SDL_Texture *mTexture;
-        // Draw order
-        int mDrawOrder;
+        SDL_Texture *mTexture = nullptr;
         // Width/height
         int mTexWidth;
         int mTexHeight;
-        bool mIsVisible = true;
 
         // Map of animation name to vector of textures corresponding to the animation
         std::unordered_map<std::string, std::vector<SDL_Texture *>> mAnims;

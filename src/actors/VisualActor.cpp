@@ -1,11 +1,7 @@
 #include "Actors.h"
-#include "Component.h"
 #include "Sprite.h"
 #include "JGame.h"
-
-#include <algorithm>
-#include <filesystem>
-namespace fs = std::filesystem;
+#include "Rendering.h"
 
 using namespace junebug;
 
@@ -17,26 +13,13 @@ VisualActor::VisualActor(Vec2<int> pos) : VisualActor(Vec2<float>((float)pos.x, 
 {
 }
 
-VisualActor::VisualActor(Vec2<float> pos, std::string imagePath, int drawOrder) : VisualActor(pos)
+VisualActor::VisualActor(Vec2<float> pos, std::string imagePath) : VisualActor(pos)
 {
-    Sprite *spr = new Sprite(this, drawOrder);
-
-    const fs::path path(imagePath);
-    std::error_code ec;
-    if (fs::is_directory(path, ec))
-    {
-        spr->SetAnimation(imagePath);
-    }
-    if (ec)
-        std::cerr << "Error in is_directory: " << ec.message() << std::endl;
-    if (fs::is_regular_file(path, ec))
-    {
-        spr->SetTexture(JGame::Get()->GetTexture(imagePath));
-    }
-    if (ec)
-        std::cerr << "Error in is_regular_file: " << ec.message() << std::endl;
+    JGame *game = JGame::Get();
+    if (game)
+        mSpritePath = game->GetAssetPaths().sprites + imagePath;
 }
-VisualActor::VisualActor(Vec2<int> pos, std::string imagePath, int drawOrder) : VisualActor(Vec2<float>((float)pos.x, (float)pos.y), imagePath, drawOrder)
+VisualActor::VisualActor(Vec2<int> pos, std::string imagePath) : VisualActor(Vec2<float>((float)pos.x, (float)pos.y), imagePath)
 {
 }
 
@@ -80,9 +63,7 @@ Color VisualActor::GetColor() const
     return mColor;
 }
 
-void VisualActor::AddComponent(Component *c)
+void VisualActor::Draw()
 {
-    mComponents.emplace_back(c);
-    std::sort(mComponents.begin(), mComponents.end(), [](Component *a, Component *b)
-              { return a->GetUpdateOrder() < b->GetUpdateOrder(); });
+    SpriteDraw(mSpritePath, mPosition, mScale, mRotation, mColor);
 }

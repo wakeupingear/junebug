@@ -41,11 +41,13 @@ SDL_Texture *Camera::Render(SDL_Renderer *renderer)
     renderTex = GetRenderTexture(screenSize, renderer, renderTex, true);
 
     JGame *game = JGame::Get();
-    for (Sprite *sprite : game->GetSprites())
+    game->SetActiveCamera(this);
+    for (PureActor *actor : game->GetActors())
     {
-        if (sprite->IsVisible())
+        VisualActor *visualActor = dynamic_cast<VisualActor *>(actor);
+        if (visualActor && visualActor->IsVisible())
         {
-            sprite->Draw(this, renderer);
+            visualActor->Draw();
         }
     }
 

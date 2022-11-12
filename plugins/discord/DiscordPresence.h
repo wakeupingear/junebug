@@ -19,7 +19,7 @@
 #include <vector>
 #include <string>
 
-#include <discord.h>
+#include <discord_game_sdk/discord.h>
 
 namespace junebug
 {

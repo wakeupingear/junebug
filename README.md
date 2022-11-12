@@ -33,3 +33,6 @@ int main()
 Based heavily on [Game Programming in C++](https://books.google.com/books/about/Game_Programming_in_C++.html?id=VfxNDwAAQBAJ&source=kp_book_description) by Sanjay Madhav and the curriculum of USC's ITP 380.
 
 Also inspired by @NoelFB's [blah](https://github.com/NoelFB/blah)
+
+External Libraries:
+[SDL_FontCache](https://github.com/grimfang4/SDL_FontCache)

@@ -1,22 +1,46 @@
 #include "MathLib.h"
 
-template<> const Vec2<float> Vec2<float>::Zero(0.0f, 0.0f);
-template<> const Vec2<int> Vec2<int>::Zero(0, 0);
-template<> const Vec2<float> Vec2<float>::UnitX(1.0f, 0.0f);
-template<> const Vec2<float> Vec2<float>::UnitY(0.0f, 1.0f);
-template<> const Vec2<float> Vec2<float>::NegUnitX(-1.0f, 0.0f);
-template<> const Vec2<float> Vec2<float>::NegUnitY(0.0f, -1.0f);
+template <>
+const Vec2<float> Vec2<float>::Zero(0.0f, 0.0f);
+template <>
+const Vec2<int> Vec2<int>::Zero(0, 0);
+template <>
+const Vec2<float> Vec2<float>::One(1.0f, 1.0f);
+template <>
+const Vec2<int> Vec2<int>::One(1, 1);
+template <>
+const Vec2<float> Vec2<float>::UnitX(1.0f, 0.0f);
+template <>
+const Vec2<float> Vec2<float>::UnitY(0.0f, 1.0f);
+template <>
+const Vec2<float> Vec2<float>::NegUnitX(-1.0f, 0.0f);
+template <>
+const Vec2<float> Vec2<float>::NegUnitY(0.0f, -1.0f);
 
-template<> const Vec3<float> Vec3<float>::Zero(0.0f, 0.0f, 0.f);
-template<> const Vec3<int> Vec3<int>::Zero(0, 0, 0);
-template<> const Vec3<float> Vec3<float>::UnitX(1.0f, 0.0f, 0.0f);
-template<> const Vec3<float> Vec3<float>::UnitY(0.0f, 1.0f, 0.0f);
-template<> const Vec3<float> Vec3<float>::UnitZ(0.0f, 0.0f, 1.0f);
-template<> const Vec3<float> Vec3<float>::NegUnitX(-1.0f, 0.0f, 0.0f);
-template<> const Vec3<float> Vec3<float>::NegUnitY(0.0f, -1.0f, 0.0f);
-template<> const Vec3<float> Vec3<float>::NegUnitZ(0.0f, 0.0f, -1.0f);
-template<> const Vec3<float> Vec3<float>::Infinity(Math::Infinity, Math::Infinity, Math::Infinity);
-template<> const Vec3<float> Vec3<float>::NegInfinity(Math::NegInfinity, Math::NegInfinity, Math::NegInfinity);
+template <>
+const Vec3<float> Vec3<float>::Zero(0.0f, 0.0f, 0.0f);
+template <>
+const Vec3<int> Vec3<int>::Zero(0, 0, 0);
+template <>
+const Vec3<float> Vec3<float>::One(1.0f, 1.0f, 1.0f);
+template <>
+const Vec3<int> Vec3<int>::One(1, 1, 1);
+template <>
+const Vec3<float> Vec3<float>::UnitX(1.0f, 0.0f, 0.0f);
+template <>
+const Vec3<float> Vec3<float>::UnitY(0.0f, 1.0f, 0.0f);
+template <>
+const Vec3<float> Vec3<float>::UnitZ(0.0f, 0.0f, 1.0f);
+template <>
+const Vec3<float> Vec3<float>::NegUnitX(-1.0f, 0.0f, 0.0f);
+template <>
+const Vec3<float> Vec3<float>::NegUnitY(0.0f, -1.0f, 0.0f);
+template <>
+const Vec3<float> Vec3<float>::NegUnitZ(0.0f, 0.0f, -1.0f);
+template <>
+const Vec3<float> Vec3<float>::Infinity(junebug::Infinity, junebug::Infinity, junebug::Infinity);
+template <>
+const Vec3<float> Vec3<float>::NegInfinity(junebug::NegInfinity, junebug::NegInfinity, junebug::NegInfinity);
 
 static float m3Ident[3][3] =
 	{
@@ -73,7 +97,7 @@ Vec3<T> Vec3<T>::TransformWithPerspDiv(const Vec3<T> &vec, const Matrix4 &mat, f
 			   vec.z * mat.mat[2][2] + w * mat.mat[3][2];
 	float transformedW = vec.x * mat.mat[0][3] + vec.y * mat.mat[1][3] +
 						 vec.z * mat.mat[2][3] + w * mat.mat[3][3];
-	if (!Math::NearZero(Math::Abs(transformedW)))
+	if (!NearZero(Abs(transformedW)))
 	{
 		transformedW = 1.0f / transformedW;
 		retVal *= transformedW;

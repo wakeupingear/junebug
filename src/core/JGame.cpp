@@ -59,7 +59,7 @@ void JGame::ProcessOptions(GameOptions newOptions)
         if (displayMode.refresh_rate > 0 && displayMode.refresh_rate <= 10000)
         {
             options.fpsTarget = 1000 / displayMode.refresh_rate;
-            PrintLog("Targeting display refresh rate of " + std::to_string(displayMode.refresh_rate) + " fps");
+            Log("Targeting display refresh rate of " + std::to_string(displayMode.refresh_rate) + " fps");
         }
     }
 
@@ -72,11 +72,15 @@ void JGame::ProcessOptions(GameOptions newOptions)
 
     if (options.windowIcon != "" && mWindow)
     {
-        SDL_Surface *icon = IMG_Load(options.windowIcon.c_str());
+        SDL_Surface *icon = IMG_Load((GetAssetPaths().sprites + options.windowIcon).c_str());
         if (icon)
         {
             SDL_SetWindowIcon(mWindow, icon);
             SDL_FreeSurface(icon);
+        }
+        else
+        {
+            PrintLog("Failed to load window icon: " + std::string(IMG_GetError()));
         }
     }
 }
@@ -94,6 +98,14 @@ int JGame::GetScreenHeight()
 void JGame::Shutdown()
 {
     UnloadData();
+
+    while (!mFonts.empty())
+    {
+        FC_Font *font = mFonts.begin()->second;
+        if (font)
+            FC_FreeFont(font);
+        mFonts.erase(mFonts.begin());
+    }
 
     SDL_DestroyWindow(mWindow);
     SDL_Quit();
@@ -136,9 +148,9 @@ bool JGame::Run(int screenWidth, int screenHeight)
         ProcessInput();
         if (mGameIsRunning)
         {
-            OnPreUpdate();
+            PreUpdate();
             UpdateGame();
-            OnPostUpdate();
+            PostUpdate();
         }
         if (mGameIsRunning)
             GenerateOutput();
@@ -150,8 +162,8 @@ bool JGame::Run(int screenWidth, int screenHeight)
     return true;
 }
 
-void JGame::OnPreUpdate() {}
-void JGame::OnPostUpdate() {}
+void JGame::PreUpdate() {}
+void JGame::PostUpdate() {}
 
 void JGame::UpdateGame()
 {
@@ -167,7 +179,7 @@ void JGame::UpdateGame()
     mDeltaTime = (float)(timeDiff) / 1000.0f;
 
     // User-defined callback
-    OnUpdateStart(mDeltaTime);
+    UpdateStart(mDeltaTime);
 
     // Update actors
     auto tempActors = mActors;
@@ -178,8 +190,8 @@ void JGame::UpdateGame()
         else if (actor->GetState() == ActorState::Started)
         {
             actor->SetState(ActorState::Active);
-            actor->OnFirstUpdate(mDeltaTime);
-            actor->Update(mDeltaTime);
+            actor->FirstUpdate(mDeltaTime);
+            actor->InternalUpdate(mDeltaTime);
         }
     }
 
@@ -195,7 +207,7 @@ void JGame::UpdateGame()
         delete actor;
 
     // User-defined callback
-    OnUpdateEnd(mDeltaTime);
+    UpdateEnd(mDeltaTime);
 
     // Update options
     if (mOptionsUpdated)
@@ -222,25 +234,23 @@ void JGame::GenerateOutput()
     SDL_RenderClear(mRenderer);
 
     // User-defined callback
-    OnRenderStart();
+    RenderStart();
 
     // Render cameras
     mRenderTarget = GetRenderTexture(Vec2<int>(mScreenWidth, mScreenHeight), mRenderer, mRenderTarget);
 
     for (Camera *camera : mCameras)
     {
-        if (true)
-        {
-            SDL_Texture *tex = camera->Render(mRenderer);
-            SDL_SetRenderTarget(mRenderer, mRenderTarget);
-            SDL_Rect destR;
-            destR.x = (int)camera->screenPos.x;
-            destR.y = (int)camera->screenPos.y;
-            destR.w = (int)camera->screenSize.x;
-            destR.h = (int)camera->screenSize.y;
-            SDL_RenderCopy(mRenderer, tex, NULL, &destR);
-        }
+        SDL_Texture *tex = camera->Render(mRenderer);
+        SDL_SetRenderTarget(mRenderer, mRenderTarget);
+        SDL_Rect destR;
+        destR.x = (int)camera->screenPos.x;
+        destR.y = (int)camera->screenPos.y;
+        destR.w = (int)camera->screenSize.x;
+        destR.h = (int)camera->screenSize.y;
+        SDL_RenderCopy(mRenderer, tex, NULL, &destR);
     }
+    SetActiveCamera(nullptr);
 
     SDL_SetRenderTarget(mRenderer, NULL);
     SDL_RenderSetViewport(mRenderer, &windowR);
@@ -248,7 +258,7 @@ void JGame::GenerateOutput()
     SDL_RenderCopy(mRenderer, mRenderTarget, NULL, &windowR);
 
     // User-defined callback
-    OnRenderEnd();
+    RenderEnd();
 
     SDL_RenderPresent(mRenderer);
 }
