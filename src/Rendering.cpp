@@ -23,7 +23,7 @@ namespace junebug
         mSpriteCache[name] = sprite;
     }
 
-    void SpriteDraw(std::string imagePath, const Vec2<float> &pos, const Vec2<float> &scale, const float rotation, const Color color)
+    void SpriteDraw(std::string imagePath, const Vec2<float> &pos, const SpriteProperties &properties)
     {
         {
             JGame *game = JGame::Get();
@@ -73,7 +73,7 @@ namespace junebug
             if (!sprite)
                 return;
 
-            sprite->Draw(camera, renderer, pos, scale, rotation, color);
+            sprite->Draw(camera, renderer, pos, properties);
         }
     }
 

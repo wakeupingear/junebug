@@ -85,12 +85,14 @@ void JGame::LoadQueuedScenes()
             {
                 const auto &layersRef = sceneInfo->Get("layers")->value.GetArray();
                 newScene.layers.reserve(layersRef.Size());
-                for (auto &layerRef : layersRef) {
+                for (auto &layerRef : layersRef)
+                {
                     if (layerRef.IsObject())
                     {
                         const auto &layerObj = layerRef.GetObject();
                         std::string id = Json::GetString(layerObj, "id");
-                        if (id == "") continue;
+                        if (id == "")
+                            continue;
 
                         Layer layer;
                         layer.id = id;
@@ -129,9 +131,11 @@ void JGame::LoadQueuedScenes()
                         actor->SetPersistent(Json::GetBool(actorObj, "persistent"));
 
                         std::string layerId = Json::GetString(actorObj, "layer");
-                        if (layerId != "") {
+                        if (layerId != "")
+                        {
                             auto it = newScene.layers.find(layerId);
-                            if (it != newScene.layers.end()) {
+                            if (it != newScene.layers.end())
+                            {
                                 actor->SetDepth(it->second.depth);
                             }
                         }
@@ -142,9 +146,6 @@ void JGame::LoadQueuedScenes()
                             visualActor->SetScale(Json::GetVec2<float>(actorObj, "scale", Vec2(1.0f, 1.0f)));
                             visualActor->SetRotation(Json::GetNumber<float>(actorObj, "rotation"));
                         }
-
-                        if (visualActor) Print(*visualActor);
-                        else Print(*actor);
                     }
             }
 

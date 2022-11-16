@@ -5,6 +5,7 @@
 
 #include "Color.h"
 #include "MathLib.h"
+#include "Rendering.h"
 
 #include "SDL2/SDL.h"
 #include <vector>
@@ -20,7 +21,7 @@ namespace junebug
         ~Sprite();
 
         // Draw this sprite
-        void Draw(class Camera *cam, SDL_Renderer *renderer, const Vec2<float> &pos, const Vec2<float> &size = Vec2<float>::One, const float rotation = 0.0f, Color color = Color::White);
+        void Draw(class Camera *cam, SDL_Renderer *renderer, const Vec2<float> &pos, const SpriteProperties &properties = {});
         // Set the texture to draw for this psirte
         virtual void SetTexture(SDL_Texture *texture);
 

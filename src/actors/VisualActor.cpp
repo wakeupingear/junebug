@@ -65,5 +65,5 @@ Color VisualActor::GetColor() const
 
 void VisualActor::Draw()
 {
-    SpriteDraw(mSpritePath, mPosition, mScale, mRotation, mColor);
+    SpriteDraw(mSpritePath, mPosition, {mScale, mRotation, mColor});
 }

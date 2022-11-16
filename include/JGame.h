@@ -18,6 +18,10 @@
 #include <string>
 #include <functional>
 #include <queue>
+#include <chrono>
+
+using namespace std::chrono;
+using dsec = duration<double>;
 
 /// @brief The Junebug namespace contains all of the Junebug classes and functions
 namespace junebug
@@ -59,12 +63,19 @@ namespace junebug
         // Whether the game should automatically create a camera
         bool createDefaultCamera{true};
 
-        // The game's target framerate in milliseconds
-        Uint32 fpsTarget{1000 / 60};
-        // The minimum framerate to maintain if the game is running slowly
-        Uint32 fpsMin{1000 / 30};
+        // The game's target framerate
+        int fpsTarget{120};
         // Whether the game should automatically target the display's refresh rate
         bool detectFps{true};
+        // Whether the game should block the main thread until the target framerate is reached
+        // True == Low CPU, occasional frame time spikes
+        // False == High CPU, consistent frame time
+        bool shouldThreadSleep{true};
+        // The number of milliseconds to under-sleep the main thread by
+        // This is to account for the fact that a sleeping thread will not wake up exactly when it is supposed to, and will likely overshoot the target time
+        // A higher value will result in more consistent frame times, but will also result in more CPU usage
+        // Only used if shouldThreadSleep is true
+        double sleepMargin{9.};
 
         int randomSeed{-1};
 
@@ -112,6 +123,9 @@ namespace junebug
         // Clean up any resources used by the game
         // Should be called after RunLoop() has finished and before the program exits
         void Shutdown();
+
+        // Get the FPS the game is currently running at
+        int GetFPS() { return mFps; }
 
         // Run the game
         /// @returns true if successful, false otherwise
@@ -255,8 +269,17 @@ namespace junebug
         bool mGameIsRunning = false;
         // Current time between frames
         float mDeltaTime = 0;
-        // The timestamp of the last frame
-        Uint32 mPrevTime = 0;
+        // The inverse of the target framerate
+        system_clock::duration mInvTargetFps = round<system_clock::duration>(dsec{1. / 60});
+        system_clock::duration mSleepMargin = round<system_clock::duration>(dsec{1. / 1000});
+        // The previous time in seconds
+        time_point<system_clock, seconds> mPrevSecond;
+        // The accumulated frames in the current second
+        int mFramesThisSecond;
+        time_point<system_clock, nanoseconds> mBeginFrame = system_clock::now();
+        time_point<system_clock, nanoseconds> mEndFrame;
+        // The FPS of the previous frame
+        unsigned int mFps = 0;
 
         // The game's screen size
         int mScreenWidth, mScreenHeight;

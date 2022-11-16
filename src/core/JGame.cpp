@@ -6,8 +6,10 @@
 #include <algorithm>
 #include <fstream>
 #include <string>
+#include <thread>
 
 using namespace junebug;
+using namespace std::chrono;
 
 JGame::JGame()
 {
@@ -58,10 +60,12 @@ void JGame::ProcessOptions(GameOptions newOptions)
         SDL_GetCurrentDisplayMode(displayIndex, &displayMode);
         if (displayMode.refresh_rate > 0 && displayMode.refresh_rate <= 10000)
         {
-            options.fpsTarget = 1000 / displayMode.refresh_rate;
+            options.fpsTarget = displayMode.refresh_rate;
             Log("Targeting display refresh rate of " + std::to_string(displayMode.refresh_rate) + " fps");
         }
     }
+    mInvTargetFps = round<system_clock::duration>(dsec{1. / options.fpsTarget});
+    mSleepMargin = round<system_clock::duration>(dsec{options.sleepMargin / 1000.});
 
     if (options.randomSeed == -1)
         srand((unsigned int)time(NULL));
@@ -143,6 +147,8 @@ bool JGame::Run(int screenWidth, int screenHeight)
 
     mGameIsRunning = true;
 
+    mBeginFrame = system_clock::now();
+    mEndFrame = mBeginFrame + mInvTargetFps;
     while (mGameIsRunning)
     {
         ProcessInput();
@@ -167,16 +173,30 @@ void JGame::PostUpdate() {}
 
 void JGame::UpdateGame()
 {
-    // Delta time
-    Uint32 timeDiff = 0;
-    do
+    // Calculate the FPS
+    auto time_in_seconds = time_point_cast<seconds>(system_clock::now());
+    ++mFramesThisSecond;
+    if (time_in_seconds > mPrevSecond)
     {
-        timeDiff = SDL_GetTicks() - mPrevTime;
-    } while (timeDiff < options.fpsTarget);
-    if (timeDiff > options.fpsMin)
-        timeDiff = options.fpsMin;
-    mPrevTime = SDL_GetTicks();
-    mDeltaTime = (float)(timeDiff) / 1000.0f;
+        mFps = Clamp(mFramesThisSecond, 0, 10000);
+        mFramesThisSecond = 0;
+        mPrevSecond = time_in_seconds;
+    }
+
+    // Sleep the thread until slightly before the next frame
+    if (options.shouldThreadSleep)
+        std::this_thread::sleep_until(mEndFrame - mSleepMargin);
+
+    // Manually block the thread until the exact time of the next frame
+    auto mWorkTime = system_clock::now() - mBeginFrame;
+    while (mWorkTime < mInvTargetFps)
+    {
+        mEndFrame = system_clock::now();
+        mWorkTime = mEndFrame - mBeginFrame;
+    }
+    mBeginFrame = mEndFrame;
+    mEndFrame = mBeginFrame + mInvTargetFps;
+    mDeltaTime = (float)duration_cast<dsec>(mEndFrame - mBeginFrame).count();
 
     // User-defined callback
     UpdateStart(mDeltaTime);

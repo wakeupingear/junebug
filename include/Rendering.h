@@ -11,8 +11,29 @@
 
 namespace junebug
 {
+    struct SpriteProperties
+    {
+        Vec2<float> scale{1.0f, 1.0f};
+        float rotation{0.0f};
+        Color color{Color::White};
+
+        SpriteProperties() {}
+        SpriteProperties(const Vec2<float> &scale)
+            : scale(scale){};
+        SpriteProperties(const float rotation) : rotation(rotation) {}
+        SpriteProperties(const Color &color) : color(color) {}
+        SpriteProperties(const Vec2<float> &scale, const float rotation)
+            : scale(scale), rotation(rotation) {}
+        SpriteProperties(const Vec2<float> &scale, const Color &color)
+            : scale(scale), color(color) {}
+        SpriteProperties(const float rotation, const Color &color)
+            : rotation(rotation), color(color) {}
+        SpriteProperties(const Vec2<float> &scale, const float rotation, const Color &color)
+            : scale(scale), rotation(rotation), color(color){};
+    };
+
     // Draw a sprite
-    void SpriteDraw(std::string imagePath, const Vec2<float> &pos, const Vec2<float> &scale = Vec2<float>::One, const float rotation = 0.0f, const Color color = Color::White);
+    void SpriteDraw(std::string imagePath, const Vec2<float> &pos, const SpriteProperties &properties = {});
 
     struct TextEffects : FC_Effect
     {
@@ -32,7 +53,7 @@ namespace junebug
             this->scale.x = scale.x;
             this->scale.y = scale.y;
         }
-        TextEffects(const FC_AlignEnum  alignment) : TextEffects()
+        TextEffects(const FC_AlignEnum alignment) : TextEffects()
         {
             this->alignment = alignment;
         }
@@ -42,12 +63,12 @@ namespace junebug
             this->scale.x = scale.x;
             this->scale.y = scale.y;
         }
-        TextEffects(const Color &color, const FC_AlignEnum  alignment) : TextEffects(color)
+        TextEffects(const Color &color, const FC_AlignEnum alignment) : TextEffects(color)
         {
             this->color = color;
             this->alignment = alignment;
         }
-        TextEffects(const Vec2<float> &scale, const FC_AlignEnum  alignment) : TextEffects(scale)
+        TextEffects(const Vec2<float> &scale, const FC_AlignEnum alignment) : TextEffects(scale)
         {
             this->scale.x = scale.x;
             this->scale.y = scale.y;
