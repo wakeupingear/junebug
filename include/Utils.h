@@ -29,6 +29,12 @@ namespace junebug
         ((std::cout << args << ' '), ...) << std::endl;
     };
 
+    template <typename... T>
+    inline void print(T... args)
+    {
+        Print(args...);
+    };
+
     static std::ofstream __logStream__("log.txt", std::ofstream::out);
 
     // Log a message

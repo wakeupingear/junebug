@@ -93,7 +93,7 @@ namespace junebug
             return;
 
         Camera *camera = game->GetActiveCamera();
-        const Vec2<float> &camPos = (camera) ? camera->pos : Vec2<>::Zero;
+        const Vec2<float> &camPos = (camera) ? camera->_calcPos : Vec2<>::Zero;
 
         FC_DrawEffect(font, renderer, pos.x - camPos.x, pos.y - camPos.y, effects, text.c_str());
     }

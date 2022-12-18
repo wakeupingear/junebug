@@ -8,7 +8,7 @@ namespace junebug
         if (_type < 0 || _type >= TwerpType::TWERP_COUNT)
             return 0.0f;
 
-        _pos = Clamp(_looped ? fmod(_pos, 1.0f) : _pos, 0.0f, 1.0f);
+        _pos = Clamp<float>(_looped ? fmod(_pos, 1.0f) : _pos, 0.0f, 1.0f);
         float _chng = _end - _start;
         float _mid = (_start + _end) / 2;
 

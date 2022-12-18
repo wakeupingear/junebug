@@ -50,8 +50,11 @@ namespace junebug
         Uint32 initFlags{SDL_INIT_AUDIO | SDL_INIT_VIDEO};
         Uint32 windowFlags{0};
         Uint32 renderFlags{SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC};
+        int rendererIndex{-1};
 
         int windowX{SDL_WINDOWPOS_CENTERED}, windowY{SDL_WINDOWPOS_CENTERED};
+        bool resizable{false};
+        bool screenStretch{true};
 
         int bufferCol[4]{0, 0, 0, 255};
 
@@ -112,13 +115,20 @@ namespace junebug
         // Get the global game instance
         static JGame *Get();
 
+        // Whether the game is running in debug mode
+        static bool isDebug;
+
         // Get a reference to the game's options
         GameOptions &Options();
+        // Get a const reference to the game's options without being able to modify them
+        const GameOptions &GetOptions() const;
 
         // Get the game's screen width
         int GetScreenWidth();
         // Get the game's screen height
         int GetScreenHeight();
+        int GetRenderWidth();
+        int GetRenderHeight();
 
         // Clean up any resources used by the game
         // Should be called after RunLoop() has finished and before the program exits
@@ -281,8 +291,17 @@ namespace junebug
         // The FPS of the previous frame
         unsigned int mFps = 0;
 
+        // Get the display size
+        /// @returns A Vec2<int> containing the display size
+        Vec2<int> GetDisplaySize() const;
         // The game's screen size
         int mScreenWidth, mScreenHeight;
+        // the Previous screen size (for fullscreen toggling)
+        Vec2<int> mPrevScreenSize;
+        // The previous window position (for fullscreen toggling)
+        Vec2<int> mPrevWindowPos;
+        // The game's render size
+        int mRenderWidth, mRenderHeight;
 
         // Whether the game is currently in fullscreen mode
         bool mFullscreen = false;

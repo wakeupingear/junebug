@@ -11,6 +11,12 @@
 using namespace junebug;
 using namespace std::chrono;
 
+#ifndef NDEBUG
+bool JGame::isDebug = true;
+#else
+bool JGame::isDebug = false;
+#endif
+
 JGame::JGame()
 {
     if (!firstGame)
@@ -37,6 +43,11 @@ GameOptions &JGame::Options()
     return options;
 }
 
+const GameOptions &JGame::GetOptions() const
+{
+    return options;
+}
+
 void JGame::ProcessOptions(GameOptions newOptions)
 {
     options = newOptions;
@@ -48,7 +59,8 @@ void JGame::ProcessOptions(GameOptions newOptions)
         SDL_SetWindowSize(mWindow, mScreenWidth, mScreenHeight);
     }
 
-    if (options.createDefaultCamera && mCameras.empty())
+    // Only create a default camera if there are no cameras after LoadData() has run
+    if (mGameIsRunning && options.createDefaultCamera && mCameras.empty())
     {
         new Camera();
     }
@@ -89,15 +101,10 @@ void JGame::ProcessOptions(GameOptions newOptions)
     }
 }
 
-int JGame::GetScreenWidth()
-{
-    return mScreenWidth;
-}
-
-int JGame::GetScreenHeight()
-{
-    return mScreenHeight;
-}
+int JGame::GetScreenWidth() { return mScreenWidth; }
+int JGame::GetScreenHeight() { return mScreenHeight; }
+int JGame::GetRenderWidth() { return mRenderWidth; }
+int JGame::GetRenderHeight() { return mRenderHeight; }
 
 void JGame::Shutdown()
 {
@@ -117,15 +124,42 @@ void JGame::Shutdown()
 
 bool JGame::Run(int screenWidth, int screenHeight)
 {
-    mScreenWidth = screenWidth;
-    mScreenHeight = screenHeight;
+    mScreenWidth = screenWidth, mScreenHeight = screenHeight;
+    mRenderWidth = screenWidth, mRenderHeight = screenHeight;
+
+#ifdef linux
+    putenv((char *)"SDL_VIDEO_X11_NET_WM_BYPASS_COMPOSITOR=0");
+    putenv((char *)"SDL_VIDEO_X11_FORCE_EGL=1");
+    putenv((char *)"SDL_HINT_RENDER_SCALE_QUALITY=1");
+#endif
 
     if (SDL_Init(options.initFlags) != 0)
         return false;
+
+    if (options.resizable && !(options.windowFlags & SDL_WINDOW_RESIZABLE))
+        options.windowFlags |= SDL_WINDOW_RESIZABLE;
+    options.resizable = (options.windowFlags & SDL_WINDOW_RESIZABLE);
+
     mWindow = SDL_CreateWindow(
         options.title.c_str(), options.windowX, options.windowY, screenWidth, screenHeight, options.windowFlags);
+    if (!mWindow)
+    {
+        Print("Failed to create window: " + std::string(SDL_GetError()));
+        return false;
+    }
+
     mRenderer = SDL_CreateRenderer(
-        mWindow, -1, options.windowFlags);
+        mWindow, options.rendererIndex, options.renderFlags);
+    if (!mRenderer)
+    {
+        mRenderer = SDL_CreateRenderer(
+            mWindow, 2, options.renderFlags);
+    }
+    if (!mRenderer)
+    {
+        Print("Failed to create renderer: " + std::string(SDL_GetError()));
+        return false;
+    }
 
     Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048);
 
@@ -146,6 +180,8 @@ bool JGame::Run(int screenWidth, int screenHeight)
     }
 
     mGameIsRunning = true;
+    // Process any options that were changed in LoadData()
+    ProcessOptions(options);
 
     mBeginFrame = system_clock::now();
     mEndFrame = mBeginFrame + mInvTargetFps;
@@ -243,6 +279,7 @@ void JGame::GenerateOutput()
     windowR.x = 0;
     windowR.y = 0;
     SDL_GetWindowSize(mWindow, &windowR.w, &windowR.h);
+
     // SDL_RenderSetViewport(mRenderer, &windowR);
 
     SDL_SetRenderDrawColor(
@@ -261,13 +298,15 @@ void JGame::GenerateOutput()
 
     for (Camera *camera : mCameras)
     {
+        camera->_UpdateCoordinates();
+
         SDL_Texture *tex = camera->Render(mRenderer);
         SDL_SetRenderTarget(mRenderer, mRenderTarget);
         SDL_Rect destR;
-        destR.x = (int)camera->screenPos.x;
-        destR.y = (int)camera->screenPos.y;
-        destR.w = (int)camera->screenSize.x;
-        destR.h = (int)camera->screenSize.y;
+        destR.x = (int)camera->_calcScreenPos.x;
+        destR.y = (int)camera->_calcScreenPos.y;
+        destR.w = (int)camera->_calcScreenSize.x;
+        destR.h = (int)camera->_calcScreenSize.y;
         SDL_RenderCopy(mRenderer, tex, NULL, &destR);
     }
     SetActiveCamera(nullptr);
@@ -275,6 +314,7 @@ void JGame::GenerateOutput()
     SDL_SetRenderTarget(mRenderer, NULL);
     SDL_RenderSetViewport(mRenderer, &windowR);
     SDL_RenderClear(mRenderer);
+
     SDL_RenderCopy(mRenderer, mRenderTarget, NULL, &windowR);
 
     // User-defined callback
@@ -311,4 +351,11 @@ void JGame::AddCamera(Camera *camera)
 void JGame::RemoveCamera(Camera *camera)
 {
     mCameras.erase(std::remove(mCameras.begin(), mCameras.end(), camera), mCameras.end());
+}
+
+Vec2<int> JGame::GetDisplaySize() const
+{
+    SDL_DisplayMode DM;
+    SDL_GetCurrentDisplayMode(0, &DM);
+    return Vec2<int>(DM.w, DM.h);
 }

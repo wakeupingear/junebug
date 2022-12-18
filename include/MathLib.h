@@ -9,6 +9,7 @@
 #include <memory.h>
 #include <limits>
 #include <fstream>
+#include <SDL2/SDL.h>
 
 namespace junebug
 {
@@ -119,6 +120,8 @@ namespace junebug
 		return fmod(numer, denom);
 	}
 }
+
+using namespace junebug;
 
 // 2D Vector
 template <typename T = float>
@@ -946,6 +949,14 @@ public:
 	Quaternion()
 	{
 		*this = Quaternion::Identity;
+	}
+
+	Quaternion(SDL_Rect r)
+	{
+		x = r.x;
+		y = r.y;
+		z = r.w;
+		w = r.h;
 	}
 
 	// This directly sets the quaternion components --

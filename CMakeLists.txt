@@ -110,14 +110,20 @@ else()
     PKG_SEARCH_MODULE(SDL2 REQUIRED sdl2) 
     PKG_SEARCH_MODULE(SDL2IMAGE REQUIRED SDL2_image>=2.0.0)
     PKG_SEARCH_MODULE(SDL2MIXER REQUIRED SDL2_mixer)
+    PKG_SEARCH_MODULE(SDL2TTF REQUIRED SDL2_ttf)
 
-    INCLUDE_DIRECTORIES(${SDL2_INCLUDE_DIRS} ${SDL2IMAGE_INCLUDE_DIRS})
+    include_directories(${SDL2_INCLUDE_DIRS} ${SDL2IMAGE_INCLUDE_DIRS})
+
+    include_directories(lib/discord_game_sdk)
+    link_directories(lib/discord_game_sdk/lib/x86_64)
 
     TARGET_LINK_LIBRARIES(
         ${LIBNAME} 
         ${SDL2_LIBRARIES} 
         ${SDL2IMAGE_LIBRARIES}
         ${SDL2MIXER_LIBRARIES}
+        ${SDL2TTF_LIBRARIES}
+        discord_game_sdk
     )
 
     install(TARGETS ${LIBNAME}

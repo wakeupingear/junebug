@@ -4,6 +4,10 @@ using namespace junebug;
 
 void JGame::ProcessInput()
 {
+    // Store the current screen size in case fullscreen is toggled
+    Vec2<int> oldScreenSize(mScreenWidth, mScreenHeight), oldWindowPos;
+    SDL_GetWindowSize(mWindow, &mScreenWidth, &mScreenHeight);
+
     SDL_Event event;
     std::unordered_map<Uint8, int> newInputs;
 
@@ -23,8 +27,15 @@ void JGame::ProcessInput()
         case SDL_MOUSEMOTION:
             int w, h;
             SDL_GetWindowSize(mWindow, &w, &h);
+            w = std::max(w, 1);
+            h = std::max(h, 1);
             mMousePos.x = event.motion.x * mScreenWidth / w;
             mMousePos.y = event.motion.y * mScreenHeight / h;
+            if (options.screenStretch)
+            {
+                mMousePos.x /= ((float)w / (float)mRenderWidth);
+                mMousePos.y /= ((float)h / (float)mRenderHeight);
+            }
             break;
         case SDL_MOUSEBUTTONDOWN:
             extraStates[event.button.button + MOUSE_LEFT - 1] = 1;
@@ -35,8 +46,6 @@ void JGame::ProcessInput()
             {
                 mScreenWidth = event.window.data1;
                 mScreenHeight = event.window.data2;
-                // SDL_SetWindowSize(mWindow, mScreenWidth, mScreenHeight);
-                Print("Window resized to", mScreenWidth, mScreenHeight);
             }
             break;
         default:
@@ -68,15 +77,37 @@ void JGame::ProcessInput()
     }
     if (Input(JB_INPUT_FULLSCREEN) == 1)
     {
+        if (!mFullscreen)
+        {
+            SDL_GetWindowPosition(mWindow, &mPrevWindowPos.x, &mPrevWindowPos.y);
+        }
+
         mFullscreen = !mFullscreen;
         SDL_SetWindowFullscreen(mWindow, mFullscreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0);
         FlushPollEvents();
 
         if (!mFullscreen)
         {
-            SDL_SetWindowSize(mWindow, mScreenWidth, mScreenHeight);
-            // SDL_SetWindowPosition(mWindow, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
+            SDL_SetWindowSize(mWindow, mPrevScreenSize.x, mPrevScreenSize.y);
+            SDL_SetWindowPosition(mWindow, mPrevWindowPos.x, mPrevWindowPos.y);
         }
+        else
+        {
+            SDL_SetWindowPosition(mWindow, mPrevWindowPos.x, mPrevWindowPos.y);
+            if (options.resizable)
+            {
+                auto displaySize = GetDisplaySize();
+                mScreenWidth = displaySize.x;
+                mScreenHeight = displaySize.y;
+            }
+        }
+    }
+
+    // Store the previous screen size if it changed
+    // This happens after the checks since it can change in many places
+    if (oldScreenSize.x != mScreenWidth || oldScreenSize.y != mScreenHeight)
+    {
+        mPrevScreenSize = oldScreenSize;
     }
 
     // User-defined callback
