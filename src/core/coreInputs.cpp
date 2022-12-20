@@ -4,6 +4,8 @@ using namespace junebug;
 
 void JGame::ProcessInput()
 {
+    DebugCheckpoint("Inputs", mShowDefaultDebugCheckpoints);
+
     // Store the current screen size in case fullscreen is toggled
     Vec2<int> oldScreenSize(mScreenWidth, mScreenHeight), oldWindowPos;
     SDL_GetWindowSize(mWindow, &mScreenWidth, &mScreenHeight);
@@ -13,7 +15,6 @@ void JGame::ProcessInput()
 
     // Read keyboard state
     const Uint8 *state = SDL_GetKeyboardState(NULL);
-    Uint8 extraStates[256] = {0};
 
     // Read poll events
     while (SDL_PollEvent(&event))
@@ -38,7 +39,11 @@ void JGame::ProcessInput()
             }
             break;
         case SDL_MOUSEBUTTONDOWN:
-            extraStates[event.button.button + MOUSE_LEFT - 1] = 1;
+            mExtraStates[event.button.button + MOUSE_LEFT - 1] = 1;
+            break;
+        case SDL_MOUSEBUTTONUP:
+            mExtraStates[event.button.button + MOUSE_LEFT - 1] = 0;
+            break;
         case SDL_WINDOWEVENT:
             if (event.window.event == SDL_WINDOWEVENT_CLOSE && event.window.windowID == SDL_GetWindowID(mWindow))
                 mGameIsRunning = false;
@@ -59,7 +64,7 @@ void JGame::ProcessInput()
         inputs.second = 0;
         for (auto input : inputs.first)
         {
-            if (state[input] || extraStates[input])
+            if (state[input] || mExtraStates[input])
             {
                 auto loc = mInputs.find(input);
                 int val = loc != mInputs.end() ? loc->second + 1 : 1;
@@ -112,6 +117,8 @@ void JGame::ProcessInput()
 
     // User-defined callback
     InputsProcessed(state);
+
+    DebugCheckpointStop("Inputs");
 }
 
 int JGame::Input(std::string key)
@@ -120,6 +127,11 @@ int JGame::Input(std::string key)
     if (it == mInputMapping.end())
         return 0;
     return it->second.second;
+}
+
+bool JGame::InputPressed(std::string key)
+{
+    return Input(key) == 1;
 }
 
 void JGame::SetInputMapping(std::string key, std::vector<Uint8> inputs)

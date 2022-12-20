@@ -117,6 +117,8 @@ namespace junebug
 
         // Whether the game is running in debug mode
         static bool isDebug;
+        // Whether the editor is enabled
+        static bool isEditor;
 
         // Get a reference to the game's options
         GameOptions &Options();
@@ -127,24 +129,28 @@ namespace junebug
         int GetScreenWidth();
         // Get the game's screen height
         int GetScreenHeight();
+        // Get the game's internal rendering width
         int GetRenderWidth();
+        // Get the game's internal rendering height
         int GetRenderHeight();
 
-        // Clean up any resources used by the game
-        // Should be called after RunLoop() has finished and before the program exits
-        void Shutdown();
+        // Get the renderer
+        SDL_Renderer *GetRenderer() { return mRenderer; }
+        // Get the window
+        SDL_Window *GetWindow() { return mWindow; }
 
         // Get the FPS the game is currently running at
         int GetFPS() { return mFps; }
 
-        // Run the game
-        /// @returns true if successful, false otherwise
-        bool Run(int screenWidth, int screenHeight);
-
+#pragma region Input
         // Check a given input name
         /// @param key The name of the input to check
         /// @returns number of frames the input has been held for
         int Input(std::string key);
+        // Check if a given input is pressed
+        /// @param key The name of the input to check
+        /// @returns true if the input was first pressed this frame, false otherwise
+        bool InputPressed(std::string key);
         // Set the input mapping for a given input name
         /// @param key The name of the input
         /// @param inputs A vector of SDL keycodes to map to the input
@@ -159,6 +165,16 @@ namespace junebug
 
 #define JB_INPUT_QUIT "__quit__"
 #define JB_INPUT_FULLSCREEN "__fullscreen__"
+#pragma endregion
+
+#pragma region Game Loop
+        // Run the game
+        /// @returns true if successful, false otherwise
+        bool Run(int screenWidth, int screenHeight);
+
+        // Clean up any resources used by the game
+        // Should be called after RunLoop() has finished and before the program exits
+        void Shutdown();
 
         // Overridable callback when inputs are processed
         /// @param state The current SDL input state
@@ -173,19 +189,18 @@ namespace junebug
         virtual void RenderStart(){};
         // Overridable callback after the game is rendered
         virtual void RenderEnd(){};
+#pragma endregion
 
-        // Get the renderer
-        SDL_Renderer *GetRenderer() { return mRenderer; }
-        // Get the window
-        SDL_Window *GetWindow() { return mWindow; }
-
+#pragma region Sprites
         // Add a sprite to the cache
         /// @param name The name of the sprite
         /// @param sprite The sprite to add
         void AddSprite(std::string name, class Sprite *sprite);
         // Get a const reference to the sprite cache
         const std::unordered_map<std::string, class Sprite *> &GetSpriteCache() { return mSpriteCache; }
+#pragma endregion
 
+#pragma region Actors
         // Add an actor to the game
         /// @param actor The actor to add
         void AddActor(class PureActor *actor);
@@ -196,6 +211,12 @@ namespace junebug
         /// @returns A const reference to the list of actors
         const std::vector<class PureActor *> &GetActors() const;
 
+        typedef std::unordered_map<std::string, class PureActor *(*)(Vec2<int> pos)> factory_map;
+        // Actor name to class map
+        factory_map mActorConstructors;
+#pragma endregion
+
+#pragma region Cameras
         // Add a camera to the game
         /// @param camera The camera to add
         void AddCamera(class Camera *camera);
@@ -208,12 +229,16 @@ namespace junebug
         // Get the active camera
         /// @returns The active camera
         class Camera *GetActiveCamera() { return mActiveCamera; }
+#pragma endregion
 
+#pragma region Textures
         // Load a texture from a file
         /// @param path The path to the texture file
         /// @returns A pointer to the loaded texture
         SDL_Texture *GetTexture(std::string fileName);
+#pragma endregion
 
+#pragma region Scenes
         // Load a scene from a file or JSON string
         /// @param scene The scene to load
         void LoadScene(std::string);
@@ -225,11 +250,9 @@ namespace junebug
         // Get the current scene
         /// @returns A const reference to the current scene
         const Scene &GetCurrentScene() const;
+#pragma endregion
 
-        typedef std::unordered_map<std::string, class PureActor *(*)(Vec2<int> pos)> factory_map;
-        // Actor name to class map
-        factory_map mActorConstructors;
-
+#pragma region Fonts
         // Get the current font
         /// @returns A pointer to the current font
         FC_Font *GetCurrentFont() { return mCurrentFont; }
@@ -246,7 +269,9 @@ namespace junebug
         /// @param name The name of the font to set as default
         /// @returns true if font exists, false otherwise
         bool SetFont(std::string name);
+#pragma endregion
 
+#pragma region Asset Lookup
         // The default paths appended to various asset lookups by file path
         struct AssetPaths
         {
@@ -257,6 +282,17 @@ namespace junebug
         // Get the asset paths
         /// @returns A reference to the asset paths
         AssetPaths &GetAssetPaths() { return mAssetPaths; }
+#pragma endregion
+
+#pragma region Debug Tools
+        // Start a debug checkpoint for the given step
+        /// @param name The name of the checkpoint
+        /// @param condition Whether to start the checkpoint; used for cleaner conditionals to keep debug code clean
+        static void DebugCheckpoint(std::string name, bool condition = true);
+        // Stop the current debug checkpoint
+        /// @param name The name of the checkpoint
+        static void DebugCheckpointStop(std::string name);
+#pragma endregion
 
     protected:
         // The global game instance
@@ -290,6 +326,7 @@ namespace junebug
         time_point<system_clock, nanoseconds> mEndFrame;
         // The FPS of the previous frame
         unsigned int mFps = 0;
+        void HaltFrame();
 
         // Get the display size
         /// @returns A Vec2<int> containing the display size
@@ -326,6 +363,7 @@ namespace junebug
         // Inputs
         std::unordered_map<std::string, std::pair<std::vector<Uint8>, int>> mInputMapping;
         std::unordered_map<Uint8, int> mInputs;
+        Uint8 mExtraStates[256] = {0};
         // Flush all poll events
         // Useful for events like window resizing
         void FlushPollEvents();
@@ -360,5 +398,20 @@ namespace junebug
 
         // Asset paths
         AssetPaths mAssetPaths;
+
+        // Debug info
+        bool mDebugAlreadyCleared = false;
+        bool mDebugSectionHeader = false;
+        void DebugFormatConsole(std::string header = "");
+        const std::string DEBUG_INDENT = "  ";
+
+        void DebugPrintInfo();
+        bool mShowDebugInfo = true;
+
+        std::vector<std::tuple<std::string, time_point<system_clock, nanoseconds>, bool>> mDebugCheckpoints;
+        time_point<system_clock, nanoseconds> mDebugCheckpointStart;
+        void DebugPrintCheckpoints();
+        void DebugResetCheckpoints();
+        bool mShowDefaultDebugCheckpoints = true;
     };
 };

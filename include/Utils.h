@@ -35,6 +35,12 @@ namespace junebug
         Print(args...);
     };
 
+    template <typename... T>
+    inline void PrintNoSpaces(T... args)
+    {
+        ((std::cout << args), ...) << std::endl;
+    };
+
     static std::ofstream __logStream__("log.txt", std::ofstream::out);
 
     // Log a message
@@ -118,6 +124,28 @@ namespace junebug
     /// @param ending The ending to check for
     /// @return Whether or not the string ends with the ending
     bool StringEndsWith(const std::string &str, const std::string &ending);
+
+    // Check if a string consists of only whitespace
+    /// @param str The string to check
+    /// @return Whether or not the string is whitespace
+    bool IsWhitespace(const std::string &str);
+
+    template <typename T>
+    inline float RoundDec(T val, int n)
+    {
+        int div = std::pow(10, n);
+        T value = (int)(val * div + .5);
+        return (T)value / div;
+    }
+
+    template <typename T>
+    inline std::string RoundDecStr(T val, int n)
+    {
+        std::ostringstream out;
+        out.precision(n);
+        out << std::fixed << val;
+        return out.str();
+    }
 
     // Get the name of a file from a path
     /// @param path The path to get the file name from

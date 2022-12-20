@@ -22,6 +22,7 @@ add_library(${LIBNAME} STATIC
     src/core/coreSprites.cpp
     src/core/coreScenes.cpp
     src/core/coreFonts.cpp
+    src/core/coreDebug.cpp
 
     src/MathLib.cpp
     src/RandLib.cpp

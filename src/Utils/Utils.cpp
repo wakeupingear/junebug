@@ -1,5 +1,7 @@
 #include "Utils.h"
 
+#include <algorithm>
+
 namespace junebug
 {
     std::string PrintTime()
@@ -52,6 +54,11 @@ namespace junebug
     bool StringEndsWith(const std::string &str, const std::string &suffix)
     {
         return str.size() >= suffix.size() && str.compare(str.size() - suffix.size(), suffix.size(), suffix) == 0;
+    }
+
+    bool IsWhitespace(const std::string &str)
+    {
+        return std::all_of(str.begin(), str.end(), isspace);
     }
 
     std::string GetFileName(const std::string &path)

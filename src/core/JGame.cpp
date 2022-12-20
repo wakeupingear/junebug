@@ -13,8 +13,10 @@ using namespace std::chrono;
 
 #ifndef NDEBUG
 bool JGame::isDebug = true;
+bool JGame::isEditor = true;
 #else
 bool JGame::isDebug = false;
+bool JGame::isEditor = false;
 #endif
 
 JGame::JGame()
@@ -79,10 +81,14 @@ void JGame::ProcessOptions(GameOptions newOptions)
     mInvTargetFps = round<system_clock::duration>(dsec{1. / options.fpsTarget});
     mSleepMargin = round<system_clock::duration>(dsec{options.sleepMargin / 1000.});
 
-    if (options.randomSeed == -1)
-        srand((unsigned int)time(NULL));
-    else
-        srand((unsigned int)options.randomSeed);
+    if (options.randomSeed > -1)
+    {
+        if (options.randomSeed == -1)
+            srand((unsigned int)time(NULL));
+        else
+            srand((unsigned int)options.randomSeed);
+        options.randomSeed = -2;
+    }
 
     SDL_ShowCursor(options.showCursor);
 
@@ -185,18 +191,39 @@ bool JGame::Run(int screenWidth, int screenHeight)
 
     mBeginFrame = system_clock::now();
     mEndFrame = mBeginFrame + mInvTargetFps;
+    DebugResetCheckpoints();
     while (mGameIsRunning)
     {
+        HaltFrame();
+        DebugCheckpoint("GameLoop", mShowDefaultDebugCheckpoints);
+
         ProcessInput();
+
         if (mGameIsRunning)
         {
             PreUpdate();
             UpdateGame();
             PostUpdate();
         }
+        else
+            break;
         if (mGameIsRunning)
+        {
+            DebugCheckpoint("Renders", mShowDefaultDebugCheckpoints);
             GenerateOutput();
+            DebugCheckpointStop("Renders");
+        }
+        else
+            break;
         LoadQueuedScenes();
+
+        DebugCheckpointStop("GameLoop");
+        if (mGameIsRunning)
+        {
+            DebugPrintInfo();
+            DebugPrintCheckpoints();
+            mDebugAlreadyCleared = false;
+        }
     }
 
     Shutdown();
@@ -204,10 +231,7 @@ bool JGame::Run(int screenWidth, int screenHeight)
     return true;
 }
 
-void JGame::PreUpdate() {}
-void JGame::PostUpdate() {}
-
-void JGame::UpdateGame()
+void JGame::HaltFrame()
 {
     // Calculate the FPS
     auto time_in_seconds = time_point_cast<seconds>(system_clock::now());
@@ -233,6 +257,14 @@ void JGame::UpdateGame()
     mBeginFrame = mEndFrame;
     mEndFrame = mBeginFrame + mInvTargetFps;
     mDeltaTime = (float)duration_cast<dsec>(mEndFrame - mBeginFrame).count();
+}
+
+void JGame::PreUpdate() {}
+void JGame::PostUpdate() {}
+
+void JGame::UpdateGame()
+{
+    DebugCheckpoint("Updates", mShowDefaultDebugCheckpoints);
 
     // User-defined callback
     UpdateStart(mDeltaTime);
@@ -271,6 +303,8 @@ void JGame::UpdateGame()
         ProcessOptions(options);
         mOptionsUpdated = false;
     }
+
+    DebugCheckpointStop("Updates");
 }
 
 void JGame::GenerateOutput()
