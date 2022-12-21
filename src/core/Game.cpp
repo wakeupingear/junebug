@@ -1,6 +1,7 @@
-#include "JGame.h"
+#include "Game.h"
 #include "Actors.h"
 #include "Camera.h"
+#include "Background.h"
 
 #include <iostream>
 #include <algorithm>
@@ -12,14 +13,14 @@ using namespace junebug;
 using namespace std::chrono;
 
 #ifndef NDEBUG
-bool JGame::isDebug = true;
-bool JGame::isEditor = true;
+bool Game::isDebug = true;
+bool Game::isEditor = true;
 #else
-bool JGame::isDebug = false;
-bool JGame::isEditor = false;
+bool Game::isDebug = false;
+bool Game::isEditor = false;
 #endif
 
-JGame::JGame()
+Game::Game()
 {
     if (!firstGame)
     {
@@ -28,29 +29,29 @@ JGame::JGame()
     }
 }
 
-JGame::~JGame()
+Game::~Game()
 {
     if (firstGame == this)
         firstGame = nullptr;
 }
 
-JGame *JGame::Get()
+Game *Game::Get()
 {
     return firstGame;
 }
 
-GameOptions &JGame::Options()
+GameOptions &Game::Options()
 {
     mOptionsUpdated = true;
     return options;
 }
 
-const GameOptions &JGame::GetOptions() const
+const GameOptions &Game::GetOptions() const
 {
     return options;
 }
 
-void JGame::ProcessOptions(GameOptions newOptions)
+void Game::ProcessOptions(GameOptions newOptions)
 {
     options = newOptions;
 
@@ -64,7 +65,7 @@ void JGame::ProcessOptions(GameOptions newOptions)
     // Only create a default camera if there are no cameras after LoadData() has run
     if (mGameIsRunning && options.createDefaultCamera && mCameras.empty())
     {
-        new Camera();
+        new Camera(options.defaultCameraPos, options.defaultCameraSize, Vec2(0.0f, 0.0f), Vec2(1.0f, 1.0f));
     }
 
     if (options.detectFps)
@@ -107,12 +108,12 @@ void JGame::ProcessOptions(GameOptions newOptions)
     }
 }
 
-int JGame::GetScreenWidth() { return mScreenWidth; }
-int JGame::GetScreenHeight() { return mScreenHeight; }
-int JGame::GetRenderWidth() { return mRenderWidth; }
-int JGame::GetRenderHeight() { return mRenderHeight; }
+int Game::GetScreenWidth() { return mScreenWidth; }
+int Game::GetScreenHeight() { return mScreenHeight; }
+int Game::GetRenderWidth() { return mRenderWidth; }
+int Game::GetRenderHeight() { return mRenderHeight; }
 
-void JGame::Shutdown()
+void Game::Shutdown()
 {
     UnloadData();
 
@@ -128,7 +129,7 @@ void JGame::Shutdown()
     SDL_Quit();
 }
 
-bool JGame::Run(int screenWidth, int screenHeight)
+bool Game::Run(int screenWidth, int screenHeight)
 {
     mScreenWidth = screenWidth, mScreenHeight = screenHeight;
     mRenderWidth = screenWidth, mRenderHeight = screenHeight;
@@ -175,7 +176,7 @@ bool JGame::Run(int screenWidth, int screenHeight)
         mOptionsUpdated = false;
     }
 
-    JB_REGISTER_ACTORS(VisualActor);
+    JB_REGISTER_ACTORS(VisualActor, Background);
 
     LoadData();
 
@@ -231,7 +232,7 @@ bool JGame::Run(int screenWidth, int screenHeight)
     return true;
 }
 
-void JGame::HaltFrame()
+void Game::HaltFrame()
 {
     // Calculate the FPS
     auto time_in_seconds = time_point_cast<seconds>(system_clock::now());
@@ -249,20 +250,20 @@ void JGame::HaltFrame()
 
     // Manually block the thread until the exact time of the next frame
     auto mWorkTime = system_clock::now() - mBeginFrame;
-    while (mWorkTime < mInvTargetFps)
+    do
     {
         mEndFrame = system_clock::now();
         mWorkTime = mEndFrame - mBeginFrame;
-    }
+    } while (mWorkTime < mInvTargetFps);
+    mDeltaTime = (float)duration_cast<dsec>(mEndFrame - mBeginFrame).count();
     mBeginFrame = mEndFrame;
     mEndFrame = mBeginFrame + mInvTargetFps;
-    mDeltaTime = (float)duration_cast<dsec>(mEndFrame - mBeginFrame).count();
 }
 
-void JGame::PreUpdate() {}
-void JGame::PostUpdate() {}
+void Game::PreUpdate() {}
+void Game::PostUpdate() {}
 
-void JGame::UpdateGame()
+void Game::UpdateGame()
 {
     DebugCheckpoint("Updates", mShowDefaultDebugCheckpoints);
 
@@ -307,7 +308,7 @@ void JGame::UpdateGame()
     DebugCheckpointStop("Updates");
 }
 
-void JGame::GenerateOutput()
+void Game::GenerateOutput()
 {
     SDL_Rect windowR;
     windowR.x = 0;
@@ -332,6 +333,8 @@ void JGame::GenerateOutput()
 
     for (Camera *camera : mCameras)
     {
+        if (!camera->IsScreenCamera())
+            continue;
         camera->_UpdateCoordinates();
 
         SDL_Texture *tex = camera->Render(mRenderer);
@@ -357,37 +360,45 @@ void JGame::GenerateOutput()
     SDL_RenderPresent(mRenderer);
 }
 
-Vec2<int> JGame::GetMousePos()
+Vec2<int> Game::GetMousePos()
 {
     return mMousePos;
 }
+Vec2<int> Game::GetMouseScreenPos()
+{
+    return mMouseScreenPos;
+}
+Camera *Game::GetMouseCamera()
+{
+    return mMouseCamera;
+}
 
-void JGame::AddActor(PureActor *actor)
+void Game::AddActor(PureActor *actor)
 {
     mActors.push_back(actor);
 }
 
-void JGame::RemoveActor(PureActor *actor)
+void Game::RemoveActor(PureActor *actor)
 {
     mActors.erase(std::remove(mActors.begin(), mActors.end(), actor), mActors.end());
 }
 
-const std::vector<PureActor *> &JGame::GetActors() const
+const std::vector<PureActor *> &Game::GetActors() const
 {
     return mActors;
 }
 
-void JGame::AddCamera(Camera *camera)
+void Game::AddCamera(Camera *camera)
 {
     mCameras.push_back(camera);
 }
 
-void JGame::RemoveCamera(Camera *camera)
+void Game::RemoveCamera(Camera *camera)
 {
     mCameras.erase(std::remove(mCameras.begin(), mCameras.end(), camera), mCameras.end());
 }
 
-Vec2<int> JGame::GetDisplaySize() const
+Vec2<int> Game::GetDisplaySize() const
 {
     SDL_DisplayMode DM;
     SDL_GetCurrentDisplayMode(0, &DM);

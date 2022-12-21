@@ -32,6 +32,64 @@ namespace junebug
 
         GenericMemberIterator<false, UTF8<>, MemoryPoolAllocator<>> Get(std::string key);
 
+        static int GetInt(Value &val, int def = 0)
+        {
+            if (val.IsInt())
+                return val.GetInt();
+            else if (val.IsInt64())
+                return (int)val.GetInt64();
+            else if (val.IsUint())
+                return (int)val.GetUint();
+            else if (val.IsUint64())
+                return (int)val.GetUint64();
+            else if (val.IsString())
+            {
+                std::string str = val.GetString();
+                try
+                {
+                    return std::stoi(str);
+                }
+                catch (...)
+                {
+                    return def;
+                }
+            }
+
+            return def;
+        }
+        static int GetInt(const GenericObject<false, Value> &obj, std::string key, int def = 0)
+        {
+            if (obj.HasMember(key.c_str()))
+                return GetInt(obj[key.c_str()], def);
+            return def;
+        }
+
+        static float GetFloat(Value &val, float def = 0)
+        {
+            if (val.IsFloat())
+                return val.GetFloat();
+            else if (val.IsString())
+            {
+                std::string str = val.GetString();
+                try
+                {
+                    return std::stof(str);
+                }
+                catch (...)
+                {
+                    return def;
+                }
+            }
+
+            return def;
+        }
+        static float GetFloat(const GenericObject<false, Value> &obj, std::string key, float def = 0.0f)
+        {
+            if (obj.HasMember(key.c_str()))
+                return GetInt(obj[key.c_str()], def);
+            return def;
+        }
+
         template <typename T>
         static T GetNumber(Value &val, T def = 0)
         {

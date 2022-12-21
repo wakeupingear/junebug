@@ -1,11 +1,11 @@
-#include "JGame.h"
+#include "Game.h"
 #include "Sprite.h"
 
 #include <algorithm>
 
 using namespace junebug;
 
-SDL_Texture *JGame::GetTexture(std::string fileName)
+SDL_Texture *Game::GetTexture(std::string fileName)
 {
     auto it = mTextures.find(fileName);
     if (it != mTextures.end())

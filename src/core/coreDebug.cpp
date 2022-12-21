@@ -1,15 +1,17 @@
-#include "JGame.h"
+#include "Game.h"
 
 #include <iostream>
 #include <map>
 
 using namespace junebug;
 
-void JGame::DebugFormatConsole(std::string header)
+void Game::DebugFormatConsole(std::string header)
 {
     if (!mDebugAlreadyCleared)
     {
+#ifdef linux
         system("clear");
+#endif
         mDebugAlreadyCleared = true;
     }
     if (!mDebugSectionHeader)
@@ -20,22 +22,22 @@ void JGame::DebugFormatConsole(std::string header)
     }
 }
 
-void JGame::DebugCheckpoint(std::string name, bool condition)
+void Game::DebugCheckpoint(std::string name, bool condition)
 {
     if (!isDebug || !condition)
         return;
 
-    JGame::Get()->mDebugCheckpoints.push_back({name, std::chrono::high_resolution_clock::now(), 0});
+    Game::Get()->mDebugCheckpoints.push_back({name, std::chrono::high_resolution_clock::now(), 0});
 }
-void JGame::DebugCheckpointStop(std::string name)
+void Game::DebugCheckpointStop(std::string name)
 {
     if (!isDebug)
         return;
 
-    JGame::Get()->mDebugCheckpoints.push_back({name, std::chrono::high_resolution_clock::now(), 1});
+    Game::Get()->mDebugCheckpoints.push_back({name, std::chrono::high_resolution_clock::now(), 1});
 }
 
-void JGame::DebugPrintCheckpoints()
+void Game::DebugPrintCheckpoints()
 {
     if (!isDebug || mDebugCheckpoints.empty())
         return;
@@ -91,18 +93,20 @@ void JGame::DebugPrintCheckpoints()
     DebugResetCheckpoints();
 }
 
-void JGame::DebugResetCheckpoints()
+void Game::DebugResetCheckpoints()
 {
     mDebugCheckpoints.clear();
     mDebugCheckpointStart = std::chrono::high_resolution_clock::now();
 }
 
-void JGame::DebugPrintInfo()
+void Game::DebugPrintInfo()
 {
     if (!isDebug || !mShowDebugInfo)
         return;
     mDebugSectionHeader = false;
     DebugFormatConsole("---Debug Info---");
+    PrintNoSpaces(DEBUG_INDENT, mFps, " FPS");
+    PrintNoSpaces(DEBUG_INDENT, "Delta Time: ", RoundDec(mDeltaTime * 1000.0f, 3), "ms");
     PrintNoSpaces(DEBUG_INDENT, "Actors: ", mActors.size());
     PrintNoSpaces(DEBUG_INDENT, "Loaded Sprites: ", mSpriteCache.size());
 }

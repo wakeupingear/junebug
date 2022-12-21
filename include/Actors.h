@@ -13,12 +13,12 @@
 namespace junebug
 {
 // Helper macro, see below
-#define __REGISTER_ACTOR__(T) JGame::mActorConstructors[#T] = &PureActor::__createInstance__<T>;
+#define __REGISTER_ACTOR__(T) Game::mActorConstructors[#T] = &PureActor::__createInstance__<T>;
 // A macro to register an arbitrary number of custom Actor classes for serialization
 // This allows the engine to do some basic reflection on the classes
 // (basically, to be able to create them from a string, like from a JSON Scene file)
 // You'll want to invoke this macro before you start loading scenes
-// Ideally, put it in JGame::LoadData() so the mappings are set before any default scenes are loaded
+// Ideally, put it in Game::LoadData() so the mappings are set before any default scenes are loaded
 #define JB_REGISTER_ACTORS(...) MAP(__REGISTER_ACTOR__, __VA_ARGS__)
 
     /// @brief Possible Actor states
@@ -94,14 +94,14 @@ namespace junebug
 
         // Internal function to create an instance of a class
         template <typename T>
-        static PureActor *__createInstance__(Vec2<int> pos) { return new T(pos); };
+        static PureActor *__createInstance__() { return new T(); };
 
         // Set the actor's depth
         void SetDepth(int newDepth) { mDepth = newDepth; };
 
     protected:
         friend class Component;
-        friend class JGame;
+        friend class Game;
         // Add a component to the actor
         void AddComponent(class Component *c);
         // User-defined function to every frame when the actor updates
@@ -115,7 +115,7 @@ namespace junebug
         // Actor persistence
         bool mPersistent = false;
 
-        //Actor depth
+        // Actor depth
         int mDepth = 0;
     };
 
@@ -123,6 +123,7 @@ namespace junebug
     class VisualActor : public PureActor
     {
     public:
+        VisualActor() : PureActor(){};
         // Position constructor
         VisualActor(Vec2<float> pos);
         VisualActor(Vec2<int> pos);
@@ -148,6 +149,19 @@ namespace junebug
             PureActor::ToString(out);
         };
 
+        // Set the sprite of the actor
+        /// @param path The path to the new sprite
+        void SetSprite(std::string path);
+        // Get the sprite of the actor
+        class Sprite *GetSprite() const;
+        // Get the sprite name of the actor
+        /// @returns std::string
+        std::string GetSpriteName() const;
+        // Get the sprite size
+        /// @returns Vec2<int>
+        Vec2<int> GetSpriteSize() const;
+        Vec2<float> GetActorSize() const;
+
         // Set the position of the actor
         /// @param pos The new position of the actor
         void SetPosition(const Vec2<float> &pos);
@@ -161,6 +175,14 @@ namespace junebug
         // Get the rotation of the actor
         /// @returns float rotation
         float GetRotation() const;
+
+        // Set the alpha of the actor
+        /// @param alpha The new alpha of the actor
+        void SetAlpha(float alpha);
+        void SetAlpha(int alpha);
+        // Get the alpha of the actor
+        /// @returns int alpha
+        int GetAlpha();
 
         // Set the scale of the actor
         /// @param scale The new scale of the actor

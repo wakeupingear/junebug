@@ -1,12 +1,12 @@
 #include "Actors.h"
-#include "JGame.h"
+#include "Game.h"
 #include "Component.h"
 
 using namespace junebug;
 
 PureActor::PureActor()
 {
-    JGame::Get()->AddActor(this);
+    Game::Get()->AddActor(this);
 }
 
 PureActor::PureActor(Vec2<float> pos) : PureActor()
@@ -18,7 +18,7 @@ PureActor::~PureActor()
     for (Component *comp : mComponents)
         delete comp;
     mComponents.clear();
-    JGame::Get()->RemoveActor(this);
+    Game::Get()->RemoveActor(this);
 }
 
 void PureActor::InternalUpdate(float dt)

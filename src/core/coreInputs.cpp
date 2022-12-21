@@ -1,8 +1,9 @@
-#include "JGame.h"
+#include "Game.h"
+#include "Camera.h"
 
 using namespace junebug;
 
-void JGame::ProcessInput()
+void Game::ProcessInput()
 {
     DebugCheckpoint("Inputs", mShowDefaultDebugCheckpoints);
 
@@ -26,18 +27,44 @@ void JGame::ProcessInput()
                 mGameIsRunning = false;
             break;
         case SDL_MOUSEMOTION:
+        {
             int w, h;
             SDL_GetWindowSize(mWindow, &w, &h);
             w = std::max(w, 1);
             h = std::max(h, 1);
-            mMousePos.x = event.motion.x * mScreenWidth / w;
-            mMousePos.y = event.motion.y * mScreenHeight / h;
+            mMouseScreenPos.x = event.motion.x * mScreenWidth / w;
+            mMouseScreenPos.y = event.motion.y * mScreenHeight / h;
             if (options.screenStretch)
             {
-                mMousePos.x /= ((float)w / (float)mRenderWidth);
-                mMousePos.y /= ((float)h / (float)mRenderHeight);
+                mMouseScreenPos.x /= ((float)w / (float)mRenderWidth);
+                mMouseScreenPos.y /= ((float)h / (float)mRenderHeight);
             }
+
+            // Get the mouse coordinates relative to a screen camera
+            mMouseCamera = nullptr;
+            float minDist = 10000000.0f;
+            for (Camera *cam : mCameras)
+            {
+                if (!cam->IsScreenCamera())
+                    continue;
+                float dist = (mMouseScreenPos - cam->GetScreenCenter()).Length();
+                if (dist < minDist)
+                {
+                    mMouseCamera = cam;
+                    minDist = dist;
+                }
+            }
+
+            mMousePos = mMouseScreenPos;
+            if (mMouseCamera)
+            {
+                mMousePos += Vec2(
+                    (int)(mMouseCamera->GetPosition().x - mMouseCamera->GetScreenPos().x),
+                    (int)(mMouseCamera->GetPosition().y - mMouseCamera->GetScreenPos().y));
+            }
+
             break;
+        }
         case SDL_MOUSEBUTTONDOWN:
             mExtraStates[event.button.button + MOUSE_LEFT - 1] = 1;
             break;
@@ -121,7 +148,7 @@ void JGame::ProcessInput()
     DebugCheckpointStop("Inputs");
 }
 
-int JGame::Input(std::string key)
+int Game::Input(std::string key)
 {
     auto it = mInputMapping.find(key);
     if (it == mInputMapping.end())
@@ -129,26 +156,26 @@ int JGame::Input(std::string key)
     return it->second.second;
 }
 
-bool JGame::InputPressed(std::string key)
+bool Game::InputPressed(std::string key)
 {
     return Input(key) == 1;
 }
 
-void JGame::SetInputMapping(std::string key, std::vector<Uint8> inputs)
+void Game::SetInputMapping(std::string key, std::vector<Uint8> inputs)
 {
     mInputMapping[key] = make_pair(inputs, 0);
 }
 
-void JGame::SetInputMappings(
+void Game::SetInputMappings(
     std::vector<std::pair<std::string, std::vector<Uint8>>> inputMappings)
 {
     for (auto &[name, inputs] : inputMappings)
     {
-        JGame::SetInputMapping(name, inputs);
+        Game::SetInputMapping(name, inputs);
     }
 }
 
-void JGame::FlushPollEvents()
+void Game::FlushPollEvents()
 {
     SDL_Event event;
     while (SDL_PollEvent(&event))

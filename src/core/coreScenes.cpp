@@ -1,31 +1,32 @@
-#include "JGame.h"
+#include "Game.h"
 #include "Files.h"
 #include "Actors.h"
+#include "Background.h"
 
 using namespace junebug;
 
-void JGame::LoadScene(std::string scene)
+void Game::LoadScene(std::string scene)
 {
     mSceneQueue.push(scene);
 }
 
-void JGame::ReloadScene()
+void Game::ReloadScene()
 {
     if (IsSceneLoaded())
         mSceneQueue.push(mScene.name);
 }
 
-bool JGame::IsSceneLoaded()
+bool Game::IsSceneLoaded()
 {
     return mScene.name != "";
 }
 
-const Scene &JGame::GetCurrentScene() const
+const Scene &Game::GetCurrentScene() const
 {
     return mScene;
 }
 
-void JGame::LoadQueuedScenes()
+void Game::LoadQueuedScenes()
 {
     Json *sceneInfo = nullptr;
     while (!mSceneQueue.empty())
@@ -113,40 +114,7 @@ void JGame::LoadQueuedScenes()
 
                 const auto &actorsRef = sceneInfo->Get("actors")->value.GetArray();
                 for (auto &actorRef : actorsRef)
-                    if (actorRef.IsObject())
-                    {
-                        const auto &actorObj = actorRef.GetObject();
-                        std::string type = Json::GetString(actorObj, "type");
-                        if (type == "")
-                            continue;
-
-                        auto it = mActorConstructors.find(type);
-                        if (it == mActorConstructors.end())
-                        {
-                            PrintLog("Actor", type, "is not registered");
-                            continue;
-                        }
-
-                        PureActor *actor = it->second(Json::GetVec2<int>(actorObj, "pos"));
-                        actor->SetPersistent(Json::GetBool(actorObj, "persistent"));
-
-                        std::string layerId = Json::GetString(actorObj, "layer");
-                        if (layerId != "")
-                        {
-                            auto it = newScene.layers.find(layerId);
-                            if (it != newScene.layers.end())
-                            {
-                                actor->SetDepth(it->second.depth);
-                            }
-                        }
-
-                        VisualActor *visualActor = dynamic_cast<VisualActor *>(actor);
-                        if (visualActor)
-                        {
-                            visualActor->SetScale(Json::GetVec2<float>(actorObj, "scale", Vec2(1.0f, 1.0f)));
-                            visualActor->SetRotation(Json::GetNumber<float>(actorObj, "rotation"));
-                        }
-                    }
+                    LoadActor(actorRef, newScene);
             }
 
             // Set the name of the scene
@@ -169,4 +137,16 @@ void JGame::LoadQueuedScenes()
 
     if (sceneInfo)
         delete sceneInfo;
+}
+
+const Vec2<int> Game::GetSceneSize()
+{
+    if (mScene.name.empty())
+        return Vec2<int>::Zero;
+    return mScene.size;
+}
+
+const std::string Game::GetSceneName()
+{
+    return mScene.name;
 }

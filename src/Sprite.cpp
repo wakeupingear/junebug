@@ -1,6 +1,6 @@
 #include "Sprite.h"
 #include "Actors.h"
-#include "JGame.h"
+#include "Game.h"
 #include "Camera.h"
 
 using namespace junebug;
@@ -18,7 +18,7 @@ void Sprite::Draw(Camera *cam, SDL_Renderer *renderer, const Vec2<float> &pos, c
 {
     if (mTexture)
     {
-        Vec2<float> camPos = (cam != nullptr) ? cam->_calcPos : Vec2<float>::Zero;
+        Vec2<float> camPos = (cam != nullptr) ? cam->GetPosition() : Vec2<float>::Zero;
 
         SDL_Rect r;
         r.w = static_cast<int>(mTexWidth * properties.scale.x);

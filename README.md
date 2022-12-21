@@ -14,12 +14,12 @@ Progress on [Trello](https://trello.com/b/jWgkCUmD/junebug)
 
 ```cpp
 #define SDL_MAIN_HANDLED
-#include <JGame.h>
+#include <Game.h>
 using namespace junebug;
 
 int main()
 {
-    Jgame game;
+    Game game;
     game.Options().title = "My First Game";
 
     game.Run(384, 216);

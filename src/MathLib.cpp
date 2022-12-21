@@ -5,6 +5,8 @@ const Vec2<float> Vec2<float>::Zero(0.0f, 0.0f);
 template <>
 const Vec2<int> Vec2<int>::Zero(0, 0);
 template <>
+const Vec2<bool> Vec2<bool>::Zero(false, false);
+template <>
 const Vec2<float> Vec2<float>::One(1.0f, 1.0f);
 template <>
 const Vec2<int> Vec2<int>::One(1, 1);

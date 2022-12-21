@@ -1,5 +1,5 @@
 #include "Rendering.h"
-#include "JGame.h"
+#include "Game.h"
 #include "Sprite.h"
 #include "Camera.h"
 
@@ -10,7 +10,7 @@ namespace fs = std::filesystem;
 
 namespace junebug
 {
-    void JGame::AddSprite(std::string name, Sprite *sprite)
+    void Game::AddSprite(std::string name, Sprite *sprite)
     {
         if (sprite == nullptr)
         {
@@ -26,7 +26,7 @@ namespace junebug
     void SpriteDraw(std::string imagePath, const Vec2<float> &pos, const SpriteProperties &properties)
     {
         {
-            JGame *game = JGame::Get();
+            Game *game = Game::Get();
             if (!game)
                 return;
             SDL_Renderer *renderer = game->GetRenderer();
@@ -55,7 +55,7 @@ namespace junebug
 
                 if (fs::is_regular_file(path, ec))
                 {
-                    sprite->SetTexture(JGame::Get()->GetTexture(imagePath));
+                    sprite->SetTexture(Game::Get()->GetTexture(imagePath));
                 }
 
                 if (ec)
@@ -79,7 +79,7 @@ namespace junebug
 
     void TextDraw(std::string text, const Vec2<float> &pos, const TextEffects effects)
     {
-        JGame *game = JGame::Get();
+        Game *game = Game::Get();
         if (!game)
             return;
         FC_Font *font = game->GetCurrentFont();
@@ -93,7 +93,7 @@ namespace junebug
             return;
 
         Camera *camera = game->GetActiveCamera();
-        const Vec2<float> &camPos = (camera) ? camera->_calcPos : Vec2<>::Zero;
+        const Vec2<float> &camPos = (camera) ? camera->GetPosition() : Vec2<>::Zero;
 
         FC_DrawEffect(font, renderer, pos.x - camPos.x, pos.y - camPos.y, effects, text.c_str());
     }

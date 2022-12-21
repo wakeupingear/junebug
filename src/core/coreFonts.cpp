@@ -1,8 +1,8 @@
-#include "JGame.h"
+#include "Game.h"
 
 using namespace junebug;
 
-FC_Font *JGame::AddFont(std::string file, int size, int style, Color color)
+FC_Font *Game::AddFont(std::string file, int size, int style, Color color)
 {
     FC_Font *font = FC_CreateFont();
     FC_LoadFont(font, mRenderer, ("assets/fonts/" + file).c_str(), size, FC_MakeColor(255, 255, 255, 255), style);
@@ -18,7 +18,7 @@ FC_Font *JGame::AddFont(std::string file, int size, int style, Color color)
     return font;
 }
 
-bool JGame::RemoveFont(std::string file)
+bool Game::RemoveFont(std::string file)
 {
     auto it = mFonts.find(file);
     if (it != mFonts.end() && it->second)
@@ -31,7 +31,7 @@ bool JGame::RemoveFont(std::string file)
     return false;
 }
 
-bool JGame::SetFont(std::string file)
+bool Game::SetFont(std::string file)
 {
     auto it = mFonts.find(file);
     if (it != mFonts.end() && it->second)

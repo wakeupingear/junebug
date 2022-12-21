@@ -171,6 +171,27 @@ public:
 		return Vec2(a.x - b.x, a.y - b.y);
 	}
 
+	// Vector less-than (a < b)
+	[[nodiscard]] friend bool operator<(const Vec2 &a, const Vec2 &b)
+	{
+		return a.x < b.x && a.y < b.y;
+	}
+	// Vector less-than-equals (a <= b)
+	[[nodiscard]] friend bool operator<=(const Vec2 &a, const Vec2 &b)
+	{
+		return a.x <= b.x && a.y <= b.y;
+	}
+	// Vector greater-than (a > b)
+	[[nodiscard]] friend bool operator>(const Vec2 &a, const Vec2 &b)
+	{
+		return a.x > b.x && a.y > b.y;
+	}
+	// Vector greater-than-equals (a >= b)
+	[[nodiscard]] friend bool operator>=(const Vec2 &a, const Vec2 &b)
+	{
+		return a.x >= b.x && a.y >= b.y;
+	}
+
 	// Component-wise multiplication
 	// (a.x * b.x, ...)
 	[[nodiscard]] friend Vec2 operator*(const Vec2 &a, const Vec2 &b)

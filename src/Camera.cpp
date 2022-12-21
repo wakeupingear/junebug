@@ -1,7 +1,8 @@
 #include "Camera.h"
-#include "JGame.h"
+#include "Game.h"
 #include "Actors.h"
 #include "Sprite.h"
+#include "MathLib.h"
 
 using namespace junebug;
 
@@ -21,10 +22,8 @@ Camera::Camera(Vec2<int> pos, Vec2<int> size) : Camera(Vec2<float>((float)pos.x,
 
 Camera::Camera(Vec2<float> pos, Vec2<float> size, Vec2<float> screenPos, Vec2<float> screenSize) : pos(pos), size(size), screenPos(screenPos), screenSize(screenSize)
 {
-    JGame::Get()->AddCamera(this);
+    Game::Get()->AddCamera(this);
 
-    _GuessFractional(pos, fractionalPos);
-    _GuessFractional(size, fractionalSize);
     _GuessFractional(screenPos, fractionalScreenPos);
     _GuessFractional(screenSize, fractionalScreenSize);
 }
@@ -34,11 +33,20 @@ Camera::Camera(Vec2<int> pos, Vec2<int> size, Vec2<int> screenPos, Vec2<int> scr
 
 Camera::~Camera()
 {
-    JGame::Get()->RemoveCamera(this);
+    Game::Get()->RemoveCamera(this);
 }
 
 SDL_Texture *Camera::Render(SDL_Renderer *renderer)
 {
+    Game *game = Game::Get();
+
+    // Stay in bounds
+    if (mStayInBounds)
+    {
+        pos.x = Clamp(pos.x, mBoundsStartOffset.x, (float)game->GetSceneSize().x - size.x + mBoundsStartOffset.x);
+        pos.y = Clamp(pos.y, mBoundsStartOffset.y, (float)game->GetSceneSize().y - size.y + mBoundsStartOffset.y);
+    }
+
     SDL_Rect r;
     r.x = (int)_calcScreenPos.x;
     r.y = (int)_calcScreenPos.y;
@@ -46,14 +54,11 @@ SDL_Texture *Camera::Render(SDL_Renderer *renderer)
     r.h = (int)_calcScreenSize.y;
     SDL_RenderSetViewport(renderer, &r);
 
-    auto texSize = Vec2<int>(
-        _calcSize.x,
-        _calcSize.y);
+    auto texSize = Vec2<int>(size.x, size.y);
     renderTex = GetRenderTexture(
         texSize,
         renderer, renderTex, true);
 
-    JGame *game = JGame::Get();
     game->SetActiveCamera(this);
     for (PureActor *actor : game->GetActors())
     {
@@ -69,26 +74,16 @@ SDL_Texture *Camera::Render(SDL_Renderer *renderer)
 
 void Camera::_UpdateCoordinates()
 {
-    float screenWidth = JGame::Get()->GetScreenWidth(), renderWidth = JGame::Get()->GetRenderWidth();
-    float screenHeight = JGame::Get()->GetScreenHeight(), renderHeight = JGame::Get()->GetRenderHeight();
+    float screenWidth = Game::Get()->GetScreenWidth(), renderWidth = Game::Get()->GetRenderWidth();
+    float screenHeight = Game::Get()->GetScreenHeight(), renderHeight = Game::Get()->GetRenderHeight();
 
-    if (JGame::Get()->GetOptions().screenStretch)
-    {
-        _UpdateCoordinate(pos, _calcPos, fractionalPos, renderWidth, renderHeight);
-        _UpdateCoordinate(size, _calcSize, fractionalSize, renderWidth, renderHeight);
-    }
-    else
-    {
-        _UpdateCoordinate(pos, _calcPos, fractionalPos, screenWidth, screenHeight);
-        _UpdateCoordinate(size, _calcSize, fractionalSize, screenWidth, screenHeight);
-    }
     _UpdateCoordinate(screenPos, _calcScreenPos, fractionalScreenPos, screenWidth, screenHeight);
     _UpdateCoordinate(screenSize, _calcScreenSize, fractionalScreenSize, screenWidth, screenHeight);
 }
 
 void Camera::_UpdateCoordinate(Vec2<float> &vec, Vec2<float> &outVec, Vec2<bool> &fractional, float w, float h)
 {
-    if (JGame::Get()->GetOptions().screenStretch)
+    if (Game::Get()->GetOptions().screenStretch)
     {
         if (!fractional.x)
             outVec.x = vec.x;
@@ -116,4 +111,22 @@ void Camera::_GuessFractional(Vec2<float> &vec, Vec2<bool> &outVec)
 {
     outVec.x = (vec.x > 0.0f, vec.x <= 1.0f);
     outVec.y = (vec.y > 0.0f && vec.y <= 1.0f);
+}
+
+const Vec2<float> Camera::GetCenter()
+{
+    return GetPosition() + GetSize() * 0.5f;
+}
+const Vec2<float> Camera::GetBottomRight()
+{
+    return GetPosition() + GetSize();
+}
+
+const Vec2<float> Camera::GetScreenCenter()
+{
+    return GetScreenPos() + GetScreenSize() * 0.5f;
+}
+const Vec2<float> Camera::GetScreenBottomRight()
+{
+    return GetScreenPos() + GetScreenSize();
 }

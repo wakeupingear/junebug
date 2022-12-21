@@ -16,8 +16,9 @@ set_source_files_properties(
     COMPILE_FLAGS "-w"
 )
 add_library(${LIBNAME} STATIC
-    src/core/JGame.cpp
-    src/core/coreDataLoading.cpp
+    src/core/Game.cpp
+    src/core/coreDefaultCallbacks.cpp
+    src/core/coreLoadActor.cpp
     src/core/coreInputs.cpp
     src/core/coreSprites.cpp
     src/core/coreScenes.cpp
@@ -37,6 +38,8 @@ add_library(${LIBNAME} STATIC
 
     src/actors/PureActor.cpp
     src/actors/VisualActor.cpp
+    src/actors/Background.cpp
+    
     src/Component.cpp
 
     src/Sprite.cpp
