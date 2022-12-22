@@ -36,16 +36,21 @@ Camera::~Camera()
     Game::Get()->RemoveCamera(this);
 }
 
+void Camera::SetPosition(Vec2<float> newPos)
+{
+    pos = newPos;
+
+    if (Game::Get()->GetMouseCamera() == this)
+    {
+        Game::Get()->SetMousePos(Vec2<int>((int)GetPosition().x, (int)GetPosition().y) + Game::Get()->GetMouseOffset());
+    }
+}
+
 SDL_Texture *Camera::Render(SDL_Renderer *renderer)
 {
     Game *game = Game::Get();
 
-    // Stay in bounds
-    if (mStayInBounds)
-    {
-        pos.x = Clamp(pos.x, mBoundsStartOffset.x, (float)game->GetSceneSize().x - size.x + mBoundsStartOffset.x);
-        pos.y = Clamp(pos.y, mBoundsStartOffset.y, (float)game->GetSceneSize().y - size.y + mBoundsStartOffset.y);
-    }
+    CheckBounds();
 
     SDL_Rect r;
     r.x = (int)_calcScreenPos.x;
@@ -129,4 +134,27 @@ const Vec2<float> Camera::GetScreenCenter()
 const Vec2<float> Camera::GetScreenBottomRight()
 {
     return GetScreenPos() + GetScreenSize();
+}
+
+void Camera::CheckBounds()
+{
+    if (mStayInBounds)
+    {
+        pos.x = Clamp(pos.x, mBoundsStartOffset.x, (float)Game::Get()->GetSceneSize().x - GetSize().x + mBoundsStartOffset.x);
+        pos.y = Clamp(pos.y, mBoundsStartOffset.y, (float)Game::Get()->GetSceneSize().y - GetSize().y + mBoundsStartOffset.y);
+    }
+}
+
+void Camera::SetZoom(float zoom)
+{
+    zoom = std::max(zoom, -mZoom + 0.01f);
+    float zoomDiff = zoom - mZoom;
+    mZoom = zoom;
+    if (false)
+    {
+        SetPosition(
+            Vec2(pos.x - size.x / 2.0f * zoomDiff,
+                 pos.y - size.y / 2.0f * zoomDiff));
+    }
+    CheckBounds();
 }

@@ -11,6 +11,9 @@
 
 namespace junebug
 {
+    // Get a position relative to a camera
+    Vec2<float> GetDrawPosition(Vec2<float> pos = Vec2<float>::Zero);
+
     struct SpriteProperties
     {
         Vec2<float> scale{1.0f, 1.0f};
@@ -33,7 +36,7 @@ namespace junebug
     };
 
     // Draw a sprite
-    void SpriteDraw(std::string imagePath, const Vec2<float> &pos, const SpriteProperties &properties = {});
+    void DrawSprite(std::string &imagePath, const Vec2<float> &pos, const SpriteProperties &properties = {});
 
     struct TextEffects : FC_Effect
     {
@@ -82,6 +85,10 @@ namespace junebug
             this->alignment = alignment;
         }
     };
+
     // Draw text
-    void TextDraw(std::string text, const Vec2<float> &pos, const TextEffects effects = {});
+    void DrawText(std::string text, const Vec2<float> &pos, const TextEffects effects = {});
+
+    // Draw a rectangle
+    void DrawRectangle(const Vec2<float> &topLeft, const Vec2<float> &bottomRight, const Color &color);
 };

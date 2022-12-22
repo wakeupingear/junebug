@@ -4,9 +4,6 @@
 
 using namespace junebug;
 
-Background::Background(Vec2<float> pos) : Background()
-{
-}
 Background::Background(std::string sprite, Vec2<float> rate, Vec2<float> offset) : VisualActor(Vec2<float>::Zero, sprite)
 {
     mRate = rate;
@@ -18,11 +15,13 @@ Background::Background(std::string sprite, float rate, Vec2<float> offset) : Bac
 
 void Background::Draw()
 {
-    PositionBackground();
-    VisualActor::Draw();
+    if (mSpritePath != "")
+        DrawSpriteBackground();
+    else
+        DrawColor();
 }
 
-void Background::PositionBackground()
+void Background::DrawSpriteBackground()
 {
     Camera *camera = Game::Get()->GetActiveCamera();
 
@@ -59,4 +58,10 @@ void Background::PositionBackground()
         pos.y = startY;
         pos.x += size.x;
     } while (size.x > 0 && mTile.x && pos.x < edge.x + mCullPaddingEnd.x * size.x);
+}
+
+void Background::DrawColor()
+{
+    Camera *camera = Game::Get()->GetActiveCamera();
+    DrawRectangle(camera->GetPosition(), camera->GetBottomRight(), mColor);
 }

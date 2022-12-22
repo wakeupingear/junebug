@@ -23,6 +23,12 @@ VisualActor::VisualActor(Vec2<int> pos, std::string imagePath) : VisualActor(Vec
 
 void VisualActor::SetSprite(std::string imagePath)
 {
+    if (imagePath == "")
+    {
+        mSpritePath = "";
+        return;
+    }
+
     Game *game = Game::Get();
     if (game)
         mSpritePath = game->GetAssetPaths().sprites + imagePath;
@@ -108,5 +114,5 @@ Color VisualActor::GetColor() const
 
 void VisualActor::Draw()
 {
-    SpriteDraw(mSpritePath, mPosition, {mScale, mRotation, mColor});
+    DrawSprite(mSpritePath, mPosition, {mScale, mRotation, mColor});
 }

@@ -11,6 +11,7 @@
 
 #include <string>
 #include <fstream>
+#include <vector>
 
 using namespace rapidjson;
 
@@ -235,6 +236,29 @@ namespace junebug
         {
             if (obj.HasMember(key.c_str()))
                 return GetString(obj[key.c_str()], def);
+            return def;
+        }
+
+        template <typename T>
+        static std::vector<T> GetArray(Value &val, std::vector<T> def = std::vector<T>())
+        {
+            std::vector<T> res;
+
+            if (val.IsArray())
+            {
+                for (auto &v : val.GetArray())
+                {
+                    res.push_back(GetNumber<T>(v));
+                }
+            }
+
+            return res;
+        }
+        template <typename T>
+        static std::vector<T> GetArray(const GenericObject<false, Value> &obj, std::string key, std::vector<T> def = std::vector<T>())
+        {
+            if (obj.HasMember(key.c_str()))
+                return GetArray(obj[key.c_str()], def);
             return def;
         }
 

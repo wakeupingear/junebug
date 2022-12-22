@@ -42,6 +42,12 @@ void Game::LoadActor(rapidjson::Value &actorRef, Scene &newScene)
         visualActor->SetScale(Json::GetVec2<float>(actorObj, "scale", Vec2(1.0f, 1.0f)));
         visualActor->SetRotation(Json::GetNumber<float>(actorObj, "rotation"));
 
+        auto color = Json::GetArray<float>(actorObj, "color");
+        if (color.size() == 3)
+            visualActor->SetColor(Color(color[0], color[1], color[2]));
+        else if (color.size() == 4)
+            visualActor->SetColor(Color(color[0], color[1], color[2], color[3]));
+
         int alpha = Json::GetInt(actorObj, "alpha", -1);
         if (alpha != -1)
             visualActor->SetAlpha(alpha);

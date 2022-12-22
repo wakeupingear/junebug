@@ -17,6 +17,14 @@
 
 namespace junebug
 {
+    // To avoid circular dependencies, defining this later lets us access singleton behaviors in Game from these namespace-declared functions
+    // This is a horrendous anti-pattern but was necessary for debugging purposes
+    enum __GameFunctions__
+    {
+        SkipPrintThisFrame
+    };
+    void __CallGameFunction__(__GameFunctions__ func);
+
     // Get the current time in milliseconds
     /// @return The current time in milliseconds
     std::string PrintTime();
@@ -27,6 +35,9 @@ namespace junebug
     inline void Print(T... args)
     {
         ((std::cout << args << ' '), ...) << std::endl;
+#ifndef NDEBUG
+        __CallGameFunction__(__GameFunctions__::SkipPrintThisFrame);
+#endif
     };
 
     template <typename... T>

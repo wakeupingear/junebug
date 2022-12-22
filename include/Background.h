@@ -34,6 +34,7 @@ namespace junebug
         Vec2<bool> mTile{false, false};
         Vec2<int> mCullPaddingStart{1, 1}, mCullPaddingEnd{1, 1};
 
-        void PositionBackground();
+        void DrawSpriteBackground();
+        void DrawColor();
     };
 }

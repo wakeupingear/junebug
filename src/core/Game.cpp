@@ -20,6 +20,21 @@ bool Game::isDebug = false;
 bool Game::isEditor = false;
 #endif
 
+void junebug::__CallGameFunction__(__GameFunctions__ func)
+{
+    Game *game = Game::Get();
+    if (!game)
+        return;
+
+    switch (func)
+    {
+    case SkipPrintThisFrame:
+        game->__DebugSkipPrintThisFrame__();
+    default:
+        break;
+    }
+}
+
 Game::Game()
 {
     if (!firstGame)
@@ -219,11 +234,12 @@ bool Game::Run(int screenWidth, int screenHeight)
         LoadQueuedScenes();
 
         DebugCheckpointStop("GameLoop");
-        if (mGameIsRunning)
+        if (mGameIsRunning && !mSkipDebugPrintThisFrame)
         {
             DebugPrintInfo();
             DebugPrintCheckpoints();
             mDebugAlreadyCleared = false;
+            mSkipDebugPrintThisFrame = false;
         }
     }
 
@@ -364,6 +380,10 @@ Vec2<int> Game::GetMousePos()
 {
     return mMousePos;
 }
+void Game::SetMousePos(Vec2<int> pos)
+{
+    mMousePos = pos;
+}
 Vec2<int> Game::GetMouseScreenPos()
 {
     return mMouseScreenPos;
@@ -371,6 +391,10 @@ Vec2<int> Game::GetMouseScreenPos()
 Camera *Game::GetMouseCamera()
 {
     return mMouseCamera;
+}
+Vec2<int> Game::GetMouseOffset()
+{
+    return mMouseOffset;
 }
 
 void Game::AddActor(PureActor *actor)
@@ -395,6 +419,11 @@ void Game::AddCamera(Camera *camera)
 
 void Game::RemoveCamera(Camera *camera)
 {
+    if (mMouseCamera == camera)
+        mMouseCamera = nullptr;
+    if (mActiveCamera == camera)
+        mActiveCamera = nullptr;
+
     mCameras.erase(std::remove(mCameras.begin(), mCameras.end(), camera), mCameras.end());
 }
 

@@ -61,6 +61,7 @@ void Game::ProcessInput()
                 mMousePos += Vec2(
                     (int)(mMouseCamera->GetPosition().x - mMouseCamera->GetScreenPos().x),
                     (int)(mMouseCamera->GetPosition().y - mMouseCamera->GetScreenPos().y));
+                mMouseOffset = mMousePos - mMouseCamera->GetPosition();
             }
 
             break;
@@ -159,6 +160,15 @@ int Game::Input(std::string key)
 bool Game::InputPressed(std::string key)
 {
     return Input(key) == 1;
+}
+
+int Game::InputsDir(std::string negKey, std::string posKey)
+{
+    return ((bool)Input(posKey)) - ((bool)Input(negKey));
+}
+int Game::InputsPressedDir(std::string negKey, std::string posKey)
+{
+    return ((bool)InputPressed(posKey)) - ((bool)InputPressed(negKey));
 }
 
 void Game::SetInputMapping(std::string key, std::vector<Uint8> inputs)
