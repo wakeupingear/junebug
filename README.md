@@ -14,7 +14,7 @@ Progress on [Trello](https://trello.com/b/jWgkCUmD/junebug)
 
 ```cpp
 #define SDL_MAIN_HANDLED
-#include <Game.h>
+#include <junebug.h>
 using namespace junebug;
 
 int main()

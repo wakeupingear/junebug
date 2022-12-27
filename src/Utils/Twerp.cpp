@@ -1,9 +1,10 @@
 #include "Utils.h"
 #include "MathLib.h"
+#include "Game.h"
 
 namespace junebug
 {
-    float Twerp(float _start, float _end, float _pos, TwerpType _type, bool _looped, float _opt1, float _opt2)
+    float _TwerpHelper(float _start, float _end, float _pos, TwerpType _type, bool _looped, float _opt1, float _opt2)
     {
         if (_type < 0 || _type >= TwerpType::TWERP_COUNT)
             return 0.0f;
@@ -166,4 +167,107 @@ namespace junebug
             return 0;
         }
     }
+
+    float Twerp(float _start, float _end, float _pos, TwerpType _type, bool _looped, float _opt1, float _opt2)
+    {
+        return _TwerpHelper(_start, _end, _pos, _type, _looped, _opt1, _opt2);
+    }
+    int Twerp(int _start, int _end, float _pos, TwerpType _type, bool _looped, float _opt1, float _opt2)
+    {
+        return (int)_TwerpHelper((float)_start, (float)_end, _pos, _type, _looped, _opt1, _opt2);
+    }
+    Uint8 Twerp(Uint8 _start, Uint8 _end, float _pos, TwerpType _type, bool _looped, float _opt1, float _opt2)
+    {
+        return (Uint8)_TwerpHelper((float)_start, (float)_end, _pos, _type, _looped, _opt1, _opt2);
+    }
+
+    void TwerpCoroutine(PureActor *actor, float &value, float start, float end, float time, TwerpType type, bool looped, float opt1, float opt2)
+    {
+        TwerpPropertyFloat prop = {&(value), start, end, time, 0.0f, type, looped, opt1, opt2};
+        Game *game = Game::Get();
+        if (game)
+        {
+            game->RegisterTwerpCoroutine(actor, prop, game->GetTwerpCoroutinesFloat());
+            value = start;
+        }
+    }
+    void TwerpCoroutine(PureActor *actor, int &value, int start, int end, float time, TwerpType type, bool looped, float opt1, float opt2)
+    {
+        TwerpPropertyInt prop = {&(value), start, end, time, 0.0f, type, looped, opt1, opt2};
+        Game *game = Game::Get();
+        if (game)
+        {
+            game->RegisterTwerpCoroutine(actor, prop, game->GetTwerpCoroutinesInt());
+            value = start;
+        }
+    }
+    void TwerpCoroutine(PureActor *actor, Uint8 &value, Uint8 start, Uint8 end, float time, TwerpType type, bool looped, float opt1, float opt2)
+    {
+        TwerpPropertyUint8 prop = {&(value), start, end, time, 0.0f, type, looped, opt1, opt2};
+        Game *game = Game::Get();
+        if (game)
+        {
+            game->RegisterTwerpCoroutine(actor, prop, game->GetTwerpCoroutinesUint8());
+            value = start;
+        }
+    }
+
+    bool ToggleTwerpCoroutine(PureActor *actor, float &value, int forceState)
+    {
+        TwerpPropertyFloat prop = {&(value)};
+        Game *game = Game::Get();
+        if (game)
+            return game->ToggleTwerpCoroutine(actor, prop, game->GetTwerpCoroutinesFloat(), forceState);
+        return false;
+    }
+    bool ToggleTwerpCoroutine(PureActor *actor, int &value, int forceState)
+    {
+        TwerpPropertyInt prop = {&(value)};
+        Game *game = Game::Get();
+        if (game)
+            return game->ToggleTwerpCoroutine(actor, prop, game->GetTwerpCoroutinesInt(), forceState);
+        return false;
+    }
+    bool ToggleTwerpCoroutine(PureActor *actor, Uint8 &value, int forceState)
+    {
+        TwerpPropertyUint8 prop = {&(value)};
+        Game *game = Game::Get();
+        if (game)
+            return game->ToggleTwerpCoroutine(actor, prop, game->GetTwerpCoroutinesUint8(), forceState);
+        return false;
+    }
+
+    bool StopTwerpCoroutine(PureActor *actor, float &value)
+    {
+        TwerpPropertyFloat prop = {&(value)};
+        Game *game = Game::Get();
+        if (game)
+            return game->StopTwerpCoroutine(actor, prop, game->GetTwerpCoroutinesFloat());
+        return false;
+    }
+    bool StopTwerpCoroutine(PureActor *actor, int &value)
+    {
+        TwerpPropertyInt prop = {&(value)};
+        Game *game = Game::Get();
+        if (game)
+            return game->StopTwerpCoroutine(actor, prop, game->GetTwerpCoroutinesInt());
+        return false;
+    }
+    bool StopTwerpCoroutine(PureActor *actor, Uint8 &value)
+    {
+        TwerpPropertyUint8 prop = {&(value)};
+        Game *game = Game::Get();
+        if (game)
+            return game->StopTwerpCoroutine(actor, prop, game->GetTwerpCoroutinesUint8());
+        return false;
+    }
+}
+
+using namespace junebug;
+
+void Game::UpdateTwerps(float dt)
+{
+    UpdateTwerpList(mTwerpCoroutinesFloat, dt);
+    UpdateTwerpList(mTwerpCoroutinesInt, dt);
+    UpdateTwerpList(mTwerpCoroutinesUint8, dt);
 }
