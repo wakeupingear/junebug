@@ -13,18 +13,21 @@ namespace junebug
 {
     // Get a position relative to a camera
     Vec2<float> GetDrawPosition(Vec2<float> pos = Vec2<float>::Zero);
+    class Sprite *LoadSprite(std::string &imagePath);
 
     struct SpriteProperties
     {
         Vec2<float> scale{1.0f, 1.0f};
         float rotation{0.0f};
         Color color{Color::White};
+        bool roundToCamera{false};
 
         SpriteProperties() {}
         SpriteProperties(const Vec2<float> &scale)
             : scale(scale){};
         SpriteProperties(const float rotation) : rotation(rotation) {}
         SpriteProperties(const Color &color) : color(color) {}
+        SpriteProperties(const bool &roundToCamera) : roundToCamera(roundToCamera) {}
         SpriteProperties(const Vec2<float> &scale, const float rotation)
             : scale(scale), rotation(rotation) {}
         SpriteProperties(const Vec2<float> &scale, const Color &color)
@@ -33,10 +36,14 @@ namespace junebug
             : rotation(rotation), color(color) {}
         SpriteProperties(const Vec2<float> &scale, const float rotation, const Color &color)
             : scale(scale), rotation(rotation), color(color){};
+        SpriteProperties(const Vec2<float> &scale, const float rotation, const Color &color, const bool &roundToCamera)
+            : scale(scale), rotation(rotation), color(color), roundToCamera(roundToCamera){};
     };
 
     // Draw a sprite
     void DrawSprite(std::string &imagePath, const Vec2<float> &pos, const SpriteProperties &properties = {});
+    // Draw a part of a sprite
+    void DrawSpritePart(std::string &imagePath, const Vec2<float> &pos, const Vec2<int> &partPos, const Vec2<int> &partSize, const SpriteProperties &properties = {});
 
     struct TextEffects : FC_Effect
     {

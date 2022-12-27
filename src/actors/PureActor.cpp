@@ -9,21 +9,12 @@ PureActor::PureActor()
     Game::Get()->AddActor(this);
 }
 
-PureActor::PureActor(Vec2<float> pos) : PureActor()
-{
-}
-
 PureActor::~PureActor()
 {
     for (Component *comp : mComponents)
         delete comp;
     mComponents.clear();
     Game::Get()->RemoveActor(this);
-}
-
-void PureActor::InternalUpdate(float dt)
-{
-    Update(dt);
 }
 
 void PureActor::AddComponent(Component *c)

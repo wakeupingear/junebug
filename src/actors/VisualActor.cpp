@@ -13,8 +13,9 @@ VisualActor::VisualActor(Vec2<int> pos) : VisualActor(Vec2<float>((float)pos.x, 
 {
 }
 
-VisualActor::VisualActor(Vec2<float> pos, std::string imagePath) : VisualActor(pos)
+VisualActor::VisualActor(Vec2<float> pos, std::string imagePath) : PureActor()
 {
+    SetPosition(pos);
     SetSprite(imagePath);
 }
 VisualActor::VisualActor(Vec2<int> pos, std::string imagePath) : VisualActor(Vec2<float>((float)pos.x, (float)pos.y), imagePath)
@@ -33,39 +34,36 @@ void VisualActor::SetSprite(std::string imagePath)
     if (game)
         mSpritePath = game->GetAssetPaths().sprites + imagePath;
 }
-Sprite *VisualActor::GetSprite() const
+Sprite *VisualActor::GetSprite()
 {
-    auto it = Game::Get()->GetSpriteCache().find(mSpritePath);
-    if (it == Game::Get()->GetSpriteCache().end())
-        return nullptr;
-    return it->second;
+    return LoadSprite(mSpritePath);
 }
-std::string VisualActor::GetSpriteName() const
+std::string VisualActor::GetSpriteName()
 {
     return mSpritePath;
 }
-Vec2<int> VisualActor::GetSpriteSize() const
+Vec2<int> VisualActor::GetSpriteSize()
 {
     Sprite *sprite = GetSprite();
     if (!sprite)
         return Vec2<int>::Zero;
-    return Vec2(
-        sprite->GetTexWidth(),
-        sprite->GetTexHeight());
+    return sprite->GetTexSize();
 }
-Vec2<float> VisualActor::GetActorSize() const
+Vec2<float> VisualActor::GetActorSize()
 {
     Sprite *sprite = GetSprite();
     if (!sprite)
         return Vec2<float>::Zero;
-    return Vec2(
-        mScale.x * sprite->GetTexWidth(),
-        mScale.y * sprite->GetTexHeight());
+    return mScale * sprite->GetTexSize();
 }
 
 void VisualActor::SetPosition(const Vec2<float> &pos)
 {
     mPosition = pos;
+}
+void VisualActor::MovePosition(const Vec2<float> &pos)
+{
+    mPosition += pos;
 }
 Vec2<float> VisualActor::GetPosition() const
 {
@@ -114,5 +112,5 @@ Color VisualActor::GetColor() const
 
 void VisualActor::Draw()
 {
-    DrawSprite(mSpritePath, mPosition, {mScale, mRotation, mColor});
+    DrawSprite(mSpritePath, mPosition, {mScale, mRotation, mColor, mRoundToCamera});
 }

@@ -19,6 +19,32 @@ namespace junebug
 	const float Infinity = std::numeric_limits<float>::infinity();
 	const float NegInfinity = -std::numeric_limits<float>::infinity();
 
+	enum RoundDir
+	{
+		None = 0,
+		Up = 1,
+		Down = -1,
+		Closest = 2
+	};
+
+	template <typename T>
+	T Round(T value, RoundDir dir = RoundDir::Closest)
+	{
+		switch (dir)
+		{
+		case RoundDir::None:
+			return value;
+		case RoundDir::Up:
+			return ceil(value);
+		case RoundDir::Down:
+			return floor(value);
+		case RoundDir::Closest:
+			return round(value);
+		default:
+			return value;
+		}
+	}
+
 	template <typename T>
 	[[nodiscard]] inline int Sign(T val)
 	{
@@ -125,7 +151,7 @@ using namespace junebug;
 
 // 2D Vector
 template <typename T = float>
-class Vec2
+struct Vec2
 {
 public:
 	T x;
@@ -142,6 +168,12 @@ public:
 
 	explicit Vec2(T *inArray)
 		: x(inArray[0]), y(inArray[1])
+	{
+	}
+
+	template <typename U>
+	explicit Vec2(const Vec2<U> inVec)
+		: x(static_cast<T>(inVec.x)), y(static_cast<T>(inVec.y))
 	{
 	}
 
@@ -171,6 +203,16 @@ public:
 		return Vec2(a.x - b.x, a.y - b.y);
 	}
 
+	// Vector equality (a == b)
+	[[nodiscard]] friend bool operator==(const Vec2 &a, const Vec2 &b)
+	{
+		return a.x == b.x && a.y == b.y;
+	}
+	// Vector inequality (a != b)
+	[[nodiscard]] friend bool operator!=(const Vec2 &a, const Vec2 &b)
+	{
+		return a.x != b.x || a.y != b.y;
+	}
 	// Vector less-than (a < b)
 	[[nodiscard]] friend bool operator<(const Vec2 &a, const Vec2 &b)
 	{
@@ -194,7 +236,8 @@ public:
 
 	// Component-wise multiplication
 	// (a.x * b.x, ...)
-	[[nodiscard]] friend Vec2 operator*(const Vec2 &a, const Vec2 &b)
+	template <typename U>
+	[[nodiscard]] friend Vec2 operator*(const Vec2 &a, const Vec2<U> &b)
 	{
 		return Vec2(a.x * b.x, a.y * b.y);
 	}
@@ -209,6 +252,20 @@ public:
 	[[nodiscard]] friend Vec2 operator*(float scalar, const Vec2 &vec)
 	{
 		return Vec2(vec.x * scalar, vec.y * scalar);
+	}
+
+	// Component-wise division
+	// (a.x / b.x, ...)
+	template <typename U>
+	[[nodiscard]] friend Vec2 operator/(const Vec2 &a, const Vec2<U> &b)
+	{
+		return Vec2(a.x / b.x, a.y / b.y);
+	}
+
+	// Scalar division
+	[[nodiscard]] friend Vec2 operator/(const Vec2 &vec, float scalar)
+	{
+		return Vec2(vec.x / scalar, vec.y / scalar);
 	}
 
 	// Scalar *=
@@ -267,12 +324,39 @@ public:
 		y /= length;
 	}
 
+	// Round the vector
+	[[nodiscard]] Vec2 Floor()
+	{
+		return Vec2(floor(x), floor(y));
+	}
+	[[nodiscard]] Vec2 Ceil()
+	{
+		return Vec2(ceil(x), ceil(y));
+	}
+	[[nodiscard]] Vec2 Round(RoundDir dir = RoundDir::Closest)
+	{
+		x = junebug::Round(x, dir);
+		y = junebug::Round(y, dir);
+		return *this;
+	}
+
 	// Normalize the provided vector
 	[[nodiscard]] static Vec2 Normalize(const Vec2 &vec)
 	{
 		Vec2 temp = vec;
 		temp.Normalize();
 		return temp;
+	}
+
+	// Minimum of two vectors
+	[[nodiscard]] static Vec2 Min(const Vec2 &a, const Vec2 &b)
+	{
+		return Vec2(junebug::Min(a.x, b.x), junebug::Min(a.y, b.y));
+	}
+	// Maximum of two vectors
+	[[nodiscard]] static Vec2 Max(const Vec2 &a, const Vec2 &b)
+	{
+		return Vec2(junebug::Max(a.x, b.x), junebug::Max(a.y, b.y));
 	}
 
 	// Dot product between two vectors (a dot b)
@@ -317,7 +401,7 @@ public:
 
 // 3D Vector
 template <typename T = float>
-class Vec3
+struct Vec3
 {
 public:
 	T x;

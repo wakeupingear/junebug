@@ -4,3 +4,4 @@
 #include "Sprite.h"
 #include "Files.h"
 #include "Background.h"
+#include "Tileset.h"

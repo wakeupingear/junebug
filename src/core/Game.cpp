@@ -2,6 +2,7 @@
 #include "Actors.h"
 #include "Camera.h"
 #include "Background.h"
+#include "Tileset.h"
 
 #include <iostream>
 #include <algorithm>
@@ -30,6 +31,8 @@ void junebug::__CallGameFunction__(__GameFunctions__ func)
     {
     case SkipPrintThisFrame:
         game->__DebugSkipPrintThisFrame__();
+    case RaiseWindow:
+        game->RaiseWindow();
     default:
         break;
     }
@@ -128,6 +131,12 @@ int Game::GetScreenHeight() { return mScreenHeight; }
 int Game::GetRenderWidth() { return mRenderWidth; }
 int Game::GetRenderHeight() { return mRenderHeight; }
 
+void Game::RaiseWindow()
+{
+    if (mWindow)
+        SDL_RaiseWindow(mWindow);
+}
+
 void Game::Shutdown()
 {
     UnloadData();
@@ -191,7 +200,7 @@ bool Game::Run(int screenWidth, int screenHeight)
         mOptionsUpdated = false;
     }
 
-    JB_REGISTER_ACTORS(VisualActor, Background);
+    JB_REGISTER_ACTORS(VisualActor, Background, Tileset);
 
     LoadData();
 
@@ -290,14 +299,13 @@ void Game::UpdateGame()
     auto tempActors = mActors;
     for (PureActor *actor : tempActors)
     {
-        if (actor->GetState() == ActorState::Active)
-            actor->Update(mDeltaTime);
-        else if (actor->GetState() == ActorState::Started)
+        if (actor->GetState() == ActorState::Started)
         {
             actor->SetState(ActorState::Active);
             actor->FirstUpdate(mDeltaTime);
-            actor->InternalUpdate(mDeltaTime);
         }
+
+        actor->Update(mDeltaTime);
     }
 
     std::vector<PureActor *> destroyActors;

@@ -9,6 +9,7 @@
 #include "InputNames.h"
 #include "Color.h"
 #include "Files.h"
+#include "Actors.h"
 
 #include "SDL2/SDL.h"
 #include "SDL2/SDL_mixer.h"
@@ -38,7 +39,7 @@ namespace junebug
 #define __MAP_END__(...)
 #define __MAP_GET_END__() 0, __MAP_END__
 #define ____MAP_NEXT__0__(item, next, ...) next __MAP_OUT__
-#define ____MAP_NEXT__1__(item, next) __EVAL0__(____MAP_NEXT__0__(item, next, 0))
+#define ____MAP_NEXT__1__(item, next) ____MAP_NEXT__0__(item, next, 0)
 #define __MAP_NEXT__(item, next) ____MAP_NEXT__1__(__MAP_GET_END__ item, next)
 #define __MAP0__(f, x, peek, ...) f(x) __MAP_NEXT__(peek, __MAP1__)(f, peek, __VA_ARGS__)
 #define __MAP1__(f, x, peek, ...) f(x) __MAP_NEXT__(peek, __MAP0__)(f, peek, __VA_ARGS__)
@@ -141,6 +142,8 @@ namespace junebug
                 SDL_Renderer *GetRenderer() { return mRenderer; }
                 // Get the window
                 SDL_Window *GetWindow() { return mWindow; }
+                // Raise window
+                void RaiseWindow();
 
                 // Get the FPS the game is currently running at
                 int GetFPS() { return mFps; }
@@ -230,11 +233,30 @@ namespace junebug
                 // Remove an actor from the game
                 /// @param actor The actor to remove
                 void RemoveActor(class PureActor *actor);
+
                 // Get a const reference to the list of actors
                 /// @returns A const reference to the list of actors
                 const std::vector<class PureActor *> &GetActors() const;
 
-                typedef std::unordered_map<std::string, class PureActor *(*)()> factory_map;
+                // Get an optionally typed actor by id
+                /// @param id The id of the actor
+                /// @returns A pointer to the actor or nullptr if no actor with the given id exists
+                template <typename T = class PureActor>
+                T *GetActor(std::string id)
+                {
+                        for (auto actor : mActors)
+                        {
+                                if (actor->GetId() == id)
+                                {
+                                        return dynamic_cast<T *>(actor);
+                                }
+                        }
+                        return nullptr;
+                }
+
+                typedef std::unordered_map<std::string,
+                                           std::function<class PureActor *()>>
+                    factory_map;
                 // Actor name to class map
                 factory_map mActorConstructors;
 #pragma endregion

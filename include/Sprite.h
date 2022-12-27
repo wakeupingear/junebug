@@ -14,6 +14,15 @@
 
 namespace junebug
 {
+    enum SpriteOrigin
+    {
+        TopLeft,
+        TopRight,
+        BottomLeft,
+        BottomRight,
+        Center
+    };
+
     class Sprite
     {
     public:
@@ -21,15 +30,17 @@ namespace junebug
         ~Sprite();
 
         // Draw this sprite
-        void Draw(class Camera *cam, SDL_Renderer *renderer, const Vec2<float> &pos, const SpriteProperties &properties = {});
+        void Draw(class Camera *cam, SDL_Renderer *renderer, const Vec2<float> &pos, const Vec2<int> &partPos, const Vec2<int> &partSize, const SpriteProperties &properties);
         // Set the texture to draw for this psirte
         virtual void SetTexture(SDL_Texture *texture);
 
         // Get the height of the texture
-        int GetTexHeight() const { return mTexHeight; }
-        // Get the height of the texture
-        int GetTexWidth() const { return mTexWidth; }
-        // Get the height of the texture
+        Vec2<int> GetTexSize() const { return mTexSize; }
+
+        // Set the origin of the sprite
+        void SetOrigin(SpriteOrigin origin, const Vec2<int> &offset = Vec2<int>::Zero);
+        // Get the origin of the sprite
+        Vec2<int> GetOrigin() { return mOrigin; }
 
         // Add an animation of the corresponding name to the animation map
         void AddAnimation(const std::string &name,
@@ -54,8 +65,9 @@ namespace junebug
         // Texture to draw
         SDL_Texture *mTexture = nullptr;
         // Width/height
-        int mTexWidth;
-        int mTexHeight;
+        Vec2<int> mTexSize = Vec2<int>(0, 0);
+        // Origin
+        Vec2<int> mOrigin = Vec2<int>(0, 0);
 
         // Map of animation name to vector of textures corresponding to the animation
         std::unordered_map<std::string, std::vector<SDL_Texture *>> mAnims;

@@ -22,14 +22,56 @@ namespace junebug
         }
         mSpriteCache[name] = sprite;
     }
-
     Vec2<float> GetDrawPosition(Vec2<float> pos)
     {
         Camera *camera = Game::Get()->GetActiveCamera();
         if (!camera)
             return Vec2<>::Zero;
 
-        return pos * camera->GetZoom() - camera->GetPosition();
+        return (pos - camera->GetPosition()) * camera->GetZoom();
+    }
+
+    Sprite *LoadSprite(std::string &imagePath)
+    {
+        if (imagePath.empty())
+            return nullptr;
+        auto it = Game::Get()->GetSpriteCache().find(imagePath);
+        if (it == Game::Get()->GetSpriteCache().end())
+        {
+            Sprite *sprite = new Sprite();
+
+            const fs::path path(imagePath);
+            std::error_code ec;
+            if (fs::is_directory(path, ec))
+            {
+                sprite->SetAnimation(imagePath);
+            }
+            if (ec)
+            {
+                PrintLog("Error for", imagePath, "in is_directory:", ec.message());
+                delete sprite;
+                Game::Get()->AddSprite(imagePath, nullptr);
+                return nullptr;
+            }
+
+            if (fs::is_regular_file(path, ec))
+            {
+                sprite->SetTexture(Game::Get()->GetTexture(imagePath));
+            }
+
+            if (ec)
+            {
+                PrintLog("Error for", imagePath, "in is_regular_file:", ec.message());
+                delete sprite;
+                Game::Get()->AddSprite(imagePath, nullptr);
+                return nullptr;
+            }
+
+            Game::Get()->AddSprite(imagePath, sprite);
+            return sprite;
+        }
+
+        return it->second;
     }
 
     void DrawSprite(std::string &imagePath, const Vec2<float> &pos, const SpriteProperties &properties)
@@ -40,48 +82,26 @@ namespace junebug
         SDL_Renderer *renderer = game->GetRenderer();
         if (!renderer)
             return;
-        Camera *camera = game->GetActiveCamera();
-
-        auto it = game->GetSpriteCache().find(imagePath);
-        Sprite *sprite = nullptr;
-        if (it == game->GetSpriteCache().end())
-        {
-            sprite = new Sprite();
-
-            const fs::path path(imagePath);
-            std::error_code ec;
-            if (fs::is_directory(path, ec))
-            {
-                sprite->SetAnimation(imagePath);
-            }
-            if (ec)
-            {
-                std::cerr << "Error in is_directory: " << ec.message() << std::endl;
-                delete sprite;
-                return;
-            }
-
-            if (fs::is_regular_file(path, ec))
-            {
-                sprite->SetTexture(Game::Get()->GetTexture(imagePath));
-            }
-
-            if (ec)
-            {
-                std::cerr << "Error in is_regular_file: " << ec.message() << std::endl;
-                delete sprite;
-                return;
-            }
-
-            game->AddSprite(imagePath, sprite);
-        }
-        else
-            sprite = it->second;
-
+        Sprite *sprite = LoadSprite(imagePath);
         if (!sprite)
             return;
 
-        sprite->Draw(camera, renderer, pos, properties);
+        sprite->Draw(game->GetActiveCamera(), renderer, pos, Vec2<int>::Zero, sprite->GetTexSize(), properties);
+    }
+
+    void DrawSpritePart(std::string &imagePath, const Vec2<float> &pos, const Vec2<int> &partPos, const Vec2<int> &partSize, const SpriteProperties &properties)
+    {
+        Game *game = Game::Get();
+        if (!game)
+            return;
+        SDL_Renderer *renderer = game->GetRenderer();
+        if (!renderer)
+            return;
+        Sprite *sprite = LoadSprite(imagePath);
+        if (!sprite)
+            return;
+
+        sprite->Draw(game->GetActiveCamera(), renderer, pos, partPos, partSize, properties);
     }
 
     void DrawText(std::string text, const Vec2<float> &pos, const TextEffects effects)

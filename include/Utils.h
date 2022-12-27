@@ -21,7 +21,8 @@ namespace junebug
     // This is a horrendous anti-pattern but was necessary for debugging purposes
     enum __GameFunctions__
     {
-        SkipPrintThisFrame
+        SkipPrintThisFrame,
+        RaiseWindow
     };
     void __CallGameFunction__(__GameFunctions__ func);
 
@@ -29,17 +30,21 @@ namespace junebug
     /// @return The current time in milliseconds
     std::string PrintTime();
 
+    inline void __PostPrint__()
+    {
+#ifndef NDEBUG
+        __CallGameFunction__(__GameFunctions__::SkipPrintThisFrame);
+#endif
+    }
+
     // Print a message to the console
     /// @param ...args Any number of arguments to print. Types must support << operator
     template <typename... T>
     inline void Print(T... args)
     {
         ((std::cout << args << ' '), ...) << std::endl;
-#ifndef NDEBUG
-        __CallGameFunction__(__GameFunctions__::SkipPrintThisFrame);
-#endif
+        __PostPrint__();
     };
-
     template <typename... T>
     inline void print(T... args)
     {
@@ -50,7 +55,28 @@ namespace junebug
     inline void PrintNoSpaces(T... args)
     {
         ((std::cout << args), ...) << std::endl;
+        __PostPrint__();
     };
+    template <typename... T>
+    inline void printNoSpaces(T... args)
+    {
+        PrintNoSpaces(args...);
+    };
+
+    template <typename... T>
+    inline void PrintHalt(T... args)
+    {
+        ((std::cout << args << ' '), ...);
+        std::cin.get();
+        std::cout << std::endl;
+        __CallGameFunction__(__GameFunctions__::RaiseWindow);
+        __PostPrint__();
+    }
+    template <typename... T>
+    inline void printHalt(T... args)
+    {
+        PrintHalt(args...);
+    }
 
     static std::ofstream __logStream__("log.txt", std::ofstream::out);
 
@@ -62,6 +88,11 @@ namespace junebug
         __logStream__ << "[" << PrintTime() << "] ";
         ((__logStream__ << args << ' '), ...) << std::endl;
     };
+    template <typename... T>
+    void log(T... args)
+    {
+        Log(args...);
+    };
 
     // Print and log a message
     /// @param ...args Any number of arguments to print. Types must support << operator
@@ -70,6 +101,11 @@ namespace junebug
     {
         Print(args...);
         Log(args...);
+    };
+    template <typename... T>
+    inline void printLog(T... args)
+    {
+        PrintLog(args...);
     };
 
     // Get a render texture with the given size.
@@ -166,4 +202,8 @@ namespace junebug
     /// @param fileName The file name to trim
     /// @return The file name without the extension
     std::string TrimFileExtension(const std::string &fileName);
+
+    // Generate a UUID v4
+    /// @return string The UUID
+    std::string UUID();
 };

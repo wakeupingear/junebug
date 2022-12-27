@@ -46,6 +46,11 @@ void Camera::SetPosition(Vec2<float> newPos)
     }
 }
 
+void Camera::SetSize(Vec2<float> newSize)
+{
+    size = newSize;
+}
+
 SDL_Texture *Camera::Render(SDL_Renderer *renderer)
 {
     Game *game = Game::Get();
@@ -68,7 +73,7 @@ SDL_Texture *Camera::Render(SDL_Renderer *renderer)
     for (PureActor *actor : game->GetActors())
     {
         VisualActor *visualActor = dynamic_cast<VisualActor *>(actor);
-        if (visualActor && visualActor->IsVisible())
+        if (visualActor && visualActor->Visible())
         {
             visualActor->Draw();
         }
@@ -120,11 +125,11 @@ void Camera::_GuessFractional(Vec2<float> &vec, Vec2<bool> &outVec)
 
 const Vec2<float> Camera::GetCenter()
 {
-    return GetPosition() + GetSize() * 0.5f;
+    return GetPosition() + GetSize() * 0.5f * mZoom;
 }
 const Vec2<float> Camera::GetBottomRight()
 {
-    return GetPosition() + GetSize();
+    return GetPosition() + GetSize() * mZoom;
 }
 
 const Vec2<float> Camera::GetScreenCenter()
@@ -140,8 +145,8 @@ void Camera::CheckBounds()
 {
     if (mStayInBounds)
     {
-        pos.x = Clamp(pos.x, mBoundsStartOffset.x, (float)Game::Get()->GetSceneSize().x - GetSize().x + mBoundsStartOffset.x);
-        pos.y = Clamp(pos.y, mBoundsStartOffset.y, (float)Game::Get()->GetSceneSize().y - GetSize().y + mBoundsStartOffset.y);
+        pos.x = Clamp(pos.x, mBoundsStartOffset.x, Max((float)Game::Get()->GetSceneSize().x - GetSize().x + mBoundsEndOffset.x, 0.0f));
+        pos.y = Clamp(pos.y, mBoundsStartOffset.y, Max((float)Game::Get()->GetSceneSize().y - GetSize().y + mBoundsEndOffset.y, 0.0f));
     }
 }
 
@@ -150,11 +155,6 @@ void Camera::SetZoom(float zoom)
     zoom = std::max(zoom, -mZoom + 0.01f);
     float zoomDiff = zoom - mZoom;
     mZoom = zoom;
-    if (false)
-    {
-        SetPosition(
-            Vec2(pos.x - size.x / 2.0f * zoomDiff,
-                 pos.y - size.y / 2.0f * zoomDiff));
-    }
+    SetPosition(pos + size / 2.0f * zoomDiff);
     CheckBounds();
 }

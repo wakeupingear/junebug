@@ -140,6 +140,18 @@ void Game::ProcessInput()
     // This happens after the checks since it can change in many places
     if (oldScreenSize.x != mScreenWidth || oldScreenSize.y != mScreenHeight)
     {
+        // Update the screen cameras
+        if (!Game::Get()->Options().screenStretch) {
+            for (Camera *cam : mCameras)
+            {
+                if (cam->IsScreenCamera())
+                {
+                    Vec2<float> ratio = Vec2<float>(mScreenWidth, mScreenHeight) / Vec2<float>(oldScreenSize);
+                    cam->SetSize(cam->GetSize() * ratio);
+                }
+            }
+        }
+
         mPrevScreenSize = oldScreenSize;
     }
 

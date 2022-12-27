@@ -21,8 +21,9 @@ namespace junebug
         Camera(Vec2<int> pos, Vec2<int> size, Vec2<int> screenPos, Vec2<int> screenSize);
         ~Camera();
 
-        const Vec2<float> GetPosition() const { return pos; }
         void SetPosition(Vec2<float> newPos);
+        const Vec2<float> GetPosition() const { return pos; }
+        void SetSize(Vec2<float> newSize);
         const Vec2<float> GetSize() const { return size * (1.0f / mZoom); }
         const Vec2<float> GetScreenPos() const { return _calcScreenPos; }
         const Vec2<float> GetScreenSize() const { return _calcScreenSize; }
@@ -65,7 +66,7 @@ namespace junebug
 
         SDL_Texture *renderTex = nullptr;
 
-        void _UpdateCoordinate(Vec2<float> &vec, Vec2<float> &outVec, Vec2<bool> &fractional, float w, float h);
+        void _UpdateCoordinate(Vec2<float> &vec, Vec2<float> &outVec, Vec2<bool> &fractional, float sW, float sH);
         void _GuessFractional(Vec2<float> &vec, Vec2<bool> &outVec);
 
         bool mStayInBounds = true;
