@@ -4,6 +4,7 @@
 #endif
 
 #include "Utils.h"
+#include "Twerp.h"
 #include "MathLib.h"
 #include "RandLib.h"
 #include "InputNames.h"
@@ -259,6 +260,66 @@ namespace junebug
                     factory_map;
                 // Actor name to class map
                 factory_map mActorConstructors;
+
+                template <typename T>
+                using twerp_map = std::unordered_map<class PureActor *, std::vector<T>>;
+                // Register a twerp coroutine
+                template <typename T>
+                void RegisterTwerpCoroutine(class PureActor *actor, T prop, twerp_map<T> &map)
+                {
+                        if (actor)
+                        {
+                                map[actor].push_back(prop);
+                        }
+                }
+                twerp_map<TwerpPropertyFloat> &GetTwerpCoroutinesFloat() { return mTwerpCoroutinesFloat; }
+                twerp_map<TwerpPropertyInt> &GetTwerpCoroutinesInt() { return mTwerpCoroutinesInt; }
+                twerp_map<TwerpPropertyUint8> &GetTwerpCoroutinesUint8() { return mTwerpCoroutinesUint8; }
+
+                template <typename T>
+                bool ToggleTwerpCoroutine(PureActor *actor, T prop, twerp_map<T> &map, int forceState = -1)
+                {
+                        if (actor)
+                        {
+                                auto &entry = map[actor];
+                                for (auto &entryProp : entry)
+                                {
+                                        if (entryProp.value == prop.value)
+                                        {
+                                                if (forceState == -1)
+                                                        entryProp.time = -entryProp.time;
+                                                else if (forceState == 0)
+                                                        entryProp.time = -abs(entryProp.time);
+                                                else if (forceState == 1)
+                                                        entryProp.time = abs(entryProp.time);
+                                                return true;
+                                        }
+                                }
+                        }
+                        return false;
+                }
+
+                template <typename T>
+                bool StopTwerpCoroutine(PureActor *actor, T prop, twerp_map<T> &map)
+                {
+                        if (actor)
+                        {
+                                auto &entry = map[actor];
+                                for (auto it = entry.begin(); it != entry.end(); ++it)
+                                {
+                                        auto &entryProp = *it;
+                                        if (entryProp.value == prop.value)
+                                        {
+                                                entry.erase(it);
+                                                if (entry.empty())
+                                                        map.erase(actor);
+
+                                                return true;
+                                        }
+                                }
+                        }
+                        return false;
+                }
 #pragma endregion
 
 #pragma region Cameras
@@ -457,6 +518,65 @@ namespace junebug
                 void LoadQueuedScenes();
                 // Helper function to instantiate an actor from a secene JSON reference
                 void LoadActor(rapidjson::Value &actorRef, Scene &newScene);
+
+                // Twerp coroutines
+                twerp_map<TwerpPropertyFloat> mTwerpCoroutinesFloat;
+                twerp_map<TwerpPropertyInt> mTwerpCoroutinesInt;
+                twerp_map<TwerpPropertyUint8> mTwerpCoroutinesUint8;
+                // Helper function to update all twerp coroutines
+                void UpdateTwerps(float dt);
+                template <typename T>
+                void UpdateTwerpList(twerp_map<T> &twerpMap, float dt)
+                {
+                        for (auto it2 = twerpMap.begin(); it2 != twerpMap.end();)
+                        {
+                                auto &actor = it2->first;
+                                auto &props = it2->second;
+                                if (!actor)
+                                        continue;
+                                for (auto it = props.begin(); it != props.end();)
+                                {
+                                        if (it->time < 0.0f)
+                                        {
+                                                ++it;
+                                                continue;
+                                        }
+
+                                        it->timeElapsed += dt;
+                                        if (it->timeElapsed >= it->time)
+                                        {
+                                                if (it->looped)
+                                                        it->timeElapsed = fmod(it->timeElapsed, it->time);
+                                                else
+                                                {
+                                                        *it->value = it->end;
+                                                        it = props.erase(it);
+                                                        if (props.empty())
+                                                        {
+                                                                it2 = twerpMap.erase(it2);
+                                                                break;
+                                                        }
+                                                        continue;
+                                                }
+                                        }
+
+                                        *it->value = Twerp(it->start, it->end, it->timeElapsed / it->time, it->type, it->opt1, it->opt2);
+                                        ++it;
+                                }
+
+                                if (it2 != twerpMap.end())
+                                        ++it2;
+                        }
+                }
+
+                template <typename T>
+                int CountTwerps(twerp_map<T> &twerpMap)
+                {
+                        int count = 0;
+                        for (auto &actor : twerpMap)
+                                count += actor.second.size();
+                        return count;
+                }
 
                 // Current font
                 FC_Font *mCurrentFont = nullptr;

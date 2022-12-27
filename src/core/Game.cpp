@@ -295,6 +295,9 @@ void Game::UpdateGame()
     // User-defined callback
     UpdateStart(mDeltaTime);
 
+    // Update twerps
+    UpdateTwerps(mDeltaTime);
+
     // Update actors
     auto tempActors = mActors;
     for (PureActor *actor : tempActors)
@@ -412,7 +415,17 @@ void Game::AddActor(PureActor *actor)
 
 void Game::RemoveActor(PureActor *actor)
 {
+    // Remove from actor list
     mActors.erase(std::remove(mActors.begin(), mActors.end(), actor), mActors.end());
+
+    // Remove any active twerp coroutines
+    VisualActor *vActor = dynamic_cast<VisualActor *>(actor);
+    if (vActor)
+    {
+        mTwerpCoroutinesFloat.erase(vActor);
+        mTwerpCoroutinesInt.erase(vActor);
+        mTwerpCoroutinesUint8.erase(vActor);
+    }
 }
 
 const std::vector<PureActor *> &Game::GetActors() const

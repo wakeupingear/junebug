@@ -108,6 +108,10 @@ void Game::DebugPrintInfo()
     PrintNoSpaces(DEBUG_INDENT, mFps, " FPS");
     PrintNoSpaces(DEBUG_INDENT, "Delta Time: ", RoundDec(mDeltaTime * 1000.0f, 3), "ms");
     PrintNoSpaces(DEBUG_INDENT, "Actors: ", mActors.size());
+
+    int numCoroutines = CountTwerps(mTwerpCoroutinesFloat) + CountTwerps(mTwerpCoroutinesInt) + CountTwerps(mTwerpCoroutinesUint8);
+    PrintNoSpaces(DEBUG_INDENT, "Coroutines: ", numCoroutines);
+
     PrintNoSpaces(DEBUG_INDENT, "Loaded Sprites: ", mSpriteCache.size());
 }
 

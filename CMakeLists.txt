@@ -30,7 +30,7 @@ add_library(${LIBNAME} STATIC
     src/Color.cpp
     
     src/Utils/Utils.cpp
-    src/Utils/twerp.cpp
+    src/Utils/Twerp.cpp
     
     src/Rendering.cpp
     
