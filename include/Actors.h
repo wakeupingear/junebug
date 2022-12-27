@@ -13,7 +13,7 @@
 namespace junebug
 {
 // Helper macro, see below
-#define __REGISTER_ACTOR__(T) Game::mActorConstructors[#T] = &PureActor::__createInstance__<T>;
+#define __REGISTER_ACTOR__(T) Game::mActorConstructors[#T] = []() -> T * {T* inst = dynamic_cast<T *>(PureActor::__createInstance__<T>()); inst->Awake(); return inst; };
 // A macro to register an arbitrary number of custom Actor classes for serialization
 // This allows the engine to do some basic reflection on the classes
 // (basically, to be able to create them from a string, like from a JSON Scene file)
@@ -36,8 +36,6 @@ namespace junebug
     public:
         // Default constructor
         PureActor();
-        // Empty Vec2 constructor for factory convenience. This constructor is not intended to be used.
-        PureActor(Vec2<float> pos);
         // Default destructor
         virtual ~PureActor();
 
@@ -65,10 +63,6 @@ namespace junebug
         void Destroy() { mState = ActorState::Destroy; }
         // Set whether the actor should persist between scenes
         void SetPersistent(bool persistent) { mPersistent = persistent; }
-
-        // Update the actor in the game loop
-        /// @param dt The time since the last update
-        void InternalUpdate(float dt);
 
         // Vector of attached components
         std::vector<class Component *> mComponents;
@@ -99,11 +93,18 @@ namespace junebug
         // Set the actor's depth
         void SetDepth(int newDepth) { mDepth = newDepth; };
 
+        // Get the actor's id
+        std::string GetId() const { return mId; }
+
     protected:
         friend class Component;
         friend class Game;
         // Add a component to the actor
         void AddComponent(class Component *c);
+        // User-defined function to run when the actor is created.
+        // This should only be manually invoked for constructors that don't invoke the aren't the parameterless constructor.
+        // Note: when loaded from a file, the default constructor (parameterless) will be invoked. Accordingly, you should plan your usage of Awake() to not rely on any member variables being set.
+        virtual void Awake(){};
         // User-defined function to every frame when the actor updates
         virtual void Update(float dt){};
         // User-defined function to run on the first frame update of an actor
@@ -117,6 +118,9 @@ namespace junebug
 
         // Actor depth
         int mDepth = 0;
+
+    private:
+        std::string mId;
     };
 
     /// @brief A VisualActor is an actor that has a visual representation, including a texture, position, rotation, scale, and color.
@@ -133,7 +137,7 @@ namespace junebug
 
         // Actor visibility
         void SetVisible(bool visible) { mVisible = visible; }
-        bool IsVisible() const { return mVisible; }
+        bool Visible() const { return mVisible; }
 
         // Set the color of the actor
         /// @param color The new color of the actor
@@ -153,18 +157,21 @@ namespace junebug
         /// @param path The path to the new sprite
         void SetSprite(std::string path);
         // Get the sprite of the actor
-        class Sprite *GetSprite() const;
+        class Sprite *GetSprite();
         // Get the sprite name of the actor
         /// @returns std::string
-        std::string GetSpriteName() const;
+        std::string GetSpriteName();
         // Get the sprite size
         /// @returns Vec2<int>
-        Vec2<int> GetSpriteSize() const;
-        Vec2<float> GetActorSize() const;
+        Vec2<int> GetSpriteSize();
+        Vec2<float> GetActorSize();
 
         // Set the position of the actor
         /// @param pos The new position of the actor
         void SetPosition(const Vec2<float> &pos);
+        // Move the actor by a given amount
+        /// @param pos The amount to move the actor
+        void MovePosition(const Vec2<float> &pos);
         // Set the position of the actor
         /// @returns const Vec2
         Vec2<float> GetPosition() const;
@@ -191,6 +198,15 @@ namespace junebug
         /// @returns const Vec2
         Vec2<float> GetScale() const;
 
+        // Set the Camera Rounding boolean
+        // This will round the actor's position to the nearest pixel when rendered onto a camera.
+        // There are various cases where this is useful, where fractional pixels can cause visual artifacts.
+        /// @param roundToCamera The new value of the Camera Rounding boolean
+        void SetRoundToCamera(bool roundToCamera) { mRoundToCamera = roundToCamera; }
+        // Get the Camera Rounding boolean
+        /// @returns bool
+        bool GetRoundToCamera() const { return mRoundToCamera; }
+
     protected:
         friend class Camera;
         // User-defined function to run every frame when the actor draws
@@ -203,6 +219,7 @@ namespace junebug
         Vec2<float> mPosition{0, 0};
         float mRotation{0};
         Vec2<float> mScale{1, 1};
+        bool mRoundToCamera{false};
     };
 
     /// @brief A PhysicalActor is a VisualActor that has a physical representation, including velocity, acceleration, collider, and mass.

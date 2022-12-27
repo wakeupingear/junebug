@@ -10,10 +10,10 @@ namespace junebug
     class Background : public VisualActor
     {
     public:
-        Background(Vec2<float> pos);
         Background(std::string sprite = "", Vec2<float> rate = Vec2<float>::Zero, Vec2<float> offset = Vec2<float>::Zero);
         Background(std::string sprite, float rate, Vec2<float> offset = Vec2<float>::Zero);
 
+        void FirstUpdate(float dt) override;
         void Draw() override;
 
         void SetRate(Vec2<float> rate) { mRate = rate; }
@@ -32,8 +32,16 @@ namespace junebug
     protected:
         Vec2<float> mRate{0.0f, 0.0f}, mOffset{0.0f, 0.0f};
         Vec2<bool> mTile{false, false};
-        Vec2<int> mCullPaddingStart{1, 1}, mCullPaddingEnd{1, 1};
+        Vec2<int> mCullPaddingStart{0, 0}, mCullPaddingEnd{1, 1};
+        bool mDrawOutsideScene{false};
 
-        void PositionBackground();
+        void DrawSpriteBackground();
+        void DrawColor();
+
+        bool mCenterTopLeft{true};
+        RoundDir mSpacingRoundDir{Up};
+
+    private:
+        Vec2<float> GetBackgroundEdge();
     };
 }

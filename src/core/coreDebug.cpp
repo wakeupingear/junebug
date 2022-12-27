@@ -110,3 +110,5 @@ void Game::DebugPrintInfo()
     PrintNoSpaces(DEBUG_INDENT, "Actors: ", mActors.size());
     PrintNoSpaces(DEBUG_INDENT, "Loaded Sprites: ", mSpriteCache.size());
 }
+
+void Game::__DebugSkipPrintThisFrame__() { mSkipDebugPrintThisFrame = true; };

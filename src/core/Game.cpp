@@ -2,6 +2,7 @@
 #include "Actors.h"
 #include "Camera.h"
 #include "Background.h"
+#include "Tileset.h"
 
 #include <iostream>
 #include <algorithm>
@@ -19,6 +20,23 @@ bool Game::isEditor = true;
 bool Game::isDebug = false;
 bool Game::isEditor = false;
 #endif
+
+void junebug::__CallGameFunction__(__GameFunctions__ func)
+{
+    Game *game = Game::Get();
+    if (!game)
+        return;
+
+    switch (func)
+    {
+    case SkipPrintThisFrame:
+        game->__DebugSkipPrintThisFrame__();
+    case RaiseWindow:
+        game->RaiseWindow();
+    default:
+        break;
+    }
+}
 
 Game::Game()
 {
@@ -113,6 +131,12 @@ int Game::GetScreenHeight() { return mScreenHeight; }
 int Game::GetRenderWidth() { return mRenderWidth; }
 int Game::GetRenderHeight() { return mRenderHeight; }
 
+void Game::RaiseWindow()
+{
+    if (mWindow)
+        SDL_RaiseWindow(mWindow);
+}
+
 void Game::Shutdown()
 {
     UnloadData();
@@ -176,7 +200,7 @@ bool Game::Run(int screenWidth, int screenHeight)
         mOptionsUpdated = false;
     }
 
-    JB_REGISTER_ACTORS(VisualActor, Background);
+    JB_REGISTER_ACTORS(VisualActor, Background, Tileset);
 
     LoadData();
 
@@ -219,11 +243,12 @@ bool Game::Run(int screenWidth, int screenHeight)
         LoadQueuedScenes();
 
         DebugCheckpointStop("GameLoop");
-        if (mGameIsRunning)
+        if (mGameIsRunning && !mSkipDebugPrintThisFrame)
         {
             DebugPrintInfo();
             DebugPrintCheckpoints();
             mDebugAlreadyCleared = false;
+            mSkipDebugPrintThisFrame = false;
         }
     }
 
@@ -274,14 +299,13 @@ void Game::UpdateGame()
     auto tempActors = mActors;
     for (PureActor *actor : tempActors)
     {
-        if (actor->GetState() == ActorState::Active)
-            actor->Update(mDeltaTime);
-        else if (actor->GetState() == ActorState::Started)
+        if (actor->GetState() == ActorState::Started)
         {
             actor->SetState(ActorState::Active);
             actor->FirstUpdate(mDeltaTime);
-            actor->InternalUpdate(mDeltaTime);
         }
+
+        actor->Update(mDeltaTime);
     }
 
     std::vector<PureActor *> destroyActors;
@@ -364,6 +388,10 @@ Vec2<int> Game::GetMousePos()
 {
     return mMousePos;
 }
+void Game::SetMousePos(Vec2<int> pos)
+{
+    mMousePos = pos;
+}
 Vec2<int> Game::GetMouseScreenPos()
 {
     return mMouseScreenPos;
@@ -371,6 +399,10 @@ Vec2<int> Game::GetMouseScreenPos()
 Camera *Game::GetMouseCamera()
 {
     return mMouseCamera;
+}
+Vec2<int> Game::GetMouseOffset()
+{
+    return mMouseOffset;
 }
 
 void Game::AddActor(PureActor *actor)
@@ -395,6 +427,11 @@ void Game::AddCamera(Camera *camera)
 
 void Game::RemoveCamera(Camera *camera)
 {
+    if (mMouseCamera == camera)
+        mMouseCamera = nullptr;
+    if (mActiveCamera == camera)
+        mActiveCamera = nullptr;
+
     mCameras.erase(std::remove(mCameras.begin(), mCameras.end(), camera), mCameras.end());
 }
 

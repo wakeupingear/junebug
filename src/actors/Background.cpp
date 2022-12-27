@@ -1,12 +1,10 @@
 #include "Background.h"
 #include "Game.h"
 #include "Camera.h"
+#include "Sprite.h"
 
 using namespace junebug;
 
-Background::Background(Vec2<float> pos) : Background()
-{
-}
 Background::Background(std::string sprite, Vec2<float> rate, Vec2<float> offset) : VisualActor(Vec2<float>::Zero, sprite)
 {
     mRate = rate;
@@ -16,21 +14,34 @@ Background::Background(std::string sprite, float rate, Vec2<float> offset) : Bac
 {
 }
 
-void Background::Draw()
+// Set the mRoundToCamera bool here
+// Using the FirstUpdate() function since it is called after member variables are set
+void Background::FirstUpdate(float dt)
 {
-    PositionBackground();
-    VisualActor::Draw();
+    mRoundToCamera = true;
 }
 
-void Background::PositionBackground()
+void Background::Draw()
+{
+    if (mSpritePath != "")
+        DrawSpriteBackground();
+    else
+        DrawColor();
+}
+
+void Background::DrawSpriteBackground()
 {
     Camera *camera = Game::Get()->GetActiveCamera();
-
-    Vec2<float> size = GetActorSize();
-    if (size.x < 0.001f || size.y < 0.001f)
+    if (!camera)
         return;
 
-    Vec2<float> pos = mOffset + camera->GetPosition() * mRate;
+    Vec2<float> size = GetActorSize().Round(mSpacingRoundDir);
+    SetScale(size / GetSprite()->GetTexSize());
+
+    Vec2<float> pos = (mOffset * camera->GetZoom() + camera->GetPosition() * mRate);
+    if (mCenterTopLeft)
+        pos -= Vec2<float>(GetSprite()->GetOrigin() * GetScale());
+
     if (mTile.x)
     {
         while (pos.x + size.x < camera->GetPosition().x)
@@ -45,9 +56,7 @@ void Background::PositionBackground()
     }
 
     float startY = pos.y;
-    Vec2<float>
-        edge = camera->GetBottomRight();
-
+    Vec2<float> edge = GetBackgroundEdge();
     do
     {
         do
@@ -59,4 +68,28 @@ void Background::PositionBackground()
         pos.y = startY;
         pos.x += size.x;
     } while (size.x > 0 && mTile.x && pos.x < edge.x + mCullPaddingEnd.x * size.x);
+}
+
+void Background::DrawColor()
+{
+    Camera *camera = Game::Get()->GetActiveCamera();
+    if (!camera)
+        return;
+
+    DrawRectangle(camera->GetPosition(), GetBackgroundEdge(), mColor);
+}
+
+Vec2<float> Background::GetBackgroundEdge()
+{
+    Camera *camera = Game::Get()->GetActiveCamera();
+    if (!camera)
+        return Vec2<float>::Zero;
+
+    Vec2<float>
+        edge = camera->GetBottomRight();
+    if (!mDrawOutsideScene)
+    {
+        edge = Vec2<float>::Min(edge, Vec2<float>(Game::Get()->GetSceneSize()));
+    }
+    return edge;
 }

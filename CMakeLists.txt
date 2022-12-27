@@ -39,6 +39,7 @@ add_library(${LIBNAME} STATIC
     src/actors/PureActor.cpp
     src/actors/VisualActor.cpp
     src/actors/Background.cpp
+    src/actors/Tileset.cpp
     
     src/Component.cpp
 

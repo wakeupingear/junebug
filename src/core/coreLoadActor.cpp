@@ -1,7 +1,9 @@
+
 #include "Game.h"
 #include "Files.h"
 #include "Actors.h"
 #include "Background.h"
+#include "Tileset.h"
 
 using namespace junebug;
 
@@ -24,6 +26,7 @@ void Game::LoadActor(rapidjson::Value &actorRef, Scene &newScene)
 
     PureActor *actor = it->second();
     actor->SetPersistent(Json::GetBool(actorObj, "persistent"));
+    actor->mId = Json::GetString(actorObj, "id");
 
     std::string layerId = Json::GetString(actorObj, "layer");
     if (layerId != "")
@@ -41,6 +44,13 @@ void Game::LoadActor(rapidjson::Value &actorRef, Scene &newScene)
         visualActor->SetPosition(Json::GetVec2<float>(actorObj, "pos", Vec2<>::Zero));
         visualActor->SetScale(Json::GetVec2<float>(actorObj, "scale", Vec2(1.0f, 1.0f)));
         visualActor->SetRotation(Json::GetNumber<float>(actorObj, "rotation"));
+        visualActor->SetRoundToCamera(Json::GetBool(actorObj, "roundToCamera"));
+
+        auto color = Json::GetArray<float>(actorObj, "color");
+        if (color.size() == 3)
+            visualActor->SetColor(Color(color[0], color[1], color[2]));
+        else if (color.size() == 4)
+            visualActor->SetColor(Color(color[0], color[1], color[2], color[3]));
 
         int alpha = Json::GetInt(actorObj, "alpha", -1);
         if (alpha != -1)
@@ -73,6 +83,13 @@ void Game::LoadActor(rapidjson::Value &actorRef, Scene &newScene)
             else
                 bg->SetTile(
                     Json::GetVec2<bool>(actorObj, "tile"));
+        }
+
+        Tileset *tileset = dynamic_cast<Tileset *>(actor);
+        if (tileset)
+        {
+            tileset->SetTileSize(Json::GetVec2<int>(actorObj, "tileSize", Vec2<int>::Zero));
+            tileset->SetTiles(Json::GetArray2D<int>(actorObj, "tiles"));
         }
     }
 

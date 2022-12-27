@@ -61,6 +61,7 @@ void Game::ProcessInput()
                 mMousePos += Vec2(
                     (int)(mMouseCamera->GetPosition().x - mMouseCamera->GetScreenPos().x),
                     (int)(mMouseCamera->GetPosition().y - mMouseCamera->GetScreenPos().y));
+                mMouseOffset = mMousePos - mMouseCamera->GetPosition();
             }
 
             break;
@@ -139,6 +140,18 @@ void Game::ProcessInput()
     // This happens after the checks since it can change in many places
     if (oldScreenSize.x != mScreenWidth || oldScreenSize.y != mScreenHeight)
     {
+        // Update the screen cameras
+        if (!Game::Get()->Options().screenStretch) {
+            for (Camera *cam : mCameras)
+            {
+                if (cam->IsScreenCamera())
+                {
+                    Vec2<float> ratio = Vec2<float>(mScreenWidth, mScreenHeight) / Vec2<float>(oldScreenSize);
+                    cam->SetSize(cam->GetSize() * ratio);
+                }
+            }
+        }
+
         mPrevScreenSize = oldScreenSize;
     }
 
@@ -159,6 +172,15 @@ int Game::Input(std::string key)
 bool Game::InputPressed(std::string key)
 {
     return Input(key) == 1;
+}
+
+int Game::InputsDir(std::string negKey, std::string posKey)
+{
+    return ((bool)Input(posKey)) - ((bool)Input(negKey));
+}
+int Game::InputsPressedDir(std::string negKey, std::string posKey)
+{
+    return ((bool)InputPressed(posKey)) - ((bool)InputPressed(negKey));
 }
 
 void Game::SetInputMapping(std::string key, std::vector<Uint8> inputs)

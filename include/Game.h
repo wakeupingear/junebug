@@ -9,6 +9,7 @@
 #include "InputNames.h"
 #include "Color.h"
 #include "Files.h"
+#include "Actors.h"
 
 #include "SDL2/SDL.h"
 #include "SDL2/SDL_mixer.h"
@@ -38,7 +39,7 @@ namespace junebug
 #define __MAP_END__(...)
 #define __MAP_GET_END__() 0, __MAP_END__
 #define ____MAP_NEXT__0__(item, next, ...) next __MAP_OUT__
-#define ____MAP_NEXT__1__(item, next) __EVAL0__(____MAP_NEXT__0__(item, next, 0))
+#define ____MAP_NEXT__1__(item, next) ____MAP_NEXT__0__(item, next, 0)
 #define __MAP_NEXT__(item, next) ____MAP_NEXT__1__(__MAP_GET_END__ item, next)
 #define __MAP0__(f, x, peek, ...) f(x) __MAP_NEXT__(peek, __MAP1__)(f, peek, __VA_ARGS__)
 #define __MAP1__(f, x, peek, ...) f(x) __MAP_NEXT__(peek, __MAP0__)(f, peek, __VA_ARGS__)
@@ -141,6 +142,8 @@ namespace junebug
                 SDL_Renderer *GetRenderer() { return mRenderer; }
                 // Get the window
                 SDL_Window *GetWindow() { return mWindow; }
+                // Raise window
+                void RaiseWindow();
 
                 // Get the FPS the game is currently running at
                 int GetFPS() { return mFps; }
@@ -154,6 +157,14 @@ namespace junebug
                 /// @param key The name of the input to check
                 /// @returns true if the input was first pressed this frame, false otherwise
                 bool InputPressed(std::string key);
+                // Get the int result of two opposite inputs
+                /// @param key1 The first input
+                /// @param key2 The second input
+                int InputsDir(std::string negKey, std::string posKey);
+                // Get the int result of two opposite inputs being pressed this frame
+                /// @param key1 The first input
+                /// @param key2 The second input
+                int InputsPressedDir(std::string negKey, std::string posKey);
                 // Set the input mapping for a given input name
                 /// @param key The name of the input
                 /// @param inputs A vector of SDL keycodes to map to the input
@@ -165,12 +176,18 @@ namespace junebug
                 // Get the current mouse position
                 /// @returns Vec2 with the mouse position in game coordinates, relative to a certain camera
                 Vec2<int> GetMousePos();
+                // Set the mouse position
+                /// @param pos The position to set the mouse to
+                void SetMousePos(Vec2<int> pos);
                 // Get the current mouse position relative to the display
                 /// @returns Vec2 with the mouse position in screen coordinates
                 Vec2<int> GetMouseScreenPos();
                 // Get the screen camera that the mouse is relative to
                 /// @returns a pointer to a camera or nullptr if no valid camera is found
                 class Camera *GetMouseCamera();
+                // Get the mouse's offset from the mouse camera
+                /// @returns a Vec2
+                Vec2<int> GetMouseOffset();
 
 #define JB_INPUT_QUIT "__quit__"
 #define JB_INPUT_FULLSCREEN "__fullscreen__"
@@ -216,11 +233,30 @@ namespace junebug
                 // Remove an actor from the game
                 /// @param actor The actor to remove
                 void RemoveActor(class PureActor *actor);
+
                 // Get a const reference to the list of actors
                 /// @returns A const reference to the list of actors
                 const std::vector<class PureActor *> &GetActors() const;
 
-                typedef std::unordered_map<std::string, class PureActor *(*)()> factory_map;
+                // Get an optionally typed actor by id
+                /// @param id The id of the actor
+                /// @returns A pointer to the actor or nullptr if no actor with the given id exists
+                template <typename T = class PureActor>
+                T *GetActor(std::string id)
+                {
+                        for (auto actor : mActors)
+                        {
+                                if (actor->GetId() == id)
+                                {
+                                        return dynamic_cast<T *>(actor);
+                                }
+                        }
+                        return nullptr;
+                }
+
+                typedef std::unordered_map<std::string,
+                                           std::function<class PureActor *()>>
+                    factory_map;
                 // Actor name to class map
                 factory_map mActorConstructors;
 #pragma endregion
@@ -308,6 +344,10 @@ namespace junebug
                 // Stop the current debug checkpoint
                 /// @param name The name of the checkpoint
                 static void DebugCheckpointStop(std::string name);
+                // Pause the debug printout for a frame
+                // Useful for temporarily halting the ouput
+                // This really isn't a function that has a public purpose but it needs to be public to be accessible from namespace-scoped functions
+                void __DebugSkipPrintThisFrame__();
 #pragma endregion
 
         protected:
@@ -391,6 +431,8 @@ namespace junebug
                 // Which camera the mouse coordinates are relative to
                 // nullptr if not relative to a camera
                 class Camera *mMouseCamera = nullptr;
+                // The mouse's offset from the camera
+                Vec2<int> mMouseOffset = Vec2<int>::Zero;
 
                 // Actor list
                 std::vector<class PureActor *> mActors;
@@ -432,6 +474,7 @@ namespace junebug
 
                 void DebugPrintInfo();
                 bool mShowDebugInfo = true;
+                bool mSkipDebugPrintThisFrame = false;
 
                 std::vector<std::tuple<std::string, time_point<system_clock, nanoseconds>, bool>> mDebugCheckpoints;
                 time_point<system_clock, nanoseconds> mDebugCheckpointStart;

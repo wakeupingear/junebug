@@ -11,6 +11,7 @@
 
 #include <string>
 #include <fstream>
+#include <vector>
 
 using namespace rapidjson;
 
@@ -111,6 +112,8 @@ namespace junebug
             }
             else if (val.IsDouble())
                 return (T)val.GetDouble();
+            else if (val.IsBool())
+                return (T)val.GetBool();
             else if (val.IsInt64())
                 return (T)val.GetInt64();
             else if (val.IsUint())
@@ -140,9 +143,9 @@ namespace junebug
                 {
                     if (val.Size() > 0)
                     {
-                        res.x = GetNumber<T>(val[0]);
+                        res.x = (T)GetNumber<T>(val[0]);
                         if (val.Size() > 1)
-                            res.y = GetNumber<T>(val[1]);
+                            res.y = (T)GetNumber<T>(val[1]);
                     }
                 }
             }
@@ -235,6 +238,52 @@ namespace junebug
         {
             if (obj.HasMember(key.c_str()))
                 return GetString(obj[key.c_str()], def);
+            return def;
+        }
+
+        template <typename T>
+        static std::vector<T> GetArray(Value &val, std::vector<T> def = std::vector<T>())
+        {
+            std::vector<T> res;
+
+            if (val.IsArray())
+            {
+                for (auto &v : val.GetArray())
+                {
+                    res.push_back(GetNumber<T>(v));
+                }
+            }
+
+            return res;
+        }
+        template <typename T>
+        static std::vector<T> GetArray(const GenericObject<false, Value> &obj, std::string key, std::vector<T> def = std::vector<T>())
+        {
+            if (obj.HasMember(key.c_str()))
+                return GetArray(obj[key.c_str()], def);
+            return def;
+        }
+
+        template <typename T>
+        static std::vector<std::vector<T>> GetArray2D(Value &val, std::vector<std::vector<T>> def = std::vector<std::vector<T>>())
+        {
+            std::vector<std::vector<T>> res;
+
+            if (val.IsArray())
+            {
+                for (auto &v : val.GetArray())
+                {
+                    res.push_back(GetArray<T>(v));
+                }
+            }
+
+            return res;
+        }
+        template <typename T>
+        static std::vector<std::vector<T>> GetArray2D(const GenericObject<false, Value> &obj, std::string key, std::vector<std::vector<T>> def = std::vector<std::vector<T>>())
+        {
+            if (obj.HasMember(key.c_str()))
+                return GetArray2D(obj[key.c_str()], def);
             return def;
         }
 
