@@ -29,6 +29,14 @@ namespace junebug
         void SetWorldTile(Vec2<float> pos, int tile);
         void SetWorldTile(Vec2<int> pos, int tile) { SetWorldTile(Vec2<float>(pos), tile); }
 
+        void SetColliders(std::vector<bool> colliders);
+        std::vector<bool> GetColliders() const { return mColliders; };
+        void EnableCollision();
+        void DisableCollision();
+
+        bool TilePosHasCollider(Vec2<int> tile);
+        bool WorldPosHasCollider(Vec2<float> pos) { return TilePosHasCollider(WorldToTile(pos)); }
+
     private:
         Vec2<int> mTileSize;
         bool mCenterTopLeft{true};
@@ -39,5 +47,8 @@ namespace junebug
 
         inline float GetTileWidth();
         inline float GetTileHeight();
+
+        class TileCollider *mColl{nullptr};
+        std::vector<bool> mColliders;
     };
 }

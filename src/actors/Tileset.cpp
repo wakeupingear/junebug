@@ -2,6 +2,7 @@
 #include "Game.h"
 #include "Camera.h"
 #include "Sprite.h"
+#include "components/TileCollider.h"
 
 using namespace junebug;
 
@@ -74,7 +75,9 @@ Vec2<int> Tileset::WorldToTile(Vec2<float> pos)
 Vec2<float> Tileset::TileToWorld(Vec2<int> pos)
 {
     Vec2<float> ret = GetPosition();
-    ret.x += (float)pos.x * GetTileWidth();
+    if (mCenterTopLeft)
+        ret -= Vec2<float>(GetSprite()->GetOrigin()) * mScale;
+    ret.x += (float)pos.x * (float)GetTileWidth();
     ret.y += (float)pos.y * (float)GetTileHeight();
     return ret;
 }
@@ -99,4 +102,34 @@ float Tileset::GetTileWidth()
 float Tileset::GetTileHeight()
 {
     return Round(mTileSize.y * mScale.y, mSpacingRoundDir);
+}
+
+void Tileset::SetColliders(std::vector<bool> colliders)
+{
+    mColliders = colliders;
+    if (!mColl)
+        EnableCollision();
+}
+
+void Tileset::EnableCollision()
+{
+    if (!mColl)
+        mColl = new TileCollider(this);
+    else
+        mColl->SetType(CollType::Tileset);
+}
+void Tileset::DisableCollision()
+{
+    if (mColl)
+        mColl->SetType(CollType::None);
+}
+
+bool Tileset::TilePosHasCollider(Vec2<int> tile)
+{
+    if (tile.x < 0 || tile.y < 0 || tile.y >= mTiles.size() || tile.x >= mTiles[tile.y].size())
+        return false;
+    int tileNum = mTiles[tile.y][tile.x];
+    if (tileNum < 0 || tileNum >= mColliders.size())
+        return false;
+    return mColliders[tileNum];
 }

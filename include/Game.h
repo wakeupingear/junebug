@@ -322,6 +322,20 @@ namespace junebug
                 }
 #pragma endregion
 
+#pragma region Collision
+                // Add a collision component to the game
+                /// @param component The component to add
+                void AddCollision(class CollisionComponent *component);
+                // Remove a collision component from the game
+                /// @param component The component to remove
+                void RemoveCollision(class CollisionComponent *component);
+
+                typedef std::unordered_map<std::string, std::vector<class CollisionComponent *>> collision_layers;
+                // Get a const reference to the list of collision components
+                /// @returns A const reference to the list of collision components
+                const collision_layers &GetCollisionLayers() const;
+#pragma endregion
+
 #pragma region Cameras
                 // Add a camera to the game
                 /// @param camera The camera to add
@@ -363,6 +377,9 @@ namespace junebug
                 // Get the current scene's name
                 /// @returns A string
                 const std::string GetSceneName();
+
+                void SetGravity(Vec2<float> scale) { mGravity = scale; }
+                Vec2<float> GetGravity() { return mGravity; }
 #pragma endregion
 
 #pragma region Fonts
@@ -518,6 +535,11 @@ namespace junebug
                 void LoadQueuedScenes();
                 // Helper function to instantiate an actor from a secene JSON reference
                 void LoadActor(rapidjson::Value &actorRef, Scene &newScene);
+                // Gravity
+                Vec2<float> mGravity = Vec2<>::Zero;
+
+                // Collision map
+                collision_layers mCollisionLayers;
 
                 // Twerp coroutines
                 twerp_map<TwerpPropertyFloat> mTwerpCoroutinesFloat;

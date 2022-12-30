@@ -19,6 +19,7 @@ add_library(${LIBNAME} STATIC
     src/core/Game.cpp
     src/core/coreDefaultCallbacks.cpp
     src/core/coreLoadActor.cpp
+    src/core/coreCollision.cpp
     src/core/coreInputs.cpp
     src/core/coreSprites.cpp
     src/core/coreScenes.cpp
@@ -38,10 +39,15 @@ add_library(${LIBNAME} STATIC
 
     src/actors/PureActor.cpp
     src/actors/VisualActor.cpp
+    src/actors/PhysicalActor.cpp
     src/actors/Background.cpp
     src/actors/Tileset.cpp
     
     src/Component.cpp
+    src/components/PhysicsComponent.cpp
+    src/components/CollisionComponent.cpp
+    src/components/BoxCollider.cpp
+    src/components/TileCollider.cpp
 
     src/Sprite.cpp
 

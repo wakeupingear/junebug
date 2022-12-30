@@ -3,6 +3,7 @@
 #include "Camera.h"
 #include "Background.h"
 #include "Tileset.h"
+#include "Component.h"
 
 #include <iostream>
 #include <algorithm>
@@ -200,7 +201,7 @@ bool Game::Run(int screenWidth, int screenHeight)
         mOptionsUpdated = false;
     }
 
-    JB_REGISTER_ACTORS(VisualActor, Background, Tileset);
+    JB_REGISTER_ACTORS(VisualActor, PhysicalActor, Background, Tileset);
 
     LoadData();
 
@@ -308,7 +309,14 @@ void Game::UpdateGame()
             actor->FirstUpdate(mDeltaTime);
         }
 
-        actor->Update(mDeltaTime);
+        if (actor->GetState() == ActorState::Active)
+        {
+            for (Component *comp : actor->mComponents)
+            {
+                comp->Update(mDeltaTime);
+            }
+            actor->Update(mDeltaTime);
+        }
     }
 
     std::vector<PureActor *> destroyActors;
@@ -419,12 +427,11 @@ void Game::RemoveActor(PureActor *actor)
     mActors.erase(std::remove(mActors.begin(), mActors.end(), actor), mActors.end());
 
     // Remove any active twerp coroutines
-    VisualActor *vActor = dynamic_cast<VisualActor *>(actor);
-    if (vActor)
+    if (actor)
     {
-        mTwerpCoroutinesFloat.erase(vActor);
-        mTwerpCoroutinesInt.erase(vActor);
-        mTwerpCoroutinesUint8.erase(vActor);
+        mTwerpCoroutinesFloat.erase(actor);
+        mTwerpCoroutinesInt.erase(actor);
+        mTwerpCoroutinesUint8.erase(actor);
     }
 }
 

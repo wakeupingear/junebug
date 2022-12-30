@@ -3,7 +3,7 @@
 
 using namespace junebug;
 
-Component::Component(VisualActor *owner, int updateOrder)
+Component::Component(PureActor *owner, int updateOrder)
     : mOwner(owner), mUpdateOrder(updateOrder)
 {
     mOwner->AddComponent(this);

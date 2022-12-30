@@ -81,6 +81,9 @@ void Game::LoadQueuedScenes()
             }
             newScene.size = Vec2(sizeRef[0].GetInt(), sizeRef[1].GetInt());
 
+            // Check if the key "gravity" exists
+            SetGravity(Json::GetVec2<float>(sceneInfo->GetDoc()->GetObject(), "gravity", mGravity));
+
             // Load the layers
             if (sceneInfo->Get("layers")->value.IsArray())
             {

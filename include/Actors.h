@@ -5,6 +5,7 @@
 
 #include "MathLib.h"
 #include "Color.h"
+#include "components/CollisionComponent.h"
 
 #include <functional>
 #include <vector>
@@ -225,11 +226,37 @@ namespace junebug
     /// @brief A PhysicalActor is a VisualActor that has a physical representation, including velocity, acceleration, collider, and mass.
     class PhysicalActor : public VisualActor
     {
-    protected:
-        friend class Component;
+    public:
+        PhysicalActor();
+        PhysicalActor(Vec2<float> pos);
+        PhysicalActor(Vec2<int> pos);
+        PhysicalActor(Vec2<float> pos, std::string imagePath);
+        PhysicalActor(Vec2<int> pos, std::string imagePath);
 
-        Vec2<float> mVelocity{0, 0};
-        Vec2<float> mAcceleration{0, 0};
-        float mMass{1};
+        void Awake() override;
+
+        void AddForce(const Vec2<float> &force);
+        void SetGravityOffset(Vec2<float> gravity);
+        Vec2<float> GetGravityOffset();
+        void SetStatic(bool isStatic);
+        bool IsStatic();
+        class PhysicsComponent *GetPhysicsComponent() { return mPhys; }
+        void SetBounce(float bounce);
+        float GetBounce();
+        void SetMass(float mass);
+        float GetMass();
+
+        void SetCollisionLayer(std::string layer);
+        std::string GetCollisionLayer();
+        void SetCollisionType(CollType type);
+        CollType GetCollisionType();
+        class CollisionComponent *GetCollisionComponent() { return mColl; }
+
+    protected:
+        class PhysicsComponent *mPhys{nullptr};
+        class CollisionComponent *mColl{nullptr};
+
+    private:
+        void InitializeComponents(CollType type = CollType::Box);
     };
 };

@@ -11,11 +11,11 @@ namespace junebug
     {
     public:
         // Constructor
-        Component(class VisualActor *owner, int updateOrder = 100);
+        Component(class PureActor *owner, int updateOrder = 100);
         // Destructor
         virtual ~Component();
         // Update this component by delta time
-        virtual void Update(float deltaTime);
+        virtual void Update(float dt);
         // Process input for this component (if needed)
         virtual void ProcessInput(const Uint8 *keyState);
 
@@ -24,7 +24,7 @@ namespace junebug
 
     protected:
         // Owning actor
-        class VisualActor *mOwner;
+        class PureActor *mOwner;
         // Update order
         int mUpdateOrder;
     };

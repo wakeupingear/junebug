@@ -211,6 +211,17 @@ namespace junebug
             value = start;
         }
     }
+    // Probably should make this better since it's a bit of a hack
+    void TwerpCoroutine(PureActor *actor, Vec2<float> &value, Vec2<float> start, Vec2<float> end, float time, TwerpType type, bool looped, float opt1, float opt2)
+    {
+        TwerpCoroutine(actor, value.x, start.x, end.x, time, type, looped, opt1, opt2);
+        TwerpCoroutine(actor, value.y, start.y, end.y, time, type, looped, opt1, opt2);
+    }
+    void TwerpCoroutine(PureActor *actor, Vec2<int> &value, Vec2<int> start, Vec2<int> end, float time, TwerpType type, bool looped, float opt1, float opt2)
+    {
+        TwerpCoroutine(actor, value.x, start.x, end.x, time, type, looped, opt1, opt2);
+        TwerpCoroutine(actor, value.y, start.y, end.y, time, type, looped, opt1, opt2);
+    }
 
     bool ToggleTwerpCoroutine(PureActor *actor, float &value, int forceState)
     {
@@ -236,6 +247,14 @@ namespace junebug
             return game->ToggleTwerpCoroutine(actor, prop, game->GetTwerpCoroutinesUint8(), forceState);
         return false;
     }
+    bool ToggleTwerpCoroutine(PureActor *actor, Vec2<float> &value, int forceState)
+    {
+        return ToggleTwerpCoroutine(actor, value.x, forceState) && ToggleTwerpCoroutine(actor, value.y, forceState);
+    }
+    bool ToggleTwerpCoroutine(PureActor *actor, Vec2<int> &value, int forceState)
+    {
+        return ToggleTwerpCoroutine(actor, value.x, forceState) && ToggleTwerpCoroutine(actor, value.y, forceState);
+    }
 
     bool StopTwerpCoroutine(PureActor *actor, float &value)
     {
@@ -260,6 +279,14 @@ namespace junebug
         if (game)
             return game->StopTwerpCoroutine(actor, prop, game->GetTwerpCoroutinesUint8());
         return false;
+    }
+    bool StopTwerpCoroutine(PureActor *actor, Vec2<float> &value)
+    {
+        return StopTwerpCoroutine(actor, value.x) && StopTwerpCoroutine(actor, value.y);
+    }
+    bool StopTwerpCoroutine(PureActor *actor, Vec2<int> &value)
+    {
+        return StopTwerpCoroutine(actor, value.x) && StopTwerpCoroutine(actor, value.y);
     }
 }
 
