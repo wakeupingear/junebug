@@ -73,6 +73,9 @@ void Game::LoadActor(rapidjson::Value &actorRef, Scene &newScene)
             physActor->SetStatic(Json::GetBool(actorObj, "static"));
             physActor->SetBounce(Json::GetNumber<float>(actorObj, "bounce"));
             physActor->SetMass(Json::GetNumber<float>(actorObj, "mass", physActor->GetMass()));
+            physActor->SetCollType(
+                static_cast<CollType>(Json::GetNumber<int>(actorObj, "collType", static_cast<int>(physActor->GetCollType()))));
+            physActor->SetCollLayer(Json::GetString(actorObj, "collLayer", physActor->GetCollLayer()));
         }
 
         Background *bg = dynamic_cast<Background *>(actor);
@@ -103,6 +106,7 @@ void Game::LoadActor(rapidjson::Value &actorRef, Scene &newScene)
             std::vector<bool> colliders = Json::GetArray<bool>(actorObj, "colliders");
             if (colliders.size() > 0)
                 tileset->SetColliders(colliders);
+            tileset->SetCollLayer(Json::GetString(actorObj, "collLayer", tileset->GetCollLayer()));
         }
     }
 

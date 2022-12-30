@@ -14,10 +14,20 @@ CollisionComponent::~CollisionComponent()
     Game::Get()->RemoveCollision(this);
 }
 
-void CollisionComponent::SetLayer(std::string layer)
+void CollisionComponent::SetCollLayer(std::string layer)
 {
+    bool shouldUpdate = mLayer != layer;
     mLayer = layer;
-    UpdateCollEntry();
+    if (shouldUpdate)
+        UpdateCollEntry(false);
+}
+
+void CollisionComponent::SetType(CollType type)
+{
+    bool shouldUpdate = mType != type;
+    mType = type;
+    if (shouldUpdate)
+        UpdateCollEntry(false);
 }
 
 void CollisionComponent::UpdateCollEntry(bool initial)

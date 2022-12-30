@@ -42,19 +42,22 @@ void PhysicsComponent::CheckCollisions()
     if (mStatic || !mColl || mColl->GetType() == CollType::None)
         return;
 
-    if (mColl->GetLayer().empty())
+    if (mPhysLayers.empty())
     {
-        for (auto &layer : Game::Get()->GetCollisionLayers())
+        for (auto &layer : Game::Get()->GetCollLayers())
         {
             CheckCollisionList(layer.second);
         }
     }
     else
     {
-        auto loc = Game::Get()->GetCollisionLayers().find(mColl->GetLayer());
-        if (loc != Game::Get()->GetCollisionLayers().end())
+        for (auto &layer : mPhysLayers)
         {
-            CheckCollisionList(loc->second);
+            auto loc = Game::Get()->GetCollLayers().find(layer);
+            if (loc != Game::Get()->GetCollLayers().end())
+            {
+                CheckCollisionList(loc->second);
+            }
         }
     }
 }
@@ -80,4 +83,21 @@ void PhysicsComponent::OnCollide(CollisionComponent *other, CollSide side, Vec2<
 {
     mOwner->MovePosition(offset);
     SetVelocity(GetVelocity() * -mBounce);
+}
+
+void PhysicsComponent::AddPhysLayer(std::string layer)
+{
+    auto loc = std::find(mPhysLayers.begin(), mPhysLayers.end(), layer);
+    if (loc == mPhysLayers.end())
+        mPhysLayers.push_back(layer);
+}
+void PhysicsComponent::RemovePhysLayer(std::string layer)
+{
+    auto loc = std::find(mPhysLayers.begin(), mPhysLayers.end(), layer);
+    if (loc != mPhysLayers.end())
+        mPhysLayers.erase(loc);
+}
+void PhysicsComponent::ClearPhysLayers()
+{
+    mPhysLayers.clear();
 }

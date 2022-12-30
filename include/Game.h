@@ -333,7 +333,7 @@ namespace junebug
                 typedef std::unordered_map<std::string, std::vector<class CollisionComponent *>> collision_layers;
                 // Get a const reference to the list of collision components
                 /// @returns A const reference to the list of collision components
-                const collision_layers &GetCollisionLayers() const;
+                const collision_layers &GetCollLayers() const;
 #pragma endregion
 
 #pragma region Cameras
@@ -349,6 +349,10 @@ namespace junebug
                 // Get the active camera
                 /// @returns The active camera
                 class Camera *GetActiveCamera() { return mActiveCamera; }
+                // Get a list of all cameras
+                // Note: this includes both cameras that render to the screen and cameras that render to textures in the scene
+                /// @returns A const reference to the list of cameras
+                const std::vector<class Camera *> &GetCameras() const { return mCameras; }
 #pragma endregion
 
 #pragma region Textures
@@ -539,7 +543,7 @@ namespace junebug
                 Vec2<float> mGravity = Vec2<>::Zero;
 
                 // Collision map
-                collision_layers mCollisionLayers;
+                collision_layers mCollLayers;
 
                 // Twerp coroutines
                 twerp_map<TwerpPropertyFloat> mTwerpCoroutinesFloat;

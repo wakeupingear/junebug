@@ -29,93 +29,116 @@ void PhysicalActor::InitializeComponents(CollType type)
         switch (type)
         {
         case CollType::Box:
-            mColl = new BoxCollider(this, "");
+            mColl = new BoxCollider(this, true, mCollLayer);
             break;
         default:
             break;
         }
     }
-
-    if (!mPhys)
-        mPhys = new PhysicsComponent(this, mColl);
 }
 
 void PhysicalActor::AddForce(const Vec2<float> &force)
 {
-    if (mPhys)
-        mPhys->AddForce(force);
+    if (!mPhys)
+        InitializePhysComponent();
+    mPhys->AddForce(force);
 }
 
 void PhysicalActor::SetGravityOffset(Vec2<float> gravity)
 {
-    if (mPhys)
-        mPhys->SetGravityOffset(gravity);
+    if (!mPhys)
+        InitializePhysComponent();
+    mPhys->SetGravityOffset(gravity);
 }
 Vec2<float> PhysicalActor::GetGravityOffset()
 {
-    if (mPhys)
-        return mPhys->GetGravityOffset();
-    return Vec2<float>::Zero;
+    if (!mPhys)
+        InitializePhysComponent();
+    return mPhys->GetGravityOffset();
 }
 
 void PhysicalActor::SetStatic(bool isStatic)
 {
-    if (mPhys)
-        mPhys->SetStatic(isStatic);
+    if (!mPhys)
+        InitializePhysComponent();
+    mPhys->SetStatic(isStatic);
 }
 bool PhysicalActor::IsStatic()
 {
-    if (mPhys)
-        return mPhys->IsStatic();
-    return false;
+    if (!mPhys)
+        InitializePhysComponent();
+    return mPhys->IsStatic();
 }
 
 void PhysicalActor::SetBounce(float bounce)
 {
-    if (mPhys)
-        mPhys->SetBounce(bounce);
+    if (!mPhys)
+        InitializePhysComponent();
+    mPhys->SetBounce(bounce);
 }
 float PhysicalActor::GetBounce()
 {
-    if (mPhys)
-        return mPhys->GetBounce();
-    return 0.0f;
+    if (!mPhys)
+        InitializePhysComponent();
+    return mPhys->GetBounce();
 }
 
 void PhysicalActor::SetMass(float mass)
 {
-    if (mPhys)
-        mPhys->SetMass(mass);
+    if (!mPhys)
+        InitializePhysComponent();
+    mPhys->SetMass(mass);
 }
 float PhysicalActor::GetMass()
 {
-    if (mPhys)
-        return mPhys->GetMass();
-    return 1.0f;
+    if (!mPhys)
+        InitializePhysComponent();
+    return mPhys->GetMass();
 }
 
-void PhysicalActor::SetCollisionLayer(std::string layer)
+void PhysicalActor::AddPhysLayer(std::string layer)
 {
-    if (mColl)
-        mColl->SetLayer(layer);
+    if (!mPhys)
+        InitializePhysComponent();
+    mPhys->AddPhysLayer(layer);
 }
-std::string PhysicalActor::GetCollisionLayer()
+void PhysicalActor::RemovePhysLayer(std::string layer)
 {
-    if (mColl)
-        return mColl->GetLayer();
-    return "";
+    if (!mPhys)
+        InitializePhysComponent();
+    mPhys->RemovePhysLayer(layer);
+}
+void PhysicalActor::ClearPhysLayers()
+{
+    if (!mPhys)
+        InitializePhysComponent();
+    mPhys->ClearPhysLayers();
+}
+std::vector<std::string> &PhysicalActor::GetPhysLayers()
+{
+    if (!mPhys)
+        InitializePhysComponent();
+    return mPhys->GetPhysLayers();
 }
 
-void PhysicalActor::SetCollisionType(CollType type)
+void PhysicalActor::SetCollLayer(std::string layer)
 {
-    if (mColl && mColl->GetType() == type)
-        return;
-
-    InitializeComponents(type);
-}
-CollType PhysicalActor::GetCollisionType()
-{
+    mCollLayer = layer;
     if (mColl)
-        return mColl->GetType();
-    return CollType::None;
+        mColl->SetCollLayer(layer);
+}
+
+void PhysicalActor::SetCollType(CollType type)
+{
+    mCollType = type;
+    if (mColl)
+        mColl->SetType(type);
+}
+
+void PhysicalActor::InitializePhysComponent()
+{
+    if (!mPhys)
+        mPhys = new PhysicsComponent(this, mColl);
+    else
+        mPhys->SetCollComponent(mColl);
 }

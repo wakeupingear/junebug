@@ -33,6 +33,8 @@ namespace junebug
         std::vector<bool> GetColliders() const { return mColliders; };
         void EnableCollision();
         void DisableCollision();
+        void SetCollLayer(std::string layer);
+        std::string GetCollLayer() { return mCollLayer; };
 
         bool TilePosHasCollider(Vec2<int> tile);
         bool WorldPosHasCollider(Vec2<float> pos) { return TilePosHasCollider(WorldToTile(pos)); }
@@ -50,5 +52,7 @@ namespace junebug
 
         class TileCollider *mColl{nullptr};
         std::vector<bool> mColliders;
+
+        std::string mCollLayer{""};
     };
 }

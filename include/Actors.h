@@ -246,11 +246,16 @@ namespace junebug
         void SetMass(float mass);
         float GetMass();
 
-        void SetCollisionLayer(std::string layer);
-        std::string GetCollisionLayer();
-        void SetCollisionType(CollType type);
-        CollType GetCollisionType();
-        class CollisionComponent *GetCollisionComponent() { return mColl; }
+        void AddPhysLayer(std::string layer);
+        void RemovePhysLayer(std::string layer);
+        void ClearPhysLayers();
+        std::vector<std::string> &GetPhysLayers();
+
+        void SetCollLayer(std::string layer);
+        std::string GetCollLayer() { return mCollLayer; };
+        void SetCollType(CollType type);
+        CollType GetCollType() { return mCollType; };
+        class CollisionComponent *GetCollComponent() { return mColl; }
 
     protected:
         class PhysicsComponent *mPhys{nullptr};
@@ -258,5 +263,11 @@ namespace junebug
 
     private:
         void InitializeComponents(CollType type = CollType::Box);
+        void InitializePhysComponent();
+
+        // Member variables that mirror the CollisionComponent.
+        // These are used to initialize the CollisionComponent when it is created to avoid unnecessary calls to Game::AddCollision()
+        std::string mCollLayer = "";
+        CollType mCollType = CollType::Box;
     };
 };

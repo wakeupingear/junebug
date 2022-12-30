@@ -45,6 +45,11 @@ namespace junebug
 		}
 	}
 
+	inline bool FloatsEqual(float a, float b, float epsilon = 0.0001f)
+	{
+		return fabs(a - b) < epsilon;
+	}
+
 	template <typename T>
 	[[nodiscard]] inline int Sign(T val)
 	{
@@ -322,6 +327,12 @@ public:
 		float length = Length();
 		x /= length;
 		y /= length;
+	}
+
+	// Check if the vector is equal to zero
+	[[nodiscard]] bool IsZero() const
+	{
+		return FloatsEqual(x, 0.0f) && FloatsEqual(y, 0.0f);
 	}
 
 	// Round the vector

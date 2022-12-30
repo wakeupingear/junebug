@@ -114,7 +114,7 @@ void Tileset::SetColliders(std::vector<bool> colliders)
 void Tileset::EnableCollision()
 {
     if (!mColl)
-        mColl = new TileCollider(this);
+        mColl = new TileCollider(this, mCollLayer);
     else
         mColl->SetType(CollType::Tileset);
 }
@@ -132,4 +132,13 @@ bool Tileset::TilePosHasCollider(Vec2<int> tile)
     if (tileNum < 0 || tileNum >= mColliders.size())
         return false;
     return mColliders[tileNum];
+}
+
+void Tileset::SetCollLayer(std::string layer)
+{
+    mCollLayer = layer;
+    if (!mColl)
+        EnableCollision();
+    else
+        mColl->SetCollLayer(layer);
 }

@@ -35,6 +35,14 @@ namespace junebug
         void SetBounce(float bounce) { mBounce = bounce; };
         float GetBounce() { return mBounce; };
 
+        void AddPhysLayer(std::string layer);
+        void RemovePhysLayer(std::string layer);
+        void ClearPhysLayers();
+        std::vector<std::string> &GetPhysLayers() { return mPhysLayers; };
+
+        void SetCollComponent(class CollisionComponent *coll) { mColl = coll; };
+        class CollisionComponent *GetCollComponent() { return mColl; };
+
     protected:
         VisualActor *mOwner;
         class CollisionComponent *mColl{nullptr};
@@ -54,5 +62,7 @@ namespace junebug
         void PhysicsUpdate(float dt);
         void CheckCollisions();
         void CheckCollisionList(const std::vector<class CollisionComponent *> &collisions);
+
+        std::vector<std::string> mPhysLayers;
     };
 }

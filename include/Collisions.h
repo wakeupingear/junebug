@@ -7,10 +7,10 @@ namespace junebug
 {
     enum class CollType
     {
-        None,
-        Circle,
-        Box,
-        Tileset
+        None = 0,
+        Circle = 1,
+        Box = 2,
+        Tileset = 3
     };
 
     enum class CollSide
