@@ -12,10 +12,6 @@ namespace junebug
 {
     void Game::AddSprite(std::string name, Sprite *sprite)
     {
-        if (sprite == nullptr)
-        {
-            return;
-        }
         if (mSpriteCache.find(name) != mSpriteCache.end())
         {
             delete mSpriteCache[name];
@@ -36,16 +32,24 @@ namespace junebug
         if (imagePath.empty())
             return nullptr;
         auto it = Game::Get()->GetSpriteCache().find(imagePath);
-        if (it == Game::Get()->GetSpriteCache().end())
-        {
-            Sprite *sprite = new Sprite();
+        if (it != Game::Get()->GetSpriteCache().end())
+            return it->second;
 
-            const fs::path path(imagePath);
-            std::error_code ec;
-            if (fs::is_directory(path, ec))
+        Sprite *sprite = new Sprite();
+
+        const fs::path path(imagePath);
+        std::error_code ec;
+        if (fs::is_directory(path, ec))
+        {
+            if (!sprite->LoadMetadataFile(imagePath))
             {
-                sprite->SetAnimation(imagePath);
+                delete sprite;
+                Game::Get()->AddSprite(imagePath, nullptr);
+                return nullptr;
             }
+        }
+        else
+        {
             if (ec)
             {
                 PrintLog("Error for", imagePath, "in is_directory:", ec.message());
@@ -54,27 +58,19 @@ namespace junebug
                 return nullptr;
             }
 
-            if (fs::is_regular_file(path, ec))
+            if (!sprite->LoadTextureFile(imagePath))
             {
-                sprite->SetTexture(Game::Get()->GetTexture(imagePath));
-            }
-
-            if (ec)
-            {
-                PrintLog("Error for", imagePath, "in is_regular_file:", ec.message());
                 delete sprite;
                 Game::Get()->AddSprite(imagePath, nullptr);
                 return nullptr;
             }
-
-            Game::Get()->AddSprite(imagePath, sprite);
-            return sprite;
         }
 
-        return it->second;
+        Game::Get()->AddSprite(imagePath, sprite);
+        return sprite;
     }
 
-    void DrawSprite(std::string &imagePath, const Vec2<float> &pos, const SpriteProperties &properties)
+    void DrawSprite(std::string &imagePath, int frame, const Vec2<float> &pos, const SpriteProperties &properties)
     {
         Game *game = Game::Get();
         if (!game)
@@ -86,10 +82,10 @@ namespace junebug
         if (!sprite)
             return;
 
-        sprite->Draw(game->GetActiveCamera(), renderer, pos, Vec2<int>::Zero, sprite->GetTexSize(), properties);
+        sprite->Draw(game->GetActiveCamera(), renderer, pos, Vec2<int>::Zero, sprite->GetTexSize(), frame, properties);
     }
 
-    void DrawSpritePart(std::string &imagePath, const Vec2<float> &pos, const Vec2<int> &partPos, const Vec2<int> &partSize, const SpriteProperties &properties)
+    void DrawSpritePart(std::string &imagePath, int frame, const Vec2<float> &pos, const Vec2<int> &partPos, const Vec2<int> &partSize, const SpriteProperties &properties)
     {
         Game *game = Game::Get();
         if (!game)
@@ -101,7 +97,7 @@ namespace junebug
         if (!sprite)
             return;
 
-        sprite->Draw(game->GetActiveCamera(), renderer, pos, partPos, partSize, properties);
+        sprite->Draw(game->GetActiveCamera(), renderer, pos, partPos, partSize, frame, properties);
     }
 
     void DrawText(std::string text, const Vec2<float> &pos, const TextEffects effects)

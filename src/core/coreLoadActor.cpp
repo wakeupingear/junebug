@@ -46,7 +46,7 @@ void Game::LoadActor(rapidjson::Value &actorRef, Scene &newScene)
         visualActor->SetRotation(Json::GetNumber<float>(actorObj, "rotation"));
         visualActor->SetRoundToCamera(Json::GetBool(actorObj, "roundToCamera"));
 
-        auto color = Json::GetArray<float>(actorObj, "color");
+        auto color = Json::GetNumberArray<float>(actorObj, "color");
         if (color.size() == 3)
             visualActor->SetColor(Color(color[0], color[1], color[2]));
         else if (color.size() == 4)
@@ -101,9 +101,9 @@ void Game::LoadActor(rapidjson::Value &actorRef, Scene &newScene)
         if (tileset)
         {
             tileset->SetTileSize(Json::GetVec2<int>(actorObj, "tileSize", Vec2<int>::Zero));
-            tileset->SetTiles(Json::GetArray2D<int>(actorObj, "tiles"));
+            tileset->SetTiles(Json::GetNumberArray2D<int>(actorObj, "tiles"));
 
-            std::vector<bool> colliders = Json::GetArray<bool>(actorObj, "colliders");
+            std::vector<bool> colliders = Json::GetNumberArray<bool>(actorObj, "colliders");
             if (colliders.size() > 0)
                 tileset->SetColliders(colliders);
             tileset->SetCollLayer(Json::GetString(actorObj, "collLayer", tileset->GetCollLayer()));

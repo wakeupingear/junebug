@@ -130,7 +130,6 @@ void Game::LoadQueuedScenes()
                 newScene.name = newScene.name.substr(slashPos + 1);
 
             mScene = newScene;
-            // Print("Loaded scene", mScene.name, "with", mScene.layers.size(), "layer(s) and", mActors.size() - numPersistentActors, "actor(s)");
         }
         catch (std::exception &e)
         {
@@ -144,8 +143,6 @@ void Game::LoadQueuedScenes()
 
 const Vec2<int> Game::GetSceneSize()
 {
-    if (mScene.name.empty())
-        return Vec2<int>::Zero;
     return mScene.size;
 }
 

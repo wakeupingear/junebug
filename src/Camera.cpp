@@ -51,7 +51,7 @@ void Camera::SetSize(Vec2<float> newSize)
     size = newSize;
 }
 
-SDL_Texture *Camera::Render(SDL_Renderer *renderer)
+SDL_Texture *Camera::Render(SDL_Renderer *renderer, float dt)
 {
     Game *game = Game::Get();
 
@@ -69,6 +69,22 @@ SDL_Texture *Camera::Render(SDL_Renderer *renderer)
         texSize,
         renderer, renderTex, true);
 
+    Vec2<float> oldPos = GetPosition();
+    for (auto it = mShakeEntries.begin(); it != mShakeEntries.end();)
+    {
+        auto &shakeEntry = *it;
+        SetPosition(
+            GetPosition() +
+            Vec2(
+                Random::GetIntRange(-shakeEntry.first.x, shakeEntry.first.x),
+                Random::GetIntRange(-shakeEntry.first.y, shakeEntry.first.y)));
+        shakeEntry.second -= dt;
+        if (shakeEntry.second <= 0.0f)
+            it = mShakeEntries.erase(it);
+        else
+            ++it;
+    }
+
     game->SetActiveCamera(this);
     for (PureActor *actor : game->GetActors())
     {
@@ -78,6 +94,8 @@ SDL_Texture *Camera::Render(SDL_Renderer *renderer)
             visualActor->Draw();
         }
     }
+
+    SetPosition(oldPos);
 
     return renderTex;
 }
@@ -157,4 +175,9 @@ void Camera::SetZoom(float zoom)
     mZoom = zoom;
     SetPosition(pos + size / 2.0f * zoomDiff);
     CheckBounds();
+}
+
+void Camera::Shake(Vec2<int> intensity, float duration)
+{
+    mShakeEntries.push_back(std::make_pair(intensity, duration));
 }

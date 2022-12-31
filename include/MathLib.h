@@ -402,6 +402,12 @@ public:
 		return Vec2(length * junebug::Cos(ToRadians(angle)), -length * junebug::Sin(ToRadians(angle)));
 	}
 
+	template <typename U = float>
+	[[nodiscard]] inline static Vec2 Dir(U angle)
+	{
+		return LengthDir(1.0f, (float)angle);
+	}
+
 	static const Vec2<T> Zero;
 	static const Vec2<T> One;
 	static const Vec2<T> UnitX;

@@ -39,6 +39,8 @@ void PhysicsComponent::PhysicsUpdate(float dt)
 
 void PhysicsComponent::CheckCollisions()
 {
+    // print(mColl);
+
     if (mStatic || !mColl || mColl->GetType() == CollType::None)
         return;
 
@@ -82,7 +84,12 @@ void PhysicsComponent::CheckCollisionList(const std::vector<CollisionComponent *
 void PhysicsComponent::OnCollide(CollisionComponent *other, CollSide side, Vec2<float> offset)
 {
     mOwner->MovePosition(offset);
-    SetVelocity(GetVelocity() * -mBounce);
+    Vec2<float> newVel = GetVelocity();
+    if (!NearZero(offset.x))
+        newVel.x *= -mBounce;
+    if (!NearZero(offset.y))
+        newVel.y *= -mBounce;
+    SetVelocity(newVel);
 }
 
 void PhysicsComponent::AddPhysLayer(std::string layer)

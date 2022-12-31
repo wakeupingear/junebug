@@ -17,6 +17,7 @@ set_source_files_properties(
 )
 add_library(${LIBNAME} STATIC
     src/core/Game.cpp
+    src/GlobalGame.cpp
     src/core/coreDefaultCallbacks.cpp
     src/core/coreLoadActor.cpp
     src/core/coreCollision.cpp

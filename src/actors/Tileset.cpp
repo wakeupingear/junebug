@@ -51,7 +51,7 @@ void Tileset::Draw()
             partPos.y = (tile / (sprSize.y / mTileSize.y)) * mTileSize.y;
 
             DrawSpritePart(
-                mSpritePath, pos, partPos, mTileSize, {mScale, mRotation, mColor});
+                mSpritePath, 0, pos, partPos, mTileSize, {mScale, mRotation, mColor});
             pos.x += tileGameWidth;
         }
         pos.y += tileGameHeight;

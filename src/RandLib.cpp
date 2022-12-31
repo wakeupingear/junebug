@@ -7,6 +7,7 @@
 // ----------------------------------------------------------------
 
 #include "RandLib.h"
+#include "Utils.h"
 
 void Random::Init()
 {
@@ -63,6 +64,12 @@ int Random::GetSign()
 float Random::GetSignf()
 {
     return GetIntRange(0, 1) == 1 ? 1.0f : -1.0f;
+}
+
+Vec2<float> Random::GetDirection(float ang1, float ang2, float offset)
+{
+    float angle = ang1 <= ang2 ? GetFloatRange(ang1, ang2) + offset : GetFloatRange(ang2, ang1) + offset;
+    return Vec2<float>(cosf(ToRadians(angle)), sinf(ToRadians(angle)));
 }
 
 std::mt19937 Random::sGenerator;

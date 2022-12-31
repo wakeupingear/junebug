@@ -8,11 +8,20 @@ using namespace junebug;
 PhysicalActor::PhysicalActor() : VisualActor() {}
 PhysicalActor::PhysicalActor(Vec2<float> pos) : VisualActor(pos) {}
 PhysicalActor::PhysicalActor(Vec2<int> pos) : VisualActor(pos) {}
-PhysicalActor::PhysicalActor(Vec2<float> pos, std::string spritePath) : VisualActor(pos, spritePath) {}
-PhysicalActor::PhysicalActor(Vec2<int> pos, std::string spritePath) : VisualActor(pos, spritePath) {}
-
-void PhysicalActor::Awake()
+PhysicalActor::PhysicalActor(Vec2<float> pos, std::string spritePath, bool isStatic) : VisualActor(pos, spritePath)
 {
+    if (isStatic)
+        SetStatic(isStatic);
+}
+PhysicalActor::PhysicalActor(Vec2<int> pos, std::string spritePath, bool isStatic) : VisualActor(pos, spritePath)
+{
+    if (isStatic)
+        SetStatic(isStatic);
+}
+
+void PhysicalActor::InternalFirstUpdate(float dt)
+{
+    VisualActor::InternalFirstUpdate(dt);
     InitializeComponents();
 }
 
@@ -35,6 +44,8 @@ void PhysicalActor::InitializeComponents(CollType type)
             break;
         }
     }
+
+    InitializePhysComponent();
 }
 
 void PhysicalActor::AddForce(const Vec2<float> &force)
@@ -94,6 +105,19 @@ float PhysicalActor::GetMass()
     if (!mPhys)
         InitializePhysComponent();
     return mPhys->GetMass();
+}
+
+void PhysicalActor::SetVelocity(Vec2<float> velocity)
+{
+    if (!mPhys)
+        InitializePhysComponent();
+    mPhys->SetVelocity(velocity);
+}
+Vec2<float> PhysicalActor::GetVelocity()
+{
+    if (!mPhys)
+        InitializePhysComponent();
+    return mPhys->GetVelocity();
 }
 
 void PhysicalActor::AddPhysLayer(std::string layer)

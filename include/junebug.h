@@ -5,3 +5,9 @@
 #include "Files.h"
 #include "Background.h"
 #include "Tileset.h"
+#include "Inputs.h"
+#include "GlobalGame.h"
+
+#include "components/PhysicsComponent.h"
+#include "components/BoxCollider.h"
+#include "components/TileCollider.h"

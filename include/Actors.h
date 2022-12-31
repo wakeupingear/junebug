@@ -5,6 +5,7 @@
 
 #include "MathLib.h"
 #include "Color.h"
+#include "Sprite.h"
 #include "components/CollisionComponent.h"
 
 #include <functional>
@@ -14,7 +15,7 @@
 namespace junebug
 {
 // Helper macro, see below
-#define __REGISTER_ACTOR__(T) Game::mActorConstructors[#T] = []() -> T * {T* inst = dynamic_cast<T *>(PureActor::__createInstance__<T>()); inst->Awake(); return inst; };
+#define __REGISTER_ACTOR__(T) Game::mActorConstructors[#T] = []() -> T * {T* inst = dynamic_cast<T *>(PureActor::__createInstance__<T>()); return inst; };
 // A macro to register an arbitrary number of custom Actor classes for serialization
 // This allows the engine to do some basic reflection on the classes
 // (basically, to be able to create them from a string, like from a JSON Scene file)
@@ -102,14 +103,11 @@ namespace junebug
         friend class Game;
         // Add a component to the actor
         void AddComponent(class Component *c);
-        // User-defined function to run when the actor is created.
-        // This should only be manually invoked for constructors that don't invoke the aren't the parameterless constructor.
-        // Note: when loaded from a file, the default constructor (parameterless) will be invoked. Accordingly, you should plan your usage of Awake() to not rely on any member variables being set.
-        virtual void Awake(){};
         // User-defined function to every frame when the actor updates
         virtual void Update(float dt){};
         // User-defined function to run on the first frame update of an actor
         virtual void FirstUpdate(float dt){};
+        virtual void InternalFirstUpdate(float dt){};
 
         // Actor state
         ActorState mState = ActorState::Started;
@@ -135,6 +133,8 @@ namespace junebug
         // Position and image constructor
         VisualActor(Vec2<float> pos, std::string imagePath);
         VisualActor(Vec2<int> pos, std::string imagePath);
+
+        void InternalFirstUpdate(float dt) override;
 
         // Actor visibility
         void SetVisible(bool visible) { mVisible = visible; }
@@ -167,15 +167,23 @@ namespace junebug
         Vec2<int> GetSpriteSize();
         Vec2<float> GetActorSize();
 
+        void SetOrigin(SpriteOrigin origin, const Vec2<int> &offset = Vec2<int>::Zero);
+
         // Set the position of the actor
         /// @param pos The new position of the actor
         void SetPosition(const Vec2<float> &pos);
         // Move the actor by a given amount
         /// @param pos The amount to move the actor
         void MovePosition(const Vec2<float> &pos);
-        // Set the position of the actor
+        // Get the position of the actor
         /// @returns const Vec2
         Vec2<float> GetPosition() const;
+        // Get the starting position of the actor
+        /// @returns const Vec2
+        Vec2<float> GetStartPosition() const;
+        // Clamp the actor's position to the given bounds
+        /// @param bounds The bounds to clamp the actor to
+        void ClampPosition(const Vec2<float> &start, const Vec2<float> &end);
 
         // Set the rotation of the actor
         /// @param rot The new rotation of the actor
@@ -195,6 +203,8 @@ namespace junebug
         // Set the scale of the actor
         /// @param scale The new scale of the actor
         void SetScale(const Vec2<float> &scale);
+        void SetScale(float scaleX, float scaleY);
+        void SetScale(float scale);
         // Get the scale of the actor
         /// @returns const Vec2
         Vec2<float> GetScale() const;
@@ -210,6 +220,7 @@ namespace junebug
 
     protected:
         friend class Camera;
+        friend class Game;
         // User-defined function to run every frame when the actor draws
         virtual void Draw();
 
@@ -217,7 +228,7 @@ namespace junebug
         bool mVisible{true};
         Color mColor = Color::White;
 
-        Vec2<float> mPosition{0, 0};
+        Vec2<float> mPosition{0, 0}, mStartPosition{0, 0};
         float mRotation{0};
         Vec2<float> mScale{1, 1};
         bool mRoundToCamera{false};
@@ -230,10 +241,10 @@ namespace junebug
         PhysicalActor();
         PhysicalActor(Vec2<float> pos);
         PhysicalActor(Vec2<int> pos);
-        PhysicalActor(Vec2<float> pos, std::string imagePath);
-        PhysicalActor(Vec2<int> pos, std::string imagePath);
+        PhysicalActor(Vec2<float> pos, std::string imagePath, bool isStatic = false);
+        PhysicalActor(Vec2<int> pos, std::string imagePath, bool isStatic = false);
 
-        void Awake() override;
+        void InternalFirstUpdate(float dt);
 
         void AddForce(const Vec2<float> &force);
         void SetGravityOffset(Vec2<float> gravity);
@@ -245,6 +256,8 @@ namespace junebug
         float GetBounce();
         void SetMass(float mass);
         float GetMass();
+        void SetVelocity(Vec2<float> velocity);
+        Vec2<float> GetVelocity();
 
         void AddPhysLayer(std::string layer);
         void RemovePhysLayer(std::string layer);

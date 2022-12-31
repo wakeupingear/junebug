@@ -12,7 +12,7 @@ void Game::ProcessInput()
     SDL_GetWindowSize(mWindow, &mScreenWidth, &mScreenHeight);
 
     SDL_Event event;
-    std::unordered_map<Uint8, int> newInputs;
+    std::unordered_map<Uint8, std::pair<int, float>> newInputs;
 
     // Read keyboard state
     const Uint8 *state = SDL_GetKeyboardState(NULL);
@@ -87,28 +87,35 @@ void Game::ProcessInput()
     }
 
     // Loop through all inputs
-    for (auto &[key, inputs] : mInputMapping)
+    for (auto &playerMapping : mInputMappings)
     {
-        inputs.second = 0;
-        for (auto input : inputs.first)
+        for (auto &[key, inputs] : playerMapping)
         {
-            if (state[input] || mExtraStates[input])
+            inputs.second.first = 0;
+            inputs.second.second = 0.0f;
+            for (auto input : inputs.first)
             {
-                auto loc = mInputs.find(input);
-                int val = loc != mInputs.end() ? loc->second + 1 : 1;
-                newInputs[input] = val;
-                inputs.second = std::max(inputs.second, val);
+                if (state[input] || mExtraStates[input])
+                {
+                    auto loc = mInputs.find(input);
+                    int frames = loc != mInputs.end() ? loc->second.first + 1 : 1;
+                    float val = loc != mInputs.end() ? loc->second.second + mDeltaTime : mDeltaTime;
+                    newInputs[input] = std::make_pair(frames, val);
+                    inputs.second.first = std::max(inputs.second.first, frames);
+                    inputs.second.second = std::max(inputs.second.second, val);
+                }
             }
         }
     }
     mInputs = newInputs;
 
     // Default Events
-    if (Input(JB_INPUT_QUIT))
+    float quitTime = Input(JB_INPUT_QUIT, -1);
+    if (!NearZero(quitTime) && quitTime > options.quitCloseTime)
     {
         mGameIsRunning = false;
     }
-    if (Input(JB_INPUT_FULLSCREEN) == 1)
+    if (InputPressed(JB_INPUT_FULLSCREEN, -1))
     {
         if (!mFullscreen)
         {
@@ -162,40 +169,119 @@ void Game::ProcessInput()
     DebugCheckpointStop("Inputs");
 }
 
-int Game::Input(std::string key)
+float Game::Input(std::string key, int player)
 {
-    auto it = mInputMapping.find(key);
-    if (it == mInputMapping.end())
-        return 0;
-    return it->second.second;
+    if (player < 0)
+    {
+        float maxVal = 0;
+        for (int i = 0; i < mInputMappings.size(); i++)
+        {
+            maxVal = Max(maxVal, Input(key, i));
+        }
+        return maxVal;
+    }
+    else
+    {
+        if (player >= mInputMappings.size())
+            return 0.0f;
+        auto it = mInputMappings[player].find(key);
+        if (it == mInputMappings[player].end())
+            return 0;
+        return it->second.second.second;
+    }
 }
 
-bool Game::InputPressed(std::string key)
+bool Game::InputPressed(std::string key, int player)
 {
-    return Input(key) == 1;
+    if (player < 0)
+    {
+        for (int i = 0; i < mInputMappings.size(); i++)
+        {
+            if (InputPressed(key, i))
+                return true;
+        }
+        return false;
+    }
+    else
+    {
+        if (player >= mInputMappings.size())
+            return 0;
+        auto it = mInputMappings[player].find(key);
+        if (it == mInputMappings[player].end())
+            return 0;
+        return it->second.second.first == 1;
+    }
 }
 
-int Game::InputsDir(std::string negKey, std::string posKey)
+int Game::InputsDir(std::string negKey, std::string posKey, int player)
 {
-    return ((bool)Input(posKey)) - ((bool)Input(negKey));
+    return ((bool)Input(posKey, player)) - ((bool)Input(negKey, player));
 }
-int Game::InputsPressedDir(std::string negKey, std::string posKey)
+int Game::InputsPressedDir(std::string negKey, std::string posKey, int player)
 {
-    return ((bool)InputPressed(posKey)) - ((bool)InputPressed(negKey));
+    return ((bool)InputPressed(posKey, player)) - ((bool)InputPressed(negKey, player));
 }
 
-void Game::SetInputMapping(std::string key, std::vector<Uint8> inputs)
+void Game::SetInputMapping(std::string key, std::vector<Uint8> inputs, int player)
 {
-    mInputMapping[key] = make_pair(inputs, 0);
+    if (player < 0)
+    {
+        for (int i = 0; i < mInputMappings.size(); i++)
+            SetInputMapping(key, inputs, i);
+    }
+    else
+    {
+        while (mInputMappings.size() < player + 1)
+            mInputMappings.push_back({});
+        mInputMappings[player][key] = std::make_pair(inputs, std::make_pair(0, 0.0f));
+    }
 }
 
 void Game::SetInputMappings(
-    std::vector<std::pair<std::string, std::vector<Uint8>>> inputMappings)
+    std::vector<std::pair<std::string, std::vector<Uint8>>> inputMappings, int player)
 {
     for (auto &[name, inputs] : inputMappings)
+        Game::SetInputMapping(name, inputs, player);
+}
+
+std::vector<Uint8> *Game::GetInputMapping(std::string key, int player)
+{
+    if (player < 0)
     {
-        Game::SetInputMapping(name, inputs);
+        for (int i = 0; i < player; i++)
+        {
+            auto ptr = GetInputMapping(key, i);
+            if (ptr)
+                return ptr;
+        }
     }
+    else if (player < mInputMappings.size())
+    {
+        auto loc = mInputMappings[player].find(key);
+        if (loc != mInputMappings[player].end())
+            return &loc->second.first;
+    }
+    return nullptr;
+}
+
+bool Game::InputExists(std::string key, Uint8 input, int player)
+{
+    if (player < 0)
+    {
+        for (int i = 0; i < mInputMappings.size(); i++)
+        {
+            if (InputExists(key, i))
+                return true;
+        }
+        return false;
+    }
+
+    auto ptr = GetInputMapping(key, player);
+    if (!ptr)
+        return false;
+
+    auto loc = std::find(ptr->begin(), ptr->end(), input);
+    return (loc != ptr->end());
 }
 
 void Game::FlushPollEvents()

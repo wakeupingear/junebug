@@ -57,6 +57,14 @@ Vec2<float> VisualActor::GetActorSize()
     return mScale * sprite->GetTexSize();
 }
 
+void VisualActor::SetOrigin(SpriteOrigin origin, const Vec2<int> &offset)
+{
+    Sprite *sprite = GetSprite();
+    if (!sprite)
+        return;
+    sprite->SetOrigin(origin, offset);
+}
+
 void VisualActor::SetPosition(const Vec2<float> &pos)
 {
     mPosition = pos;
@@ -68,6 +76,16 @@ void VisualActor::MovePosition(const Vec2<float> &pos)
 Vec2<float> VisualActor::GetPosition() const
 {
     return mPosition;
+}
+Vec2<float> VisualActor::GetStartPosition() const
+{
+    return mStartPosition;
+}
+
+void VisualActor::ClampPosition(const Vec2<float> &min, const Vec2<float> &max)
+{
+    mPosition.x = std::max(min.x, std::min(mPosition.x, max.x));
+    mPosition.y = std::max(min.y, std::min(mPosition.y, max.y));
 }
 
 void VisualActor::SetRotation(float rot)
@@ -96,6 +114,16 @@ void VisualActor::SetScale(const Vec2<float> &scale)
 {
     mScale = scale;
 }
+void VisualActor::SetScale(float scale)
+{
+    mScale.x = scale;
+    mScale.y = scale;
+}
+void VisualActor::SetScale(float scaleX, float scaleY)
+{
+    mScale.x = scaleX;
+    mScale.y = scaleY;
+}
 Vec2<float> VisualActor::GetScale() const
 {
     return mScale;
@@ -110,7 +138,12 @@ Color VisualActor::GetColor() const
     return mColor;
 }
 
+void VisualActor::InternalFirstUpdate(float dt)
+{
+    mStartPosition = mPosition;
+}
+
 void VisualActor::Draw()
 {
-    DrawSprite(mSpritePath, mPosition, {mScale, mRotation, mColor, mRoundToCamera});
+    DrawSprite(mSpritePath, 0, mPosition, {mScale, mRotation, mColor, mRoundToCamera});
 }

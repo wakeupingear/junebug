@@ -64,6 +64,12 @@ namespace junebug
                 return GetInt(obj[key.c_str()], def);
             return def;
         }
+        static int GetInt(Json *json, std::string key, int def = 0)
+        {
+            if (json && json->IsValid())
+                return GetInt(json->GetDoc()->GetObject(), key, def);
+            return def;
+        }
 
         static float GetFloat(Value &val, float def = 0)
         {
@@ -88,6 +94,12 @@ namespace junebug
         {
             if (obj.HasMember(key.c_str()))
                 return GetInt(obj[key.c_str()], def);
+            return def;
+        }
+        static float GetFloat(Json *json, std::string key, float def = 0.0f)
+        {
+            if (json && json->IsValid())
+                return GetFloat(json->GetDoc()->GetObject(), key, def);
             return def;
         }
 
@@ -130,6 +142,13 @@ namespace junebug
                 return GetNumber(obj[key.c_str()], def);
             return def;
         }
+        template <typename T>
+        static T GetNumber(Json *json, std::string key, T def = 0)
+        {
+            if (json && json->IsValid())
+                return GetNumber(json->GetDoc()->GetObject(), key, def);
+            return def;
+        }
 
         template <typename T>
         static Vec2<T> GetVec2(const GenericObject<false, Value> &obj, std::string key, Vec2<T> def = Vec2<T>::Zero)
@@ -151,6 +170,30 @@ namespace junebug
             }
 
             return res;
+        }
+        template <typename T>
+        static Vec2<T> GetVec2(Value &val, Vec2<T> def = Vec2<T>::Zero)
+        {
+            Vec2<T> res(def);
+
+            if (val.IsArray())
+            {
+                if (val.Size() > 0)
+                {
+                    res.x = (T)GetNumber<T>(val[0]);
+                    if (val.Size() > 1)
+                        res.y = (T)GetNumber<T>(val[1]);
+                }
+            }
+
+            return res;
+        }
+        template <typename T>
+        static Vec2<T> GetVec2(Json *json, std::string key, Vec2<T> def = Vec2<T>::Zero)
+        {
+            if (json && json->IsValid())
+                return GetVec2(json->GetDoc()->GetObject(), key, def);
+            return def;
         }
 
         template <typename T>
@@ -177,6 +220,34 @@ namespace junebug
             }
 
             return res;
+        }
+        template <typename T>
+        static Vec3<T> GetVec3(Value &val, Vec3<T> def = Vec3<T>::Zero)
+        {
+            Vec3<T> res(def);
+
+            if (val.IsArray())
+            {
+                if (val.Size() > 0)
+                {
+                    res.x = GetNumber<T>(val[0]);
+                    if (val.Size() > 1)
+                    {
+                        res.y = GetNumber<T>(val[1]);
+                        if (val.Size() > 2)
+                            res.z = GetNumber<T>(val[2]);
+                    }
+                }
+            }
+
+            return res;
+        }
+        template <typename T>
+        static Vec3<T> GetVec3(Json *json, std::string key, Vec3<T> def = Vec3<T>::Zero)
+        {
+            if (json && json->IsValid())
+                return GetVec3(json->GetDoc()->GetObject(), key, def);
+            return def;
         }
 
         static bool GetBool(Value &val, bool def = false)
@@ -212,6 +283,12 @@ namespace junebug
                 return GetBool(obj[key.c_str()], def);
             return def;
         }
+        static bool GetBool(Json *json, std::string key, bool def = false)
+        {
+            if (json && json->IsValid())
+                return GetBool(json->GetDoc()->GetObject(), key, def);
+            return def;
+        }
 
         static std::string GetString(Value &val, std::string def = "")
         {
@@ -240,9 +317,15 @@ namespace junebug
                 return GetString(obj[key.c_str()], def);
             return def;
         }
+        static std::string GetString(Json *json, std::string key, std::string def = "")
+        {
+            if (json && json->IsValid())
+                return GetString(json->GetDoc()->GetObject(), key, def);
+            return def;
+        }
 
         template <typename T>
-        static std::vector<T> GetArray(Value &val, std::vector<T> def = std::vector<T>())
+        static std::vector<T> GetNumberArray(Value &val, std::vector<T> def = std::vector<T>())
         {
             std::vector<T> res;
 
@@ -257,15 +340,22 @@ namespace junebug
             return res;
         }
         template <typename T>
-        static std::vector<T> GetArray(const GenericObject<false, Value> &obj, std::string key, std::vector<T> def = std::vector<T>())
+        static std::vector<T> GetNumberArray(const GenericObject<false, Value> &obj, std::string key, std::vector<T> def = std::vector<T>())
         {
             if (obj.HasMember(key.c_str()))
-                return GetArray(obj[key.c_str()], def);
+                return GetNumberArray(obj[key.c_str()], def);
+            return def;
+        }
+        template <typename T>
+        static std::vector<T> GetNumberArray(Json *json, std::string key, std::vector<T> def = std::vector<T>())
+        {
+            if (json && json->IsValid())
+                return GetNumberArray(json->GetDoc()->GetObject(), key, def);
             return def;
         }
 
         template <typename T>
-        static std::vector<std::vector<T>> GetArray2D(Value &val, std::vector<std::vector<T>> def = std::vector<std::vector<T>>())
+        static std::vector<std::vector<T>> GetNumberArray2D(Value &val, std::vector<std::vector<T>> def = std::vector<std::vector<T>>())
         {
             std::vector<std::vector<T>> res;
 
@@ -273,17 +363,51 @@ namespace junebug
             {
                 for (auto &v : val.GetArray())
                 {
-                    res.push_back(GetArray<T>(v));
+                    res.push_back(GetNumberArray<T>(v));
                 }
             }
 
             return res;
         }
         template <typename T>
-        static std::vector<std::vector<T>> GetArray2D(const GenericObject<false, Value> &obj, std::string key, std::vector<std::vector<T>> def = std::vector<std::vector<T>>())
+        static std::vector<std::vector<T>> GetNumberArray2D(const GenericObject<false, Value> &obj, std::string key, std::vector<std::vector<T>> def = std::vector<std::vector<T>>())
         {
             if (obj.HasMember(key.c_str()))
-                return GetArray2D(obj[key.c_str()], def);
+                return GetNumberArray2D(obj[key.c_str()], def);
+            return def;
+        }
+        template <typename T>
+        static std::vector<std::vector<T>> GetNumberArray2D(Json *json, std::string key, std::vector<std::vector<T>> def = std::vector<std::vector<T>>())
+        {
+            if (json && json->IsValid())
+                return GetNumberArray2D(json->GetDoc()->GetObject(), key, def);
+            return def;
+        }
+
+        static std::vector<std::string> GetStringArray(Value &val, std::vector<std::string> def = std::vector<std::string>())
+        {
+            std::vector<std::string> res;
+
+            if (val.IsArray())
+            {
+                for (auto &v : val.GetArray())
+                {
+                    res.push_back(GetString(v));
+                }
+            }
+
+            return res;
+        }
+        static std::vector<std::string> GetStringArray(const GenericObject<false, Value> &obj, std::string key, std::vector<std::string> def = std::vector<std::string>())
+        {
+            if (obj.HasMember(key.c_str()))
+                return GetStringArray(obj[key.c_str()], def);
+            return def;
+        }
+        static std::vector<std::string> GetStringArray(Json *json, std::string key, std::vector<std::string> def = std::vector<std::string>())
+        {
+            if (json && json->IsValid())
+                return GetStringArray(json->GetDoc()->GetObject(), key, def);
             return def;
         }
 

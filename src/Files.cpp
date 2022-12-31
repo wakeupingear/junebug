@@ -1,4 +1,5 @@
 #include "Files.h"
+#include "Utils.h"
 
 using namespace junebug;
 using namespace rapidjson;
@@ -12,12 +13,22 @@ Json::Json(std::string data) : Json()
     if (data[0] == '{')
     {
         doc.Parse(data.c_str());
+
+        if (!IsValid())
+        {
+            PrintLog("Json parse error:", std::to_string(doc.GetParseError()), "at", std::to_string(doc.GetErrorOffset()));
+        }
     }
     else
     {
         std::ifstream file(data);
         std::string str((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
         doc.Parse(str.c_str());
+
+        if (!IsValid())
+        {
+            PrintLog("Json parse error for ", data, ":", std::to_string(doc.GetParseError()), "at", std::to_string(doc.GetErrorOffset()));
+        }
     }
 }
 

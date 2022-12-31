@@ -41,9 +41,9 @@ namespace junebug
     };
 
     // Draw a sprite
-    void DrawSprite(std::string &imagePath, const Vec2<float> &pos, const SpriteProperties &properties = {});
+    void DrawSprite(std::string &imagePath, int frame, const Vec2<float> &pos, const SpriteProperties &properties = {});
     // Draw a part of a sprite
-    void DrawSpritePart(std::string &imagePath, const Vec2<float> &pos, const Vec2<int> &partPos, const Vec2<int> &partSize, const SpriteProperties &properties = {});
+    void DrawSpritePart(std::string &imagePath, int frame, const Vec2<float> &pos, const Vec2<int> &partPos, const Vec2<int> &partSize, const SpriteProperties &properties = {});
 
     struct TextEffects : FC_Effect
     {

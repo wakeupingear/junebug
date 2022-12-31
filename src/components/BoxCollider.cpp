@@ -103,8 +103,6 @@ CollSide BoxCollider::GetMinOverlap(CollisionComponent *_other, Vec2<float> &off
     else if (_other->GetType() == CollType::Tileset)
     {
         CollSide side = _other->GetMinOverlap(this, offset);
-        if (false && (offset.x != 0.0f || offset.y != 0.0f))
-            print("Offset from tile:", offset);
         return FlipCollSide(side);
     }
     return CollSide::None;

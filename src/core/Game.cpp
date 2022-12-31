@@ -87,6 +87,13 @@ void Game::ProcessOptions(GameOptions newOptions)
         new Camera(options.defaultCameraPos, options.defaultCameraSize, Vec2(0.0f, 0.0f), Vec2(1.0f, 1.0f));
     }
 
+    if (options.quitOnEscape && !InputExists(JB_INPUT_QUIT, KEY_ESCAPE))
+        SetInputMapping(JB_INPUT_QUIT, {KEY_ESCAPE});
+    if (options.fullscreenOnF11 && !InputExists(JB_INPUT_FULLSCREEN, KEY_F11))
+    {
+        SetInputMapping(JB_INPUT_FULLSCREEN, {KEY_F11});
+    }
+
     if (options.detectFps)
     {
         int displayIndex = SDL_GetWindowDisplayIndex(mWindow);
@@ -158,6 +165,8 @@ bool Game::Run(int screenWidth, int screenHeight)
 {
     mScreenWidth = screenWidth, mScreenHeight = screenHeight;
     mRenderWidth = screenWidth, mRenderHeight = screenHeight;
+    mScene.size.x = mScreenWidth;
+    mScene.size.y = mScreenHeight;
 
 #ifdef linux
     putenv((char *)"SDL_VIDEO_X11_NET_WM_BYPASS_COMPOSITOR=0");
@@ -306,6 +315,7 @@ void Game::UpdateGame()
         if (actor->GetState() == ActorState::Started)
         {
             actor->SetState(ActorState::Active);
+            actor->InternalFirstUpdate(mDeltaTime);
             actor->FirstUpdate(mDeltaTime);
         }
 
@@ -315,7 +325,11 @@ void Game::UpdateGame()
             {
                 comp->Update(mDeltaTime);
             }
-            actor->Update(mDeltaTime);
+
+            if (actor->GetState() == ActorState::Active)
+            {
+                actor->Update(mDeltaTime);
+            }
         }
     }
 
@@ -372,7 +386,7 @@ void Game::GenerateOutput()
             continue;
         camera->_UpdateCoordinates();
 
-        SDL_Texture *tex = camera->Render(mRenderer);
+        SDL_Texture *tex = camera->Render(mRenderer, mDeltaTime);
         SDL_SetRenderTarget(mRenderer, mRenderTarget);
         SDL_Rect destR;
         destR.x = (int)camera->_calcScreenPos.x;
@@ -453,6 +467,20 @@ void Game::RemoveCamera(Camera *camera)
         mActiveCamera = nullptr;
 
     mCameras.erase(std::remove(mCameras.begin(), mCameras.end(), camera), mCameras.end());
+}
+
+void Game::ShakeCamera(Vec2<int> intensity, float duration)
+{
+    for (Camera *camera : mCameras)
+    {
+        if (camera->IsScreenCamera())
+            camera->Shake(intensity, duration);
+    }
+}
+void Game::ShakeCamera(Camera *camera, Vec2<int> intensity, float duration)
+{
+    if (camera)
+        camera->Shake(intensity, duration);
 }
 
 Vec2<int> Game::GetDisplaySize() const

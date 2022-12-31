@@ -45,6 +45,9 @@ public:
     // Get a random sign, but float!
     static float GetSignf();
 
+    // Create a random vector pointing in a direction
+    static Vec2<float> GetDirection(float ang1 = 0.0f, float ang2 = 360.0f, float offset = 0.0f);
+
 private:
     static std::mt19937 sGenerator;
 };

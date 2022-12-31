@@ -7,7 +7,7 @@
 #include "Twerp.h"
 #include "MathLib.h"
 #include "RandLib.h"
-#include "InputNames.h"
+#include "Inputs.h"
 #include "Color.h"
 #include "Files.h"
 #include "Actors.h"
@@ -65,6 +65,12 @@ namespace junebug
 
                 // Whether the game should close itself on a SDL_QUIT event
                 bool autoCloseOnQuit{true};
+                // Whether the game should close after the escape key
+                bool quitOnEscape{true};
+                // The time that a quit key needs to be pressed to quit
+                float quitCloseTime{0.0f};
+                // Whether the game should toggle fullscreen after the F11 key
+                bool fullscreenOnF11{true};
 
                 // Whether the game should automatically create a camera
                 bool createDefaultCamera{true};
@@ -153,27 +159,31 @@ namespace junebug
                 // Check a given input name
                 /// @param key The name of the input to check
                 /// @returns number of frames the input has been held for
-                int Input(std::string key);
+                float Input(std::string key, int player = 0);
                 // Check if a given input is pressed
                 /// @param key The name of the input to check
                 /// @returns true if the input was first pressed this frame, false otherwise
-                bool InputPressed(std::string key);
+                bool InputPressed(std::string key, int player = 0);
                 // Get the int result of two opposite inputs
                 /// @param key1 The first input
                 /// @param key2 The second input
-                int InputsDir(std::string negKey, std::string posKey);
+                int InputsDir(std::string negKey, std::string posKey, int player = 0);
                 // Get the int result of two opposite inputs being pressed this frame
                 /// @param key1 The first input
                 /// @param key2 The second input
-                int InputsPressedDir(std::string negKey, std::string posKey);
+                int InputsPressedDir(std::string negKey, std::string posKey, int player = 0);
                 // Set the input mapping for a given input name
                 /// @param key The name of the input
                 /// @param inputs A vector of SDL keycodes to map to the input
-                void SetInputMapping(std::string key, std::vector<Uint8> inputs);
+                void SetInputMapping(std::string key, std::vector<Uint8> inputs, int player = 0);
                 // Set a list of input mappings
                 /// @param inputMapping A list of input mappings, where the each element is a pair with the input name and a vector of SDL keycodes
                 void SetInputMappings(
-                    std::vector<std::pair<std::string, std::vector<Uint8>>> inputMappings);
+                    std::vector<std::pair<std::string, std::vector<Uint8>>> inputMappings, int player = 0);
+                // Get an input mapping if it exists
+                std::vector<Uint8> *GetInputMapping(std::string key, int player = 0);
+                // Check if an input mapping exists
+                bool InputExists(std::string key, Uint8 input, int player = 0);
                 // Get the current mouse position
                 /// @returns Vec2 with the mouse position in game coordinates, relative to a certain camera
                 Vec2<int> GetMousePos();
@@ -353,6 +363,11 @@ namespace junebug
                 // Note: this includes both cameras that render to the screen and cameras that render to textures in the scene
                 /// @returns A const reference to the list of cameras
                 const std::vector<class Camera *> &GetCameras() const { return mCameras; }
+
+                // Shake all screen cameras
+                void ShakeCamera(Vec2<int> intensity, float duration);
+                // Shake a given camera
+                void ShakeCamera(class Camera *camera, Vec2<int> intensity, float duration);
 #pragma endregion
 
 #pragma region Textures
@@ -502,8 +517,8 @@ namespace junebug
                 virtual void PostUpdate();
 
                 // Inputs
-                std::unordered_map<std::string, std::pair<std::vector<Uint8>, int>> mInputMapping;
-                std::unordered_map<Uint8, int> mInputs;
+                std::vector<std::unordered_map<std::string, std::pair<std::vector<Uint8>, std::pair<int, float>>>> mInputMappings;
+                std::unordered_map<Uint8, std::pair<int, float>> mInputs;
                 Uint8 mExtraStates[256] = {0};
                 // Flush all poll events
                 // Useful for events like window resizing

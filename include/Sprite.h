@@ -30,9 +30,9 @@ namespace junebug
         ~Sprite();
 
         // Draw this sprite
-        void Draw(class Camera *cam, SDL_Renderer *renderer, const Vec2<float> &pos, const Vec2<int> &partPos, const Vec2<int> &partSize, const SpriteProperties &properties);
-        // Set the texture to draw for this psirte
-        virtual void SetTexture(SDL_Texture *texture);
+        void Draw(class Camera *cam, SDL_Renderer *renderer, const Vec2<float> &pos, const Vec2<int> &partPos, const Vec2<int> &partSize, int frame, const SpriteProperties &properties);
+        // Add a texture for this psirte
+        virtual void AddTexture(SDL_Texture *texture);
 
         // Get the height of the texture
         Vec2<int> GetTexSize() const { return mTexSize; }
@@ -41,6 +41,16 @@ namespace junebug
         void SetOrigin(SpriteOrigin origin, const Vec2<int> &offset = Vec2<int>::Zero);
         // Get the origin of the sprite
         Vec2<int> GetOrigin() { return mOrigin; }
+
+        // Load a texture from a file
+        SDL_Texture *LoadTextureFile(std::string &fileName);
+        // Load metadata from a file
+        bool LoadMetadataFile(std::string &folder);
+
+        // Set the textures for this sprite
+        void SetTextures(const std::vector<SDL_Texture *> &textures) { mTextures = textures; }
+        // Get the textures for this sprite
+        const std::vector<SDL_Texture *> &GetTextures() const { return mTextures; }
 
         // Add an animation of the corresponding name to the animation map
         void AddAnimation(const std::string &name,
@@ -63,7 +73,7 @@ namespace junebug
 
     protected:
         // Texture to draw
-        SDL_Texture *mTexture = nullptr;
+        std::vector<SDL_Texture *> mTextures;
         // Width/height
         Vec2<int> mTexSize = Vec2<int>(0, 0);
         // Origin

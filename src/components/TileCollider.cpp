@@ -73,8 +73,6 @@ CollSide TileCollider::GetMinOverlap(CollisionComponent *_other, Vec2<float> &of
 
             Vec2<float> thisMin = mOwner->TileToWorld(startTile), thisMax = mOwner->TileToWorld(endTile + Vec2(1, 1)), tempOffset = Vec2<>::Zero;
 
-            // print(thisMin, otherMin);
-
             float xOverlap = std::min(thisMax.x, otherMax.x) - std::max(thisMin.x, otherMin.x);
             float yOverlap = std::min(thisMax.y, otherMax.y) - std::max(thisMin.y, otherMin.y);
 

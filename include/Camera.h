@@ -6,6 +6,7 @@
 #include "MathLib.h"
 
 #include "SDL2/SDL.h"
+#include <vector>
 
 namespace junebug
 {
@@ -49,6 +50,8 @@ namespace junebug
         void SetZoom(float zoom);
         inline void MoveZoom(float addZoom) { SetZoom(GetZoom() + addZoom); };
 
+        void Shake(Vec2<int> intensity, float duration);
+
     protected:
         friend class Game;
         void _UpdateCoordinates();
@@ -61,8 +64,10 @@ namespace junebug
         Vec2<float> screenSize, _calcScreenSize;
         Vec2<bool> fractionalScreenSize{false, false};
 
+        std::vector<std::pair<Vec2<int>, float>> mShakeEntries;
+
     private:
-        SDL_Texture *Render(SDL_Renderer *renderer);
+        SDL_Texture *Render(SDL_Renderer *renderer, float dt);
 
         SDL_Texture *renderTex = nullptr;
 

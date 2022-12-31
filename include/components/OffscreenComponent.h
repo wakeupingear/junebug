@@ -11,15 +11,37 @@
 
 namespace junebug
 {
+    bool IsOutsideCamera(Vec2<float> pos, Vec2<float> mPadding = Vec2<>::Zero)
+    {
+        for (Camera *cam : Game::Get()->GetCameras())
+        {
+            if (pos.x < cam->GetPosition().x - mPadding.x || pos.x > cam->GetPosition().x + cam->GetSize().x + mPadding.x ||
+                pos.y < cam->GetPosition().y - mPadding.y || pos.y > cam->GetPosition().y + cam->GetSize().y + mPadding.y)
+                return true;
+        }
+        return false;
+    }
+
+    bool IsOutsideScene(Vec2<float> pos, Vec2<float> mPadding = Vec2<>::Zero)
+    {
+        Scene scene = Game::Get()->GetCurrentScene();
+        return (pos.x < -mPadding.x || pos.x > scene.size.x + mPadding.x ||
+                pos.y < -mPadding.y || pos.y > scene.size.y + mPadding.y);
+    }
+
     // An abstract component that checks if an actor is offscreen and calls the appropriate callback functions for entering and exiting the screen.
     // The component can be used with a camera or the scene bounds.
     class OffscreenComponent : public Component
     {
     public:
-        OffscreenComponent(class VisualActor *owner, bool useCamera, Vec2<float> padding = Vec2<>::Zero, int updateOrder = 100) : Component(owner, updateOrder)
+        OffscreenComponent(
+            class VisualActor *owner, bool useCamera, std::function<void()> onExit = []() {},
+            std::function<void()> onEnter = []() {}, Vec2<float> padding = Vec2<>::Zero, int updateOrder = 100) : Component(owner, updateOrder)
         {
             mOwner = owner;
             mUseCamera = useCamera;
+            mOnExit = onExit;
+            mOnEnter = onEnter;
             mPadding = padding;
 
             if (padding.IsZero())
@@ -37,13 +59,13 @@ namespace junebug
                 if (!IsOffscreen())
                 {
                     mOffscreen = false;
-                    OnEnter();
+                    mOnEnter();
                 }
             }
             else if (IsOffscreen())
             {
                 mOffscreen = true;
-                OnExit();
+                mOnExit();
             }
         }
 
@@ -56,27 +78,18 @@ namespace junebug
                 if (Game::Get()->GetCameras().empty())
                     return true;
 
-                for (Camera *cam : Game::Get()->GetCameras())
-                {
-                    if (pos.x < cam->GetPosition().x - mPadding.x || pos.x > cam->GetPosition().x + cam->GetSize().x + mPadding.x ||
-                        pos.y < cam->GetPosition().y - mPadding.y || pos.y > cam->GetPosition().y + cam->GetSize().y + mPadding.y)
-                        return true;
-                }
-                return false;
+                return IsOutsideCamera(pos, mPadding);
             }
             else
-            {
-                Scene scene = Game::Get()->GetCurrentScene();
-                return (pos.x < -mPadding.x || pos.x > scene.size.x + mPadding.x ||
-                        pos.y < -mPadding.y || pos.y > scene.size.y + mPadding.y);
-            }
+                return IsOutsideScene(pos, mPadding);
         }
 
-        virtual void OnExit() = 0;
-        virtual void OnEnter(){};
+        void SetOnEnter(std::function<void()> onEnter) { mOnEnter = onEnter; };
+        void SetOnExit(std::function<void()> onExit) { mOnExit = onExit; };
 
         Vec2<float> GetPadding() { return mPadding; }
         void SetPadding(Vec2<float> padding) { mPadding = padding; }
+        inline void SetPadding(float x, float y) { SetPadding(Vec2<float>(x, y)); }
 
     protected:
         VisualActor *mOwner;
@@ -85,16 +98,26 @@ namespace junebug
 
         bool mOffscreen = false;
         bool mUseCamera = false;
+
+        // Lambda functions to be called when the actor enters or exits the screen
+        std::function<void()> mOnEnter = []() {};
+        std::function<void()> mOnExit = []() {};
     };
 
     class OffscreenDestroyComponent : public OffscreenComponent
     {
     public:
-        OffscreenDestroyComponent(class VisualActor *owner, bool useCamera, Vec2<float> padding = Vec2<>::Zero, int updateOrder = 100) : OffscreenComponent(owner, useCamera, padding, updateOrder){};
-
-        void OnExit() override
+        OffscreenDestroyComponent(
+            class VisualActor *owner, bool useCamera,
+            Vec2<float> padding = Vec2<>::Zero,
+            int updateOrder = 100)
+            : OffscreenComponent(
+                  owner, useCamera, [this]()
+                  { mOwner->Destroy(); },
+                  []() {}, padding, updateOrder)
         {
-            mOwner->SetState(ActorState::Destroy);
-        }
+            mOnExit = [this]()
+            { mOwner->Destroy(); };
+        };
     };
 }
