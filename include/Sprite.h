@@ -93,5 +93,8 @@ namespace junebug
 
         // The color to tint the sprite
         Color mColor = Color::White;
+
+    private:
+        inline bool __IsTempSprite__();
     };
 }

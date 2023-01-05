@@ -83,7 +83,7 @@ void Sprite::Draw(Camera *cam, SDL_Renderer *renderer, const Vec2<float> &pos, c
 
 void Sprite::AddTexture(SDL_Texture *texture)
 {
-    if (!texture)
+    if (!texture || __IsTempSprite__())
         return;
     mTextures.push_back(texture);
     if (mTextures.size() == 1)
@@ -92,6 +92,9 @@ void Sprite::AddTexture(SDL_Texture *texture)
 
 SDL_Texture *Sprite::LoadTextureFile(std::string &fileName)
 {
+    if (__IsTempSprite__())
+        return nullptr;
+
     std::error_code ec;
     if (fs::is_regular_file(fileName, ec))
     {
@@ -112,6 +115,9 @@ SDL_Texture *Sprite::LoadTextureFile(std::string &fileName)
 
 bool Sprite::LoadMetadataFile(std::string &folder)
 {
+    if (__IsTempSprite__())
+        return false;
+
     // Load json
     Json *json = nullptr;
     try
@@ -150,5 +156,12 @@ bool Sprite::LoadMetadataFile(std::string &folder)
 void Sprite::AddAnimation(const std::string &name,
                           const std::vector<SDL_Texture *> &images)
 {
+    if (__IsTempSprite__())
+        return;
     mAnims.emplace(name, images);
+}
+
+bool Sprite::__IsTempSprite__()
+{
+    return (this == &VisualActor::__tempSprite__);
 }

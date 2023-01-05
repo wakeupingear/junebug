@@ -511,11 +511,6 @@ namespace junebug
                 // Overridable function for processing an actor loaded from a JSON structure
                 virtual void LoadActor(PureActor *actor, rapidjson::Value &actorRef, Scene &newScene);
 
-                // Overridable callback for before an update
-                virtual void PreUpdate();
-                // Overridable callback for after an update
-                virtual void PostUpdate();
-
                 // Inputs
                 std::vector<std::unordered_map<std::string, std::pair<std::vector<Uint8>, std::pair<int, float>>>> mInputMappings;
                 std::unordered_map<Uint8, std::pair<int, float>> mInputs;

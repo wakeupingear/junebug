@@ -157,9 +157,15 @@ namespace junebug
         // Set the sprite of the actor
         /// @param path The path to the new sprite
         void SetSprite(std::string path);
-        // Get the sprite of the actor
+        // Get a safe pointer to the sprite of the actor.
+        // This does NOT use shared_ptr. Instaed, it will return a pointer to a temp sprite stored in the Game instance. The temp sprite has no actual impact of the game, but it lets you safely access this actor's sprite without worrying about causing a segfault if an invalid sprite path is used.
         class Sprite *GetSprite();
-        // Get the sprite name of the actor
+        // Get the sprite of the actor
+        class Sprite *GetRawSprite();
+
+        static Sprite __tempSprite__;
+
+        // Get the sprite name of the actor.
         /// @returns std::string
         std::string GetSpriteName();
         // Get the sprite size

@@ -235,11 +235,7 @@ bool Game::Run(int screenWidth, int screenHeight)
         ProcessInput();
 
         if (mGameIsRunning)
-        {
-            PreUpdate();
             UpdateGame();
-            PostUpdate();
-        }
         else
             break;
         if (mGameIsRunning)
@@ -294,9 +290,6 @@ void Game::HaltFrame()
     mBeginFrame = mEndFrame;
     mEndFrame = mBeginFrame + mInvTargetFps;
 }
-
-void Game::PreUpdate() {}
-void Game::PostUpdate() {}
 
 void Game::UpdateGame()
 {

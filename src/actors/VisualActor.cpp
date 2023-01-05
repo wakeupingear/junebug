@@ -5,6 +5,8 @@
 
 using namespace junebug;
 
+Sprite VisualActor::__tempSprite__ = Sprite();
+
 VisualActor::VisualActor(Vec2<float> pos) : PureActor()
 {
     SetPosition(pos);
@@ -34,24 +36,33 @@ void VisualActor::SetSprite(std::string imagePath)
     if (game)
         mSpritePath = game->GetAssetPaths().sprites + imagePath;
 }
+
 Sprite *VisualActor::GetSprite()
+{
+    Sprite *sprite = LoadSprite(mSpritePath);
+    if (!sprite)
+        return &__tempSprite__;
+    return sprite;
+}
+Sprite *VisualActor::GetRawSprite()
 {
     return LoadSprite(mSpritePath);
 }
+
 std::string VisualActor::GetSpriteName()
 {
     return mSpritePath;
 }
 Vec2<int> VisualActor::GetSpriteSize()
 {
-    Sprite *sprite = GetSprite();
+    Sprite *sprite = GetRawSprite();
     if (!sprite)
-        return Vec2<int>::Zero;
+        return Vec2(1, 1);
     return sprite->GetTexSize();
 }
 Vec2<float> VisualActor::GetActorSize()
 {
-    Sprite *sprite = GetSprite();
+    Sprite *sprite = GetRawSprite();
     if (!sprite)
         return Vec2<float>::Zero;
     return mScale * sprite->GetTexSize();
@@ -59,7 +70,7 @@ Vec2<float> VisualActor::GetActorSize()
 
 void VisualActor::SetOrigin(SpriteOrigin origin, const Vec2<int> &offset)
 {
-    Sprite *sprite = GetSprite();
+    Sprite *sprite = GetRawSprite();
     if (!sprite)
         return;
     sprite->SetOrigin(origin, offset);
