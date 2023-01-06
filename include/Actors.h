@@ -11,6 +11,7 @@
 #include <functional>
 #include <vector>
 #include <unordered_map>
+#include <memory>
 
 namespace junebug
 {
@@ -90,7 +91,7 @@ namespace junebug
 
         // Internal function to create an instance of a class
         template <typename T>
-        static PureActor *__createInstance__() { return new T(); };
+        static T *__createInstance__() { return new T(); };
 
         // Set the actor's depth
         void SetDepth(int newDepth) { mDepth = newDepth; };
@@ -104,6 +105,7 @@ namespace junebug
         // Add a component to the actor
         void AddComponent(class Component *c);
         // User-defined function to every frame when the actor updates
+        virtual void InternalUpdate(float dt){};
         virtual void Update(float dt){};
         // User-defined function to run on the first frame update of an actor
         virtual void FirstUpdate(float dt){};
@@ -118,7 +120,7 @@ namespace junebug
         // Actor depth
         int mDepth = 0;
 
-    private:
+        // Actor ID
         std::string mId;
     };
 
@@ -126,6 +128,19 @@ namespace junebug
     class VisualActor : public PureActor
     {
     public:
+        struct Animation
+        {
+            std::string sprAnimName;
+            std::weak_ptr<Sprite> sprite;
+            float frame, fps;
+            bool loop = true, finished = false;
+
+            Animation(std::string name, std::weak_ptr<Sprite> spr, float fps, bool loop = true)
+                : sprAnimName(name), sprite(spr), frame(0), fps(fps), loop(loop), finished(false){};
+
+            void Update(std::string name, float dt, std::string &nextAnim);
+        };
+
         VisualActor() : PureActor(){};
         // Position constructor
         VisualActor(Vec2<float> pos);
@@ -135,6 +150,7 @@ namespace junebug
         VisualActor(Vec2<int> pos, std::string imagePath);
 
         void InternalFirstUpdate(float dt) override;
+        void InternalUpdate(float dt) override;
 
         // Actor visibility
         void SetVisible(bool visible) { mVisible = visible; }
@@ -164,6 +180,8 @@ namespace junebug
         class Sprite *GetRawSprite();
 
         static Sprite __tempSprite__;
+
+        void SetSpriteAnimation(std::string name);
 
         // Get the sprite name of the actor.
         /// @returns std::string
@@ -215,6 +233,19 @@ namespace junebug
         /// @returns const Vec2
         Vec2<float> GetScale() const;
 
+        // Set the frame of the actor
+        /// @param frame The new frame of the actor
+        void SetFrame(int frame);
+        // Get the frame of the actor
+        /// @returns int frame
+        int GetFrame();
+        // Set the fps of the actor
+        /// @param fps The new fps of the actor
+        void SetFPS(float fps);
+        // Get the fps of the actor
+        /// @returns float fps
+        float GetFPS() const;
+
         // Set the Camera Rounding boolean
         // This will round the actor's position to the nearest pixel when rendered onto a camera.
         // There are various cases where this is useful, where fractional pixels can cause visual artifacts.
@@ -234,10 +265,15 @@ namespace junebug
         bool mVisible{true};
         Color mColor = Color::White;
 
+        std::unordered_map<std::string, Animation> mFrameAnimations;
+
         Vec2<float> mPosition{0, 0}, mStartPosition{0, 0};
         float mRotation{0};
         Vec2<float> mScale{1, 1};
         bool mRoundToCamera{false};
+
+    private:
+        std::string mNextSpriteAnimation{""};
     };
 
     /// @brief A PhysicalActor is a VisualActor that has a physical representation, including velocity, acceleration, collider, and mass.
@@ -280,13 +316,13 @@ namespace junebug
         class PhysicsComponent *mPhys{nullptr};
         class CollisionComponent *mColl{nullptr};
 
-    private:
-        void InitializeComponents(CollType type = CollType::Box);
-        void InitializePhysComponent();
-
         // Member variables that mirror the CollisionComponent.
         // These are used to initialize the CollisionComponent when it is created to avoid unnecessary calls to Game::AddCollision()
         std::string mCollLayer = "";
         CollType mCollType = CollType::Box;
+
+    private:
+        void InitializeComponents(CollType type = CollType::Box);
+        void InitializePhysComponent();
     };
 };

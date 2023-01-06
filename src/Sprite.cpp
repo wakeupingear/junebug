@@ -119,27 +119,18 @@ bool Sprite::LoadMetadataFile(std::string &folder)
         return false;
 
     // Load json
-    Json *json = nullptr;
-    try
-    {
-        json = new Json(folder + "/info.json");
-    }
-    catch (std::exception &e)
-    {
-        PrintLog("Sprite metadata", folder, "errored with", e.what());
-        return false;
-    }
-    if (!json || !json->IsValid())
+    Json json(folder + "/info.json");
+    if (!json.IsValid())
     {
         print("Sprite metadata", folder, "is invalid");
-        if (json)
-            delete json;
         return false;
     }
 
+    mFps = Json::GetNumber(&json, "fps", mFps);
+
     // Don't unload textures from the sprite level; just clear the sprite's list
     mTextures.clear();
-    std::vector<std::string> frames = Json::GetStringArray(json, "frames");
+    std::vector<std::string> frames = Json::GetStringArray(&json, "frames");
     for (auto &frame : frames)
     {
         std::string fileName = folder + "/" + frame;
@@ -149,16 +140,52 @@ bool Sprite::LoadMetadataFile(std::string &folder)
         }
     }
 
-    delete json;
+    // Add default animation
+    std::vector<int> framesInt;
+    for (int i = 0; i < frames.size(); i++)
+        framesInt.push_back(i);
+    AddAnimation("_", framesInt);
+
+    // Load animations
+    const auto &animsRef = json.Get("animations")->value.GetObject();
+    for (auto &animRef : animsRef)
+    {
+        std::string name = animRef.name.GetString();
+        std::vector<int> frames;
+        if (animRef.value.IsArray())
+        {
+            for (auto &v : animRef.value.GetArray())
+            {
+                frames.push_back(Json::GetNumber<int>(v));
+            }
+        }
+        print(frames.size());
+        AddAnimation(name, frames);
+    }
+
     return true;
 }
 
+const std::vector<int> &Sprite::GetAnimation(const std::string &name)
+{
+    auto it = mAnims.find(name);
+    if (it != mAnims.end())
+        return it->second;
+
+    auto defIt = mAnims.find("_");
+    if (defIt != mAnims.end())
+        return defIt->second;
+
+    AddAnimation(name, std::vector<int>());
+    return mAnims.at(name);
+}
+
 void Sprite::AddAnimation(const std::string &name,
-                          const std::vector<SDL_Texture *> &images)
+                          const std::vector<int> &frames)
 {
     if (__IsTempSprite__())
         return;
-    mAnims.emplace(name, images);
+    mAnims.emplace(name, frames);
 }
 
 bool Sprite::__IsTempSprite__()

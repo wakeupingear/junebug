@@ -25,7 +25,7 @@ void Game::LoadActor(rapidjson::Value &actorRef, Scene &newScene)
     }
 
     PureActor *actor = it->second();
-    actor->SetPersistent(Json::GetBool(actorObj, "persistent"));
+    actor->SetPersistent(Json::GetBool(actorObj, "persistent", false));
     actor->mId = Json::GetString(actorObj, "id");
 
     std::string layerId = Json::GetString(actorObj, "layer");
@@ -44,7 +44,7 @@ void Game::LoadActor(rapidjson::Value &actorRef, Scene &newScene)
         visualActor->SetPosition(Json::GetVec2<float>(actorObj, "pos", Vec2<>::Zero));
         visualActor->SetScale(Json::GetVec2<float>(actorObj, "scale", Vec2(1.0f, 1.0f)));
         visualActor->SetRotation(Json::GetNumber<float>(actorObj, "rotation"));
-        visualActor->SetRoundToCamera(Json::GetBool(actorObj, "roundToCamera"));
+        visualActor->SetRoundToCamera(Json::GetBool(actorObj, "roundToCamera", false));
 
         auto color = Json::GetNumberArray<float>(actorObj, "color");
         if (color.size() == 3)
@@ -70,7 +70,7 @@ void Game::LoadActor(rapidjson::Value &actorRef, Scene &newScene)
         if (physActor)
         {
             physActor->SetGravityOffset(Json::GetVec2<float>(actorObj, "gravity", Vec2(0.0f, 0.0f)));
-            physActor->SetStatic(Json::GetBool(actorObj, "static"));
+            physActor->SetStatic(Json::GetBool(actorObj, "static", physActor->IsStatic()));
             physActor->SetBounce(Json::GetNumber<float>(actorObj, "bounce"));
             physActor->SetMass(Json::GetNumber<float>(actorObj, "mass", physActor->GetMass()));
             physActor->SetCollType(
@@ -89,7 +89,7 @@ void Game::LoadActor(rapidjson::Value &actorRef, Scene &newScene)
 
             bg->SetOffset(Json::GetVec2<float>(actorObj, "offset", Vec2<>::Zero));
 
-            bool tile = Json::GetBool(actorObj, "tile");
+            bool tile = Json::GetBool(actorObj, "tile", false);
             if (tile)
                 bg->SetTile(tile);
             else
@@ -107,6 +107,8 @@ void Game::LoadActor(rapidjson::Value &actorRef, Scene &newScene)
             if (colliders.size() > 0)
                 tileset->SetColliders(colliders);
             tileset->SetCollLayer(Json::GetString(actorObj, "collLayer", tileset->GetCollLayer()));
+
+            tileset->SetEditMode((Tileset::TilesetEditMode)Json::GetInt(actorObj, "editMode", (int)tileset->GetEditMode()));
         }
     }
 

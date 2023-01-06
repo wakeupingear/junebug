@@ -21,19 +21,21 @@ namespace junebug
     {
     public:
         Json();
-        Json(std::string data);
+        Json(std::string data, bool isFile = false);
         Json(Document &doc);
         ~Json();
 
         std::string Stringify() const;
 
         Document *GetDoc();
-
         bool IsValid() const;
+        GenericMemberIterator<false, UTF8<>, MemoryPoolAllocator<>>
+        Get(std::string key);
 
-        GenericMemberIterator<false, UTF8<>, MemoryPoolAllocator<>> Get(std::string key);
+        void Save();
 
-        static int GetInt(Value &val, int def = 0)
+#pragma region Getters
+        static int GetInt(const Value &val, int def = 0)
         {
             if (val.IsInt())
                 return val.GetInt();
@@ -71,7 +73,7 @@ namespace junebug
             return def;
         }
 
-        static float GetFloat(Value &val, float def = 0)
+        static float GetFloat(const Value &val, float def = 0)
         {
             if (val.IsFloat())
                 return val.GetFloat();
@@ -93,7 +95,7 @@ namespace junebug
         static float GetFloat(const GenericObject<false, Value> &obj, std::string key, float def = 0.0f)
         {
             if (obj.HasMember(key.c_str()))
-                return GetInt(obj[key.c_str()], def);
+                return GetFloat(obj[key.c_str()], def);
             return def;
         }
         static float GetFloat(Json *json, std::string key, float def = 0.0f)
@@ -104,7 +106,7 @@ namespace junebug
         }
 
         template <typename T>
-        static T GetNumber(Value &val, T def = 0)
+        static T GetNumber(const Value &val, T def = 0)
         {
             if (val.IsInt())
                 return (T)val.GetInt();
@@ -172,7 +174,7 @@ namespace junebug
             return res;
         }
         template <typename T>
-        static Vec2<T> GetVec2(Value &val, Vec2<T> def = Vec2<T>::Zero)
+        static Vec2<T> GetVec2(const Value &val, Vec2<T> def = Vec2<T>::Zero)
         {
             Vec2<T> res(def);
 
@@ -222,7 +224,7 @@ namespace junebug
             return res;
         }
         template <typename T>
-        static Vec3<T> GetVec3(Value &val, Vec3<T> def = Vec3<T>::Zero)
+        static Vec3<T> GetVec3(const Value &val, Vec3<T> def = Vec3<T>::Zero)
         {
             Vec3<T> res(def);
 
@@ -250,7 +252,7 @@ namespace junebug
             return def;
         }
 
-        static bool GetBool(Value &val, bool def = false)
+        static bool GetBool(const Value &val, bool def = false)
         {
             if (val.IsBool())
                 return val.GetBool();
@@ -290,7 +292,7 @@ namespace junebug
             return def;
         }
 
-        static std::string GetString(Value &val, std::string def = "")
+        static std::string GetString(const Value &val, std::string def = "")
         {
             if (val.IsString())
                 return val.GetString();
@@ -325,7 +327,7 @@ namespace junebug
         }
 
         template <typename T>
-        static std::vector<T> GetNumberArray(Value &val, std::vector<T> def = std::vector<T>())
+        static std::vector<T> GetNumberArray(const Value &val, std::vector<T> def = std::vector<T>())
         {
             std::vector<T> res;
 
@@ -336,6 +338,9 @@ namespace junebug
                     res.push_back(GetNumber<T>(v));
                 }
             }
+
+            if (res.size() == 0)
+                return def;
 
             return res;
         }
@@ -355,7 +360,7 @@ namespace junebug
         }
 
         template <typename T>
-        static std::vector<std::vector<T>> GetNumberArray2D(Value &val, std::vector<std::vector<T>> def = std::vector<std::vector<T>>())
+        static std::vector<std::vector<T>> GetNumberArray2D(const Value &val, std::vector<std::vector<T>> def = std::vector<std::vector<T>>())
         {
             std::vector<std::vector<T>> res;
 
@@ -384,7 +389,7 @@ namespace junebug
             return def;
         }
 
-        static std::vector<std::string> GetStringArray(Value &val, std::vector<std::string> def = std::vector<std::string>())
+        static std::vector<std::string> GetStringArray(const Value &val, std::vector<std::string> def = std::vector<std::string>())
         {
             std::vector<std::string> res;
 
@@ -410,8 +415,17 @@ namespace junebug
                 return GetStringArray(json->GetDoc()->GetObject(), key, def);
             return def;
         }
+#pragma endregion
+
+#pragma region Scene Utils
+        rapidjson::Value *GetActor(std::string &id);
+#pragma endregion
+
+    protected:
+        Document doc;
 
     private:
-        Document doc;
+        bool mIsFile{false};
+        std::string mPath{""};
     };
 }

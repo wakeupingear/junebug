@@ -10,11 +10,11 @@ namespace fs = std::filesystem;
 
 namespace junebug
 {
-    void Game::AddSprite(std::string name, Sprite *sprite)
+    void Game::AddSprite(std::string name, std::shared_ptr<class Sprite> sprite)
     {
         if (mSpriteCache.find(name) != mSpriteCache.end())
         {
-            delete mSpriteCache[name];
+            mSpriteCache[name].reset();
         }
         mSpriteCache[name] = sprite;
     }
@@ -27,7 +27,7 @@ namespace junebug
         return (pos - camera->GetPosition()) * camera->GetZoom();
     }
 
-    Sprite *LoadSprite(std::string &imagePath)
+    std::shared_ptr<Sprite> LoadSprite(std::string &imagePath)
     {
         if (imagePath.empty())
             return nullptr;
@@ -35,7 +35,7 @@ namespace junebug
         if (it != Game::Get()->GetSpriteCache().end())
             return it->second;
 
-        Sprite *sprite = new Sprite();
+        std::shared_ptr<Sprite> sprite(new Sprite());
 
         const fs::path path(imagePath);
         std::error_code ec;
@@ -43,7 +43,7 @@ namespace junebug
         {
             if (!sprite->LoadMetadataFile(imagePath))
             {
-                delete sprite;
+                sprite.reset();
                 Game::Get()->AddSprite(imagePath, nullptr);
                 return nullptr;
             }
@@ -53,14 +53,14 @@ namespace junebug
             if (ec)
             {
                 PrintLog("Error for", imagePath, "in is_directory:", ec.message());
-                delete sprite;
+                sprite.reset();
                 Game::Get()->AddSprite(imagePath, nullptr);
                 return nullptr;
             }
 
             if (!sprite->LoadTextureFile(imagePath))
             {
-                delete sprite;
+                sprite.reset();
                 Game::Get()->AddSprite(imagePath, nullptr);
                 return nullptr;
             }
@@ -78,7 +78,7 @@ namespace junebug
         SDL_Renderer *renderer = game->GetRenderer();
         if (!renderer)
             return;
-        Sprite *sprite = LoadSprite(imagePath);
+        std::shared_ptr<Sprite> sprite = LoadSprite(imagePath);
         if (!sprite)
             return;
 
@@ -93,7 +93,7 @@ namespace junebug
         SDL_Renderer *renderer = game->GetRenderer();
         if (!renderer)
             return;
-        Sprite *sprite = LoadSprite(imagePath);
+        std::shared_ptr<Sprite> sprite = LoadSprite(imagePath);
         if (!sprite)
             return;
 

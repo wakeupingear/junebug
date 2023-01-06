@@ -28,7 +28,6 @@ const Scene &Game::GetCurrentScene() const
 
 void Game::LoadQueuedScenes()
 {
-    Json *sceneInfo = nullptr;
     while (!mSceneQueue.empty())
     {
         std::string sceneStr = mSceneQueue.front();
@@ -39,20 +38,20 @@ void Game::LoadQueuedScenes()
         try
         {
             // Obtain the scene info
-            if (sceneInfo)
+            if (mSceneInfo)
             {
-                delete sceneInfo;
-                sceneInfo = nullptr;
+                delete mSceneInfo;
+                mSceneInfo = nullptr;
             }
 
             if (sceneStr[0] == '{')
-                sceneInfo = new Json(sceneStr);
+                mSceneInfo = new Json(sceneStr);
             else if (!StringEndsWith(sceneStr, ".json"))
-                sceneInfo = new Json(GetAssetPaths().scenes + sceneStr + ".json");
+                mSceneInfo = new Json(GetAssetPaths().scenes + sceneStr + ".json", true);
             else
-                sceneInfo = new Json(sceneStr + ".json");
+                mSceneInfo = new Json(sceneStr + ".json", true);
 
-            if (!sceneInfo->IsValid())
+            if (!mSceneInfo->IsValid())
             {
                 PrintLog("Scene", sceneStr, "is invalid");
                 continue;
@@ -73,7 +72,7 @@ void Game::LoadQueuedScenes()
             mScene.layers.clear();
 
             // Load the new scene
-            const auto &sizeRef = sceneInfo->Get("size")->value.GetArray();
+            const auto &sizeRef = mSceneInfo->Get("size")->value.GetArray();
             if (sizeRef.Size() != 2)
             {
                 PrintLog("Scene", sceneStr, "has invalid size");
@@ -82,12 +81,12 @@ void Game::LoadQueuedScenes()
             newScene.size = Vec2(sizeRef[0].GetInt(), sizeRef[1].GetInt());
 
             // Check if the key "gravity" exists
-            SetGravity(Json::GetVec2<float>(sceneInfo->GetDoc()->GetObject(), "gravity", mGravity));
+            SetGravity(Json::GetVec2<float>(mSceneInfo->GetDoc()->GetObject(), "gravity", mGravity));
 
             // Load the layers
-            if (sceneInfo->Get("layers")->value.IsArray())
+            if (mSceneInfo->Get("layers")->value.IsArray())
             {
-                const auto &layersRef = sceneInfo->Get("layers")->value.GetArray();
+                const auto &layersRef = mSceneInfo->Get("layers")->value.GetArray();
                 newScene.layers.reserve(layersRef.Size());
                 for (auto &layerRef : layersRef)
                 {
@@ -111,11 +110,11 @@ void Game::LoadQueuedScenes()
             }
 
             // Load the actors
-            if (sceneInfo->Get("actors")->value.IsArray())
+            if (mSceneInfo->Get("actors")->value.IsArray())
             {
                 Vec2<int> tempPos;
 
-                const auto &actorsRef = sceneInfo->Get("actors")->value.GetArray();
+                const auto &actorsRef = mSceneInfo->Get("actors")->value.GetArray();
                 for (auto &actorRef : actorsRef)
                     LoadActor(actorRef, newScene);
             }
@@ -136,9 +135,6 @@ void Game::LoadQueuedScenes()
             PrintLog("Scene", sceneStr, "errored with", e.what());
         }
     }
-
-    if (sceneInfo)
-        delete sceneInfo;
 }
 
 const Vec2<int> Game::GetSceneSize()

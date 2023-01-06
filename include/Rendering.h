@@ -8,12 +8,13 @@
 
 #include "SDL_FontCache.h"
 #include <string>
+#include <memory>
 
 namespace junebug
 {
     // Get a position relative to a camera
     Vec2<float> GetDrawPosition(Vec2<float> pos = Vec2<float>::Zero);
-    class Sprite *LoadSprite(std::string &imagePath);
+    std::shared_ptr<class Sprite> LoadSprite(std::string &imagePath);
 
     struct SpriteProperties
     {

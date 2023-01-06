@@ -7,6 +7,47 @@ using namespace junebug;
 
 Sprite VisualActor::__tempSprite__ = Sprite();
 
+void VisualActor::Animation::Update(std::string name, float dt, std::string &nextAnim)
+{
+    if (finished)
+        return;
+
+    if (sprite.expired())
+        return;
+
+    auto &list = sprite.lock()->GetAnimation(sprAnimName);
+    if (!list.size())
+        return;
+
+    frame += fps * dt;
+    if (!loop)
+    {
+        if (fps > 0.0f && frame >= list.size())
+        {
+            finished = true;
+            frame = list.size();
+            return;
+        }
+        else if (fps < 0.0f && frame < list.size())
+        {
+            finished = true;
+            frame = list.size();
+            return;
+        }
+    }
+
+    float newFrame = fmod(frame, list.size());
+    if (newFrame != frame)
+    {
+        if (name == "_" && nextAnim != "")
+        {
+            sprAnimName = nextAnim;
+            nextAnim = "";
+        }
+    }
+    frame = newFrame;
+}
+
 VisualActor::VisualActor(Vec2<float> pos) : PureActor()
 {
     SetPosition(pos);
@@ -32,21 +73,29 @@ void VisualActor::SetSprite(std::string imagePath)
         return;
     }
 
+    if (imagePath == mSpritePath)
+        return;
+
     Game *game = Game::Get();
     if (game)
         mSpritePath = game->GetAssetPaths().sprites + imagePath;
+
+    Sprite *sprite = GetRawSprite();
+    if (!sprite)
+        return;
+    mFrameAnimations.insert_or_assign("_", Animation("_", LoadSprite(mSpritePath), sprite->GetFps()));
 }
 
 Sprite *VisualActor::GetSprite()
 {
-    Sprite *sprite = LoadSprite(mSpritePath);
-    if (!sprite)
+    std::shared_ptr<Sprite> sprite = LoadSprite(mSpritePath);
+    if (!sprite || !sprite.get())
         return &__tempSprite__;
-    return sprite;
+    return sprite.get();
 }
 Sprite *VisualActor::GetRawSprite()
 {
-    return LoadSprite(mSpritePath);
+    return LoadSprite(mSpritePath).get();
 }
 
 std::string VisualActor::GetSpriteName()
@@ -140,6 +189,38 @@ Vec2<float> VisualActor::GetScale() const
     return mScale;
 }
 
+void VisualActor::SetFrame(int frame)
+{
+    auto it = mFrameAnimations.find("_");
+    if (it != mFrameAnimations.end())
+        it->second.frame = frame;
+}
+int VisualActor::GetFrame()
+{
+    auto it = mFrameAnimations.find("_");
+    if (it != mFrameAnimations.end()) {
+        Sprite *sprite = GetSprite();
+        const std::vector<int> &frames = sprite->GetAnimation(it->second.sprAnimName);
+        int frame = Clamp((int)it->second.frame, 0, (int)frames.size() - 1);
+        return frames[frame];
+    }
+    return 0;
+}
+
+void VisualActor::SetFPS(float fps)
+{
+    auto it = mFrameAnimations.find("_");
+    if (it != mFrameAnimations.end())
+        it->second.fps = fps;
+}
+float VisualActor::GetFPS() const
+{
+    auto it = mFrameAnimations.find("_");
+    if (it != mFrameAnimations.end())
+        return it->second.fps;
+    return 0.0f;
+}
+
 void VisualActor::SetColor(const Color &color)
 {
     mColor = color;
@@ -149,12 +230,30 @@ Color VisualActor::GetColor() const
     return mColor;
 }
 
+void VisualActor::SetSpriteAnimation(std::string name)
+{
+    mNextSpriteAnimation = name;
+}
+
 void VisualActor::InternalFirstUpdate(float dt)
 {
     mStartPosition = mPosition;
 }
 
+void VisualActor::InternalUpdate(float dt)
+{
+    Sprite *sprite = GetRawSprite();
+    if (!sprite)
+        return;
+
+    for (auto &pair : mFrameAnimations)
+    {
+        Animation &anim = pair.second;
+        anim.Update(pair.first, dt, mNextSpriteAnimation);
+    }
+}
+
 void VisualActor::Draw()
 {
-    DrawSprite(mSpritePath, 0, mPosition, {mScale, mRotation, mColor, mRoundToCamera});
+    DrawSprite(mSpritePath, GetFrame(), mPosition, {mScale, mRotation, mColor, mRoundToCamera});
 }

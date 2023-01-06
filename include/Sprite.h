@@ -47,29 +47,23 @@ namespace junebug
         // Load metadata from a file
         bool LoadMetadataFile(std::string &folder);
 
+        // Get the number of frames in this sprite
+        int GetNumFrames() const { return mTextures.size(); }
+        // Get the FPS of this sprite
+        float GetFps() const { return mFps; }
+        // Set the FPS of this sprite
+        void SetFps(float fps) { mFps = fps; }
+
         // Set the textures for this sprite
         void SetTextures(const std::vector<SDL_Texture *> &textures) { mTextures = textures; }
         // Get the textures for this sprite
         const std::vector<SDL_Texture *> &GetTextures() const { return mTextures; }
 
+        // Get a given animation
+        const std::vector<int> &GetAnimation(const std::string &name = "_");
         // Add an animation of the corresponding name to the animation map
         void AddAnimation(const std::string &name,
-                          const std::vector<SDL_Texture *> &images);
-        // Set the current active animation
-        void SetAnimation(const std::string &name) { mAnimName = name; }
-        // Get the name of the currently-playing animation
-        const std::string &GetAnimName() const { return mAnimName; }
-        // Reset the animation back to frame/time 0
-
-        void ResetAnimTimer() { mAnimTimer = 0.0f; }
-        // Use to pause/unpause the animation
-        void SetIsPaused(bool pause) { mIsPaused = pause; }
-        // Use to change the FPS of the animation
-        void SetAnimFPS(float fps) { mAnimFPS = fps; }
-        // Use to get the current FPS of the animation
-        float GetAnimFPS() const { return mAnimFPS; }
-        // Use to get the total duration of the animation of he specified name
-        float GetAnimDuration(const std::string &name) { return mAnims[name].size() / mAnimFPS; }
+                          const std::vector<int> &frames);
 
     protected:
         // Texture to draw
@@ -79,20 +73,10 @@ namespace junebug
         // Origin
         Vec2<int> mOrigin = Vec2<int>(0, 0);
 
+        float mFps = 12.0f;
+
         // Map of animation name to vector of textures corresponding to the animation
-        std::unordered_map<std::string, std::vector<SDL_Texture *>> mAnims;
-
-        // Name of current animation
-        std::string mAnimName;
-        // Whether or not the animation is paused (defaults to false)
-        bool mIsPaused = false;
-        // Tracks current elapsed time in animation
-        float mAnimTimer = 0.0f;
-        // The frames per second the animation should run at
-        float mAnimFPS = 10.0f;
-
-        // The color to tint the sprite
-        Color mColor = Color::White;
+        std::unordered_map<std::string, std::vector<int>> mAnims;
 
     private:
         inline bool __IsTempSprite__();

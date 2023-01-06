@@ -22,6 +22,7 @@
 #include <functional>
 #include <queue>
 #include <chrono>
+#include <memory>
 
 using namespace std::chrono;
 using dsec = duration<double>;
@@ -202,6 +203,8 @@ namespace junebug
 
 #define JB_INPUT_QUIT "__quit__"
 #define JB_INPUT_FULLSCREEN "__fullscreen__"
+#define JB_INPUT_LEFT_CLICK "__left_click__"
+#define JB_INPUT_RIGHT_CLICK "__right_click__"
 #pragma endregion
 
 #pragma region Game Loop
@@ -232,9 +235,9 @@ namespace junebug
                 // Add a sprite to the cache
                 /// @param name The name of the sprite
                 /// @param sprite The sprite to add
-                void AddSprite(std::string name, class Sprite *sprite);
+                void AddSprite(std::string name, std::shared_ptr<class Sprite> sprite);
                 // Get a const reference to the sprite cache
-                const std::unordered_map<std::string, class Sprite *> &GetSpriteCache() { return mSpriteCache; }
+                const std::unordered_map<std::string, std::shared_ptr<class Sprite>> &GetSpriteCache() { return mSpriteCache; }
 #pragma endregion
 
 #pragma region Actors
@@ -397,8 +400,14 @@ namespace junebug
                 /// @returns A string
                 const std::string GetSceneName();
 
+                // Set the current scene's gravity
                 void SetGravity(Vec2<float> scale) { mGravity = scale; }
+                // Get the current scene's gravity
                 Vec2<float> GetGravity() { return mGravity; }
+
+                // Get a pointer to the current scene's JSON file object
+                /// @returns A pointer to the current scene's JSON file object
+                Json *GetSceneJSON() { return mSceneInfo; }
 #pragma endregion
 
 #pragma region Fonts
@@ -539,7 +548,7 @@ namespace junebug
                 // Texture map
                 std::unordered_map<std::string, SDL_Texture *> mTextures;
                 // Sprite cache
-                std::unordered_map<std::string, class Sprite *> mSpriteCache;
+                std::unordered_map<std::string, std::shared_ptr<class Sprite>> mSpriteCache;
 
                 // Scene
                 Scene mScene;
@@ -551,6 +560,8 @@ namespace junebug
                 void LoadActor(rapidjson::Value &actorRef, Scene &newScene);
                 // Gravity
                 Vec2<float> mGravity = Vec2<>::Zero;
+                // Currently loaded JSON scene file
+                Json *mSceneInfo = nullptr;
 
                 // Collision map
                 collision_layers mCollLayers;

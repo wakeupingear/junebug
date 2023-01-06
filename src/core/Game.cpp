@@ -87,12 +87,19 @@ void Game::ProcessOptions(GameOptions newOptions)
         new Camera(options.defaultCameraPos, options.defaultCameraSize, Vec2(0.0f, 0.0f), Vec2(1.0f, 1.0f));
     }
 
+    // Optional window input mappings
     if (options.quitOnEscape && !InputExists(JB_INPUT_QUIT, KEY_ESCAPE))
         SetInputMapping(JB_INPUT_QUIT, {KEY_ESCAPE});
     if (options.fullscreenOnF11 && !InputExists(JB_INPUT_FULLSCREEN, KEY_F11))
     {
         SetInputMapping(JB_INPUT_FULLSCREEN, {KEY_F11});
     }
+
+    // Internal input mappings
+    if (!InputExists(JB_INPUT_LEFT_CLICK, MOUSE_LEFT))
+        SetInputMapping(JB_INPUT_LEFT_CLICK, {MOUSE_LEFT});
+    if (!InputExists(JB_INPUT_RIGHT_CLICK, MOUSE_RIGHT))
+        SetInputMapping(JB_INPUT_RIGHT_CLICK, {MOUSE_RIGHT});
 
     if (options.detectFps)
     {
@@ -315,12 +322,11 @@ void Game::UpdateGame()
         if (actor->GetState() == ActorState::Active)
         {
             for (Component *comp : actor->mComponents)
-            {
                 comp->Update(mDeltaTime);
-            }
 
             if (actor->GetState() == ActorState::Active)
             {
+                actor->InternalUpdate(mDeltaTime);
                 actor->Update(mDeltaTime);
             }
         }

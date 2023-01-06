@@ -3,6 +3,7 @@
 #include "Camera.h"
 #include "Sprite.h"
 #include "components/TileCollider.h"
+#include "GlobalGame.h"
 
 using namespace junebug;
 
@@ -12,6 +13,9 @@ Tileset::Tileset(std::string sprite, Vec2<int> tileSize, Vec2<float> pos) : Visu
         mTileSize = GetSpriteSize();
     else
         mTileSize = tileSize;
+
+    mDrawInput = JB_INPUT_LEFT_CLICK;
+    mEraseInput = JB_INPUT_RIGHT_CLICK;
 }
 
 void Tileset::FirstUpdate(float dt)
@@ -25,6 +29,44 @@ void Tileset::FirstUpdate(float dt)
     }
 
     mRoundToCamera = true;
+}
+
+void Tileset::InternalUpdate(float dt)
+{
+    bool changed = false;
+
+    if (mEditMode != TilesetEditMode::None)
+    {
+        if (Input(mDrawInput))
+            changed = SetWorldTile(Game::Get()->GetMousePos(), mDrawTile);
+        else if (Input(mEraseInput))
+            changed = SetWorldTile(Game::Get()->GetMousePos(), -1);
+    }
+
+    if (changed)
+    {
+        Json *json = Game::Get()->GetSceneJSON();
+        if (json)
+        {
+            auto actor = json->GetActor(mId);
+            if (actor)
+            {
+                auto &allocator = json->GetDoc()->GetAllocator();
+                Value tiles(kArrayType);
+                for (std::vector<int> &r : mTiles)
+                {
+                    Value row(kArrayType);
+                    for (int tile : r)
+                        row.PushBack(tile, allocator);
+                    tiles.PushBack(row, allocator);
+                }
+                
+                actor->RemoveMember("tiles");
+                actor->AddMember("tiles", tiles, allocator);
+                json->Save();
+            }
+        }
+    }
 }
 
 void Tileset::Draw()
@@ -57,6 +99,14 @@ void Tileset::Draw()
         pos.y += tileGameHeight;
         pos.x = startX;
     }
+
+    if (mEditMode != TilesetEditMode::None)
+    {
+        Vec2<int> tile = WorldToTile(Game::Get()->GetMousePos());
+        partPos.x = (mDrawTile % (sprSize.x / mTileSize.x)) * mTileSize.x;
+        partPos.y = (mDrawTile / (sprSize.y / mTileSize.y)) * mTileSize.y;
+        DrawSpritePart(mSpritePath, 0, TileToWorld(tile), partPos, mTileSize, {mScale, mRotation, Color(100, 100, 255, 100)});
+    }
 }
 
 Vec2<int> Tileset::WorldToTile(Vec2<float> pos)
@@ -82,17 +132,46 @@ Vec2<float> Tileset::TileToWorld(Vec2<int> pos)
     return ret;
 }
 
-void Tileset::SetWorldTile(Vec2<float> pos, int tile)
+bool Tileset::SetTile(Vec2<int> tilePos, int tile)
 {
-    Vec2<int> tilePos = WorldToTile(pos);
     if (tilePos.x < 0 || tilePos.y < 0)
-        return;
+        return false;
 
-    while (mTiles.size() <= tilePos.y)
-        mTiles.push_back(std::vector<int>());
-    while (mTiles[tilePos.y].size() <= tilePos.x)
-        mTiles[tilePos.y].push_back(-1);
-    mTiles[tilePos.y][tilePos.x] = tile;
+    if (tile == -1)
+    {
+        if (mTiles.size() <= tilePos.y || mTiles[tilePos.y].size() <= tilePos.x)
+            return false;
+
+        mTiles[tilePos.y][tilePos.x] = -1;
+        if (tilePos.x == mTiles[tilePos.y].size() - 1)
+        {
+            while (mTiles[tilePos.y].size() > 0 && mTiles[tilePos.y].back() == -1)
+                mTiles[tilePos.y].pop_back();
+            while (mTiles.size() > 0 && mTiles.back().size() == 0)
+                mTiles.pop_back();
+        }
+
+        return true;
+    }
+    else
+    {
+        while (mTiles.size() <= tilePos.y)
+            mTiles.push_back(std::vector<int>());
+        while (mTiles[tilePos.y].size() <= tilePos.x)
+            mTiles[tilePos.y].push_back(-1);
+        if (mTiles[tilePos.y][tilePos.x] == tile)
+            return false;
+
+        mTiles[tilePos.y][tilePos.x] = tile;
+        return true;
+    }
+}
+
+int Tileset::GetTile(Vec2<int> tilePos)
+{
+    if (tilePos.x < 0 || tilePos.y < 0 || tilePos.y >= mTiles.size() || tilePos.x >= mTiles[tilePos.y].size())
+        return -1;
+    return mTiles[tilePos.y][tilePos.x];
 }
 
 float Tileset::GetTileWidth()
