@@ -22,6 +22,14 @@ bool Game::isDebug = false;
 bool Game::isEditor = false;
 #endif
 
+#ifdef __EMSCRIPTEN__
+void EmMainLoop(void *arg)
+{
+    Game *game = reinterpret_cast<Game *>(arg);
+    game->EmRunIteration();
+}
+#endif
+
 void junebug::__CallGameFunction__(__GameFunctions__ func)
 {
     Game *game = Game::Get();
@@ -234,38 +242,51 @@ bool Game::Run(int screenWidth, int screenHeight)
     mBeginFrame = system_clock::now();
     mEndFrame = mBeginFrame + mInvTargetFps;
     DebugResetCheckpoints();
+
+#ifdef __EMSCRIPTEN__
+    emscripten_set_main_loop_arg(EmMainLoop, this, 0, 1);
+#else
     while (mGameIsRunning)
     {
-        HaltFrame();
-        DebugCheckpoint("GameLoop", mShowDefaultDebugCheckpoints);
-
-        ProcessInput();
-
-        if (mGameIsRunning)
-            UpdateGame();
-        else
+        if (!_GameLoopIteration())
             break;
-        if (mGameIsRunning)
-        {
-            DebugCheckpoint("Renders", mShowDefaultDebugCheckpoints);
-            GenerateOutput();
-            DebugCheckpointStop("Renders");
-        }
-        else
-            break;
-        LoadQueuedScenes();
-
-        DebugCheckpointStop("GameLoop");
-        if (mGameIsRunning && !mSkipDebugPrintThisFrame)
-        {
-            DebugPrintInfo();
-            DebugPrintCheckpoints();
-            mDebugAlreadyCleared = false;
-            mSkipDebugPrintThisFrame = false;
-        }
     }
+#endif
 
     Shutdown();
+
+    return true;
+}
+
+bool Game::_GameLoopIteration()
+{
+    HaltFrame();
+    DebugCheckpoint("GameLoop", mShowDefaultDebugCheckpoints);
+
+    ProcessInput();
+
+    if (mGameIsRunning)
+        UpdateGame();
+    else
+        return false;
+    if (mGameIsRunning)
+    {
+        DebugCheckpoint("Renders", mShowDefaultDebugCheckpoints);
+        GenerateOutput();
+        DebugCheckpointStop("Renders");
+    }
+    else
+        return false;
+    LoadQueuedScenes();
+
+    DebugCheckpointStop("GameLoop");
+    if (mGameIsRunning && !mSkipDebugPrintThisFrame)
+    {
+        DebugPrintInfo();
+        DebugPrintCheckpoints();
+        mDebugAlreadyCleared = false;
+        mSkipDebugPrintThisFrame = false;
+    }
 
     return true;
 }

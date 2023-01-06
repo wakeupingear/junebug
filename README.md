@@ -4,7 +4,7 @@
 
 C++ is performant, but it's not easy to use. `Junebug` takes that performance and wraps it in various abstractions to make it easy to use. The goal is to make a stand in replacement for Game Maker Studio 2 that can scale to the needs of a production game.
 
-It also bundles a bunch of useful game functions and implementations that Game Maker should have had out of the box but didn't.
+It also bundles a bunch of useful game functions and implementations that Game Maker ideally should include out of the box but doesn't.
 
 SDL2 v2.24.1
 
@@ -29,34 +29,101 @@ int main()
 # Features
 
 ## Physics
-- 2D box collision
-- Separated physics and collision components
-- Per-scene and per-actor gravity
+
+-   2D box collision
+-   Separated physics and collision components
+-   Per-scene and per-actor gravity
 
 ## Tilesets
-- Runtime tileset loading
-- Actor collision
+
+-   Runtime tileset loading
+-   Actor collision
 
 ## Cameras
-- Muli-camera support
-- Camera shake
+
+-   Muli-camera support
+-   Camera shake
 
 ## Serialisation
-- Automatic reflection for base member variables
-- JSON saving/loading of Scenes and Actors
+
+-   Automatic reflection for base member variables
+-   JSON saving/loading of Scenes and Actors
 
 ## Debug
-- CLI profiler
-- Automatic error logging
+
+-   CLI profiler
+-   Automatic error logging
 
 ## Platform Support
-- Windows
-- Linux
-- Mac
+
+-   Windows
+-   Linux
+-   Mac
 
 ## Compiler Support
-- GCC (recommended)
-- Clang
+
+-   GCC (recommended)
+-   Clang
+
+# Setup
+
+`Junebug` uses the CMake build system, NOT Visual Studio solutions. It's recommended that you use [Visual Studio Code](https://code.visualstudio.com/) as your IDE, along with the [CMake Tools](https://marketplace.visualstudio.com/items?itemName=ms-vscode.cmake-tools) extension. This will natively support CMake and allow you to build and run your game directly from the IDE, using the 'Play' and 'Debug' icons in the bottom toolbar.
+
+The recommended structure of a `Junebug` project is as follows:
+
+```sh
+MyGame
+├── CMakeLists.txt
+├── lib
+│   ├── junebug
+├── assets
+│   ├── fonts
+│   ├── sprites
+│   ├── scenes
+├── include
+│   ├── Your Header Files
+├── src
+│   ├── Your Source Files
+```
+
+See the `examples` folder for a template `CMakeLists.txt` file, as well as several example projects.
+
+NOTE: This engine is in active development and subject to breaking changes, so consider whether you want to clone the repository directly or use a submodule pinned to a specific commit.
+
+## Windows
+
+Windows users should have an installed copy of the [Visual Studio Build Tools](https://visualstudio.microsoft.com/downloads/#build-tools-for-visual-studio-2019) and its 'Game Development with C++' workload. This will install the necessary C++ compiler and libraries. All other dependencies are included in the repository as `.dll` files.
+
+## Linux
+
+Linux users should have an installed copy of the `g++` compiler and the `libSDL2-dev` library. These can be installed via your package manager. An example for Apt is as follows:
+
+```sh
+sudo apt-get install g++
+sudo apt-get install libsdl2-dev
+```
+
+Unlike other platforms, binaries for Linux are not included in the repository. CMake should be able to automatically find the SDL2 library on your system once you run the above installation. If it throws an error, you can manually specify the path to the SDL2 library by editing your `CMakeLists.txt` file.
+
+## Mac
+
+Mac users only need to have an installed C++ compiler. `g++/gcc` is generally recommended, although `clang` works with a few more warnings. Xcode may already include `clang` with any existing dev tools on your systetm, which should work without additional configuration. You can install any other compilers via [Homebrew](https://brew.sh/).
+
+## HTML5 (Emscripten)
+
+`Junebug` games can also be compiled directly to Webassembly, which can then be run in any modern browser. This is done using the Emscripten SDK, which can be downloaded from [here](https://emscripten.org/docs/getting_started/downloads.html).
+
+Once Enscripten is installed and added to PATH (or aliased), you can compile a `Junebug` game to HTML5 by running the following commands:
+
+```sh
+cmake . -DCMAKE_TOOLCHAIN_FILE=/home/june/emsdk/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake -DCMAKE_BUILD_TYPE=Release -B embuild && cmake --build ./embuild --target all
+```
+
+This will compile to 4 files: a `.data` file with the game's assets, a `.wasm` file with the compiled code, a `.js` file with the glue code, and an `.html` file with the HTML5 boilerplate. To test these files, run the following command to run a local sever at [Port 8080](http://localhost:8080)
+
+```sh
+emrun --port 8080 embuild
+```
 
 # Structure
 

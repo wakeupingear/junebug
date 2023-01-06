@@ -7,10 +7,15 @@ project(${LIBNAME} VERSION 0.1.0 DESCRIPTION "A lightweight C++ game engine")
 include(GNUInstallDirs)
 
 file(GLOB_RECURSE LIB_SRC_CPP "lib/*.cpp")
-file(GLOB_RECURSE LIB_PLUGINS_CPP "plugins/*.cpp")
+
+if (NOT EMSCRIPTEN)
+    file(GLOB_RECURSE LIB_PLUGINS_CPP "plugins/*.cpp")
+endif()
+
 file(GLOB_RECURSE LIB_SRC_C "lib/*.c")
 set_source_files_properties(
     ${LIB_SRC_CPP}
+    ${LIB_PLUGINS_CPP}
     ${LIB_SRC_C}
     PROPERTIES
     COMPILE_FLAGS "-w"
@@ -110,7 +115,6 @@ elseif (APPLE)
     PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
     install(FILES ${CMAKE_BINARY_DIR}/${LIBNAME}.pc
     DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/pkgconfig)
-
 else()
     configure_file(${LIBNAME}.pc.in ${LIBNAME}.pc @ONLY)
     target_include_directories(${LIBNAME} PRIVATE include)
@@ -119,15 +123,14 @@ else()
 
     include(FindPkgConfig)
 
-    PKG_SEARCH_MODULE(SDL2 REQUIRED sdl2) 
-    PKG_SEARCH_MODULE(SDL2IMAGE REQUIRED SDL2_image>=2.0.0)
-    PKG_SEARCH_MODULE(SDL2MIXER REQUIRED SDL2_mixer)
-    PKG_SEARCH_MODULE(SDL2TTF REQUIRED SDL2_ttf)
+    if (NOT EMSCRIPTEN)
+        PKG_SEARCH_MODULE(SDL2 REQUIRED sdl2) 
+        PKG_SEARCH_MODULE(SDL2IMAGE REQUIRED SDL2_image>=2.0.0)
+        PKG_SEARCH_MODULE(SDL2MIXER REQUIRED SDL2_mixer)
+        PKG_SEARCH_MODULE(SDL2TTF REQUIRED SDL2_ttf)
+    endif()
 
     include_directories(${SDL2_INCLUDE_DIRS} ${SDL2IMAGE_INCLUDE_DIRS})
-
-    include_directories(lib/discord_game_sdk)
-    link_directories(lib/discord_game_sdk/lib/x86_64)
 
     TARGET_LINK_LIBRARIES(
         ${LIBNAME} 
@@ -135,8 +138,14 @@ else()
         ${SDL2IMAGE_LIBRARIES}
         ${SDL2MIXER_LIBRARIES}
         ${SDL2TTF_LIBRARIES}
-        discord_game_sdk
     )
+    
+    if (NOT EMSCRIPTEN)
+        include_directories(lib/discord_game_sdk)
+        link_directories(lib/discord_game_sdk/lib/x86_64)
+
+        target_link_libraries(${LIBNAME} discord_game_sdk)
+    endif()
 
     install(TARGETS ${LIBNAME}
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}

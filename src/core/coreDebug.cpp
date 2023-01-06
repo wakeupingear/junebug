@@ -2,6 +2,8 @@
 
 #include <iostream>
 #include <map>
+#include <mutex>
+#include <ctime>
 
 using namespace junebug;
 
@@ -11,6 +13,8 @@ void Game::DebugFormatConsole(std::string header)
     {
 #ifdef linux
         system("clear");
+#elif __EMSCRIPTEN__
+        EM_ASM(console.clear());
 #endif
         mDebugAlreadyCleared = true;
     }
@@ -27,14 +31,18 @@ void Game::DebugCheckpoint(std::string name, bool condition)
     if (!isDebug || !condition)
         return;
 
-    Game::Get()->mDebugCheckpoints.push_back({name, std::chrono::high_resolution_clock::now(), 0});
+#ifndef __EMSCRIPTEN__
+    Game::Get()->mDebugCheckpoints.push_back({name, high_resolution_clock::now(), 0});
+#endif
 }
 void Game::DebugCheckpointStop(std::string name)
 {
     if (!isDebug)
         return;
 
-    Game::Get()->mDebugCheckpoints.push_back({name, std::chrono::high_resolution_clock::now(), 1});
+#ifndef __EMSCRIPTEN__
+    Game::Get()->mDebugCheckpoints.push_back({name, high_resolution_clock::now(), 1});
+#endif
 }
 
 void Game::DebugPrintCheckpoints()
@@ -43,7 +51,7 @@ void Game::DebugPrintCheckpoints()
         return;
     mDebugSectionHeader = false;
 
-    std::vector<std::pair<std::string, std::chrono::_V2::system_clock::time_point>> stack;
+    std::vector<std::pair<std::string, time_point<system_clock, nanoseconds>>> stack;
     std::map<std::string, std::string> messages;
     std::string indent = DEBUG_INDENT;
     for (auto &checkpoint : mDebugCheckpoints)
@@ -73,7 +81,7 @@ void Game::DebugPrintCheckpoints()
                 continue;
             }
 
-            float num = std::chrono::duration_cast<std::chrono::microseconds>(
+            float num = duration_cast<microseconds>(
                             time - top.second)
                             .count() /
                         1000.0f;
@@ -96,7 +104,10 @@ void Game::DebugPrintCheckpoints()
 void Game::DebugResetCheckpoints()
 {
     mDebugCheckpoints.clear();
-    mDebugCheckpointStart = std::chrono::high_resolution_clock::now();
+
+#ifndef __EMSCRIPTEN__
+    mDebugCheckpointStart = high_resolution_clock::now();
+#endif
 }
 
 void Game::DebugPrintInfo()

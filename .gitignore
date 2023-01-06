@@ -2,3 +2,8 @@ build/
 bin/
 
 log.txt
+
+cmake_install.cmake
+Makefile
+CMakeCache.txt
+CMakeFiles

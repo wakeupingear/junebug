@@ -3,6 +3,10 @@
 #define NAMESPACES
 #endif
 
+#ifdef __EMSCRIPTEN__
+#include <emscripten.h>
+#endif
+
 #include "Utils.h"
 #include "Twerp.h"
 #include "MathLib.h"
@@ -229,6 +233,14 @@ namespace junebug
                 virtual void RenderStart(){};
                 // Overridable callback after the game is rendered
                 virtual void RenderEnd(){};
+
+#ifdef __EMSCRIPTEN__
+                void EmRunIteration()
+                {
+                        if (!_GameLoopIteration())
+                                emscripten_cancel_main_loop();
+                }
+#endif
 #pragma endregion
 
 #pragma region Sprites
@@ -648,5 +660,8 @@ namespace junebug
                 void DebugPrintCheckpoints();
                 void DebugResetCheckpoints();
                 bool mShowDefaultDebugCheckpoints = true;
+
+        private:
+                bool _GameLoopIteration();
         };
 };
