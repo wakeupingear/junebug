@@ -37,9 +37,8 @@ namespace junebug
 
         std::shared_ptr<Sprite> sprite(new Sprite());
 
-        const fs::path path(imagePath);
         std::error_code ec;
-        if (fs::is_directory(path, ec))
+        if (fs::is_directory(imagePath, ec))
         {
             if (!sprite->LoadMetadataFile(imagePath))
             {

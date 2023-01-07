@@ -36,7 +36,7 @@ Json::Json(std::string data, bool isFile) : Json()
 
         if (!IsValid())
         {
-            PrintLog("Json parse error for ", data, ":", std::to_string(doc.GetParseError()), "at", std::to_string(doc.GetErrorOffset()));
+            PrintLog("Json parse error for", data, ":", std::to_string(doc.GetParseError()), "at", std::to_string(doc.GetErrorOffset()));
         }
     }
 }
@@ -84,10 +84,7 @@ rapidjson::Value *Json::GetActor(std::string &id)
     {
         const auto &actorObj = actor.GetObject();
         if (GetString(actorObj, "id") == id)
-        {
-            print("found actor");
             return &actor;
-        }
     }
     return nullptr;
 }

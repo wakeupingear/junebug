@@ -112,6 +112,10 @@ void Game::DebugResetCheckpoints()
 
 void Game::DebugPrintInfo()
 {
+#ifdef __EMSCRIPTEN__
+    return;
+#endif
+
     if (!isDebug || !mShowDebugInfo)
         return;
     mDebugSectionHeader = false;

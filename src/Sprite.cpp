@@ -159,7 +159,6 @@ bool Sprite::LoadMetadataFile(std::string &folder)
                 frames.push_back(Json::GetNumber<int>(v));
             }
         }
-        print(frames.size());
         AddAnimation(name, frames);
     }
 
