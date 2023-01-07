@@ -2,10 +2,11 @@
 #include "Files.h"
 #include "Actors.h"
 #include "Background.h"
+#include "Transitions.h"
 
 using namespace junebug;
 
-void Game::LoadScene(std::string scene)
+void Game::ChangeScene(std::string scene)
 {
     mSceneQueue.push(scene);
 }
@@ -14,6 +15,28 @@ void Game::ReloadScene()
 {
     if (IsSceneLoaded())
         mSceneQueue.push(mScene.name);
+}
+
+void Game::FadeScene(std::string newScene, float startTime, float pauseTime, float endTime, Color col, TwerpType curve)
+{
+    if (IsSceneTransitioning())
+        return;
+    new FadeTransition(newScene, startTime, pauseTime, endTime, col, curve);
+}
+void Game::SlideScene(std::string newScene, float startTime, float pauseTime, float endTime, float startDir, float endDir, Color col, TwerpType curve)
+{
+    if (IsSceneTransitioning())
+        return;
+    new SlideTransition(newScene, startTime, pauseTime, endTime, startDir, endDir, col, curve);
+}
+
+void Game::SetSceneTransitioning(bool isTransitioning)
+{
+    mIsTransitioning = isTransitioning;
+}
+bool Game::IsSceneTransitioning()
+{
+    return mIsTransitioning;
 }
 
 bool Game::IsSceneLoaded()
@@ -119,15 +142,7 @@ void Game::LoadQueuedScenes()
                     LoadActor(actorRef, newScene);
             }
 
-            // Set the name of the scene
             newScene.name = sceneStr;
-            size_t dotPos = sceneStr.find_last_of('.');
-            if (dotPos != std::string::npos)
-                newScene.name = sceneStr.substr(0, dotPos);
-            size_t slashPos = newScene.name.find_last_of('/');
-            if (slashPos != std::string::npos)
-                newScene.name = newScene.name.substr(slashPos + 1);
-
             mScene = newScene;
         }
         catch (std::exception &e)

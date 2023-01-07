@@ -34,6 +34,11 @@ struct Color : SDL_Color
         return !(*this == color);
     }
 
+    [[nodiscard]] friend Color operator*(const Color &vec, float scalar)
+    {
+        return Color(vec.r * scalar, vec.g * scalar, vec.b * scalar, vec.a * scalar);
+    }
+
     friend std::ostream &operator<<(std::ostream &os, const Color &color)
     {
         os << "Color(" << (int)color.r << ", " << (int)color.g << ", " << (int)color.b << ", " << (int)color.a << ")";

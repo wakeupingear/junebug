@@ -28,6 +28,7 @@ void Game::LoadActor(rapidjson::Value &actorRef, Scene &newScene)
     actor->SetPersistent(Json::GetBool(actorObj, "persistent", false));
     actor->mId = Json::GetString(actorObj, "id");
 
+    actor->SetDepth(Json::GetNumber<int>(actorObj, "depth", actor->GetDepth()));
     std::string layerId = Json::GetString(actorObj, "layer");
     if (layerId != "")
     {

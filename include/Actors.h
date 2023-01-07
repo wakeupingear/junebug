@@ -95,6 +95,8 @@ namespace junebug
 
         // Set the actor's depth
         void SetDepth(int newDepth) { mDepth = newDepth; };
+        // Get the actor's depth
+        int GetDepth() { return mDepth; };
 
         // Get the actor's id
         std::string GetId() const { return mId; }

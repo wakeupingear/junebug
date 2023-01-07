@@ -48,6 +48,7 @@ add_library(${LIBNAME} STATIC
     src/actors/PhysicalActor.cpp
     src/actors/Background.cpp
     src/actors/Tileset.cpp
+    src/actors/Transitions.cpp
     
     src/Component.cpp
     src/components/PhysicsComponent.cpp

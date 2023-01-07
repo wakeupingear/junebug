@@ -35,12 +35,3 @@ target_link_libraries(FontCache ${sdl2_LIBRARY})
 target_link_libraries(FontCache ${sdl2main_LIBRARY})
 target_include_directories(FontCache PUBLIC ${sdl2_ttf_INCLUDE_DIR})
 target_link_libraries(FontCache ${sdl2_ttf_LIBRARY})
-
-add_executable(FontCache-tests
-	test/main.c
-)
-file(COPY test/utf8_sample.txt DESTINATION ${CMAKE_BINARY_DIR})
-file(COPY test/fonts/FreeSans.ttf DESTINATION ${CMAKE_BINARY_DIR}/fonts)
-target_link_libraries(FontCache-tests FontCache)
-
-

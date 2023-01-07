@@ -281,6 +281,14 @@ public:
 		return *this;
 	}
 
+	// Scalar /=
+	Vec2 &operator/=(float scalar)
+	{
+		x /= scalar;
+		y /= scalar;
+		return *this;
+	}
+
 	// Vector +=
 	Vec2 &operator+=(const Vec2 &right)
 	{

@@ -217,6 +217,8 @@ bool Game::Run(int screenWidth, int screenHeight)
         return false;
     }
 
+    SDL_SetRenderDrawBlendMode(mRenderer, SDL_BlendMode::SDL_BLENDMODE_BLEND);
+
     Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048);
 
     if (mOptionsUpdated)
@@ -231,7 +233,7 @@ bool Game::Run(int screenWidth, int screenHeight)
 
     if (options.startingScene != "")
     {
-        LoadScene(options.startingScene);
+        ChangeScene(options.startingScene);
         LoadQueuedScenes();
     }
 
@@ -319,6 +321,11 @@ void Game::HaltFrame()
     mEndFrame = mBeginFrame + mInvTargetFps;
 }
 
+bool Game::CompareActors(PureActor *a1, PureActor *a2)
+{
+    return (a1->mDepth < a2->mDepth);
+}
+
 void Game::UpdateGame()
 {
     DebugCheckpoint("Updates", mShowDefaultDebugCheckpoints);
@@ -363,6 +370,9 @@ void Game::UpdateGame()
     // Remove destroyed actors
     for (PureActor *actor : destroyActors)
         delete actor;
+
+    // Sort the actors
+    std::sort(mActors.begin(), mActors.end(), CompareActors);
 
     // User-defined callback
     UpdateEnd(mDeltaTime);

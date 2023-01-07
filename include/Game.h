@@ -395,11 +395,28 @@ namespace junebug
 #pragma region Scenes
                 // Load a scene from a file or JSON string
                 /// @param scene The scene to load
-                void LoadScene(std::string);
+                void ChangeScene(std::string newScene);
                 // Reload the current scene
                 void ReloadScene();
+
+                // Fade to a scene
+                /// @param scene The scene to load
+                void FadeScene(std::string newScene, float startTime, float pauseTime, float endTime, Color col = Color::Black, TwerpType curve = TwerpType::TWERP_LINEAR);
+                // Slide an overlay to a scene
+                /// @param scene The scene to load
+                void SlideScene(std::string newScene, float startTime, float pauseTime, float endTime, float startDir, float endDir, Color col = Color::Black, TwerpType curve = TwerpType::TWERP_LINEAR);
+                inline void SlideScene(std::string newScene, float startTime, float pauseTime, float endTime, int startDir, int endDir, Color col = Color::Black, TwerpType curve = TwerpType::TWERP_LINEAR) { SlideScene(newScene, startTime, pauseTime, endTime, (float)startDir, (float)endDir, col, curve); }
+                inline void SlideScene(std::string newScene, float startTime, float pauseTime, float endTime, float dir, Color col = Color::Black, TwerpType curve = TwerpType::TWERP_LINEAR) { SlideScene(newScene, startTime, pauseTime, endTime, dir, dir, col, curve); }
+                inline void SlideScene(std::string newScene, float startTime, float pauseTime, float endTime, int dir, Color col = Color::Black, TwerpType curve = TwerpType::TWERP_LINEAR) { SlideScene(newScene, startTime, pauseTime, endTime, (float)dir, (float)dir, col, curve); }
+
+                // Set the transitioning bool
+                /// @param isTransitioning
+                void SetSceneTransitioning(bool isTransitioning);
+                // Check if the scene is currently transitioning
+                /// @returns a bool
+                bool IsSceneTransitioning();
                 // Check if a scene is loaded
-                /// @returns true if a scene is loaded, false otherwise
+                /// @returns a bool
                 bool IsSceneLoaded();
                 // Get the current scene
                 /// @returns A const reference to the current scene
@@ -524,6 +541,9 @@ namespace junebug
                 // Main draw event
                 void GenerateOutput();
 
+                // Comparator function for the actor vector
+                static bool CompareActors(PureActor *a1, PureActor *a2);
+
                 // Overridable function for loading game resources on startup
                 virtual void LoadData();
                 // Overridable function for unloading game resources on shutdown
@@ -574,6 +594,8 @@ namespace junebug
                 Vec2<float> mGravity = Vec2<>::Zero;
                 // Currently loaded JSON scene file
                 Json *mSceneInfo = nullptr;
+                // A bool tracking if the scene is transitioning
+                bool mIsTransitioning = false;
 
                 // Collision map
                 collision_layers mCollLayers;

@@ -6,8 +6,6 @@ C++ is performant, but it's not easy to use. `Junebug` takes that performance an
 
 It also bundles a bunch of useful game functions and implementations that Game Maker ideally should include out of the box but doesn't.
 
-SDL2 v2.24.1
-
 ## Dead Simple Sample
 
 ```cpp
@@ -43,6 +41,11 @@ int main()
 
 -   Muli-camera support
 -   Camera shake
+
+## Scenes
+
+-   Actor management across multiple Scenes
+-   Scene transition effects
 
 ## Serialisation
 
@@ -211,5 +214,6 @@ Also inspired by @NoelFB's [blah](https://github.com/NoelFB/blah)
 
 External Libraries:
 [SDL_FontCache](https://github.com/grimfang4/SDL_FontCache)
+[SDL2 v2.24.1](https://github.com/libsdl-org/SDL/releases/tag/release-2.24.1) (mostly forward compatible with later versions)
 
 Development tracked on [Trello](https://trello.com/b/jWgkCUmD/junebug)
