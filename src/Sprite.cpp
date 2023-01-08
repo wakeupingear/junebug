@@ -118,8 +118,8 @@ bool Sprite::LoadMetadataFile(std::string &folder)
     if (__IsTempSprite__())
         return false;
 
-    // Load json
-    Json json(folder + "/info.json");
+    std::string spriteName = StringSplitEntry(folder, "/", -1);
+    Json json(folder + "/" + spriteName + ".json");
     if (!json.IsValid())
     {
         print("Sprite metadata", folder, "is invalid");

@@ -138,4 +138,38 @@ namespace junebug
         SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
         SDL_RenderFillRect(renderer, &rect);
     }
+
+    void DrawTexture(SDL_Texture *texture, const Vec2<float> &pos, const Vec2<int> &size)
+    {
+        Game *game = Game::Get();
+        if (!game)
+            return;
+        SDL_Renderer *renderer = game->GetRenderer();
+        if (!renderer)
+            return;
+
+        Vec2<float> dPos = GetDrawPosition(pos);
+        SDL_Rect rect = {static_cast<int>(dPos.x), static_cast<int>(dPos.y), size.x, size.y};
+        SDL_RenderCopy(renderer, texture, nullptr, &rect);
+    }
+
+    SDL_Texture *CopyTexture(SDL_Texture *texture)
+    {
+        if (!texture)
+            return nullptr;
+        Game *game = Game::Get();
+        if (!game)
+            return nullptr;
+        SDL_Renderer *renderer = game->GetRenderer();
+        if (!renderer)
+            return nullptr;
+
+        int w, h;
+        SDL_QueryTexture(texture, nullptr, nullptr, &w, &h);
+        SDL_Texture *newTexture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, w, h), *oldTarget = SDL_GetRenderTarget(renderer);
+        SDL_SetRenderTarget(renderer, newTexture);
+        SDL_RenderCopy(renderer, texture, nullptr, nullptr);
+        SDL_SetRenderTarget(renderer, oldTarget);
+        return newTexture;
+    }
 }

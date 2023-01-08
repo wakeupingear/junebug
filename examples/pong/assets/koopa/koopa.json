@@ -1,0 +1,10 @@
+{
+    "frames": [
+        "koopa.PNG",
+        "koopa2.PNG"
+    ],
+    "fps": 4,
+    "animations": {
+        "idle": [0,0,0,1]
+    }
+}

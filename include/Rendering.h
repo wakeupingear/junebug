@@ -99,4 +99,13 @@ namespace junebug
 
     // Draw a rectangle
     void DrawRectangle(const Vec2<float> &topLeft, const Vec2<float> &bottomRight, const Color &color);
+
+    // Draw a texture
+    void DrawTexture(SDL_Texture *texture, const Vec2<float> &pos, const Vec2<int> &size);
+    inline void DrawTexture(SDL_Texture *texture, const Vec2<float> &pos, const Vec2<float> &size)
+    {
+        DrawTexture(texture, pos, Vec2<int>(size.x, size.y));
+    };
+    // Copy a texture to a new texture pointer
+    SDL_Texture *CopyTexture(SDL_Texture *texture);
 };

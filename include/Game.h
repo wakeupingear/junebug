@@ -400,14 +400,16 @@ namespace junebug
                 void ReloadScene();
 
                 // Fade to a scene
-                /// @param scene The scene to load
                 void FadeScene(std::string newScene, float startTime, float pauseTime, float endTime, Color col = Color::Black, TwerpType curve = TwerpType::TWERP_LINEAR);
                 // Slide an overlay to a scene
-                /// @param scene The scene to load
                 void SlideScene(std::string newScene, float startTime, float pauseTime, float endTime, float startDir, float endDir, Color col = Color::Black, TwerpType curve = TwerpType::TWERP_LINEAR);
                 inline void SlideScene(std::string newScene, float startTime, float pauseTime, float endTime, int startDir, int endDir, Color col = Color::Black, TwerpType curve = TwerpType::TWERP_LINEAR) { SlideScene(newScene, startTime, pauseTime, endTime, (float)startDir, (float)endDir, col, curve); }
                 inline void SlideScene(std::string newScene, float startTime, float pauseTime, float endTime, float dir, Color col = Color::Black, TwerpType curve = TwerpType::TWERP_LINEAR) { SlideScene(newScene, startTime, pauseTime, endTime, dir, dir, col, curve); }
                 inline void SlideScene(std::string newScene, float startTime, float pauseTime, float endTime, int dir, Color col = Color::Black, TwerpType curve = TwerpType::TWERP_LINEAR) { SlideScene(newScene, startTime, pauseTime, endTime, (float)dir, (float)dir, col, curve); }
+                // Scroll the camera to a scene
+                void ScrollScene(std::string newScene, float time, float dir, Color col = Color::Black, TwerpType curve = TwerpType::TWERP_LINEAR);
+                inline void ScrollScene(std::string newScene, float time, int dir, Color col = Color::Black, TwerpType curve = TwerpType::TWERP_LINEAR) { ScrollScene(newScene, time, (float)dir, col, curve); }
+
 
                 // Set the transitioning bool
                 /// @param isTransitioning

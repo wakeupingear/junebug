@@ -36,6 +36,12 @@ int main()
 
 -   Runtime tileset loading
 -   Actor collision
+-   Built in editor
+
+## Coroutine Animations
+
+-   Interpolate any variable in the background
+-   Apply animation curves to interpolation
 
 ## Cameras
 
@@ -116,13 +122,14 @@ Mac users only need to have an installed C++ compiler. `g++/gcc` is generally re
 
 `Junebug` games can also be compiled directly to Webassembly, which can then be run in any modern browser. This is done using the Emscripten SDK, which can be downloaded from [here](https://emscripten.org/docs/getting_started/downloads.html).
 
-Once Enscripten is installed and added to PATH (or aliased), you can compile a `Junebug` game to HTML5 by running the following commands:
+Once Enscripten is installed and added to PATH (or aliased), you can compile a `Junebug` game to HTML5 by running the following commands from the project root:
 
 ```sh
-cmake . -DCMAKE_TOOLCHAIN_FILE=/home/june/emsdk/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake -DCMAKE_BUILD_TYPE=Release -B embuild && cmake --build ./embuild --target all
+cmake . -DCMAKE_TOOLCHAIN_FILE=~/emsdk/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake -DCMAKE_BUILD_TYPE=Release -B embuild
+cmake --build ./embuild --target all
 ```
 
-This will compile to 4 files: a `.data` file with the game's assets, a `.wasm` file with the compiled code, a `.js` file with the glue code, and an `.html` file with the HTML5 boilerplate. To test these files, run the following command to run a local sever at [Port 8080](http://localhost:8080)
+This will compile to 4 files: a `.data` file with the game's assets, a `.wasm` file with the compiled code, a `.js` file with the glue code, and an `.html` file with the HTML5 boilerplate. To test these files, run the following command to run a local sever at [Port 8080](http://localhost:8080):
 
 ```sh
 emrun --port 8080 embuild
@@ -189,16 +196,89 @@ Rendering is where `Junebug` differs from many engines like Unity and Unreal. Ev
 This is exactly how Game Maker Studio 2 works, and it's a very powerful paradigm when used responsibly. The following namespace-level functions are available for drawing:
 
 ```cpp
-void DrawSprite(string imagePath, int frame, Vec2<float> pos, SpriteProperties properties);
+void DrawSprite(
+    string imagePath, 
+    int frame, 
+    Vec2<float> pos, 
+    SpriteProperties properties
+);
 
-void DrawSpritePart(string imagePath, int frame, Vec2<float> &pos, Vec2<int> partPos,  Vec2<int> partSize, SpriteProperties properties);
+void DrawSpritePart(
+    string imagePath,
+    int frame,
+    Vec2<float> pos,
+    Vec2<int> partPos,
+    Vec2<int> partSize,
+    SpriteProperties properties
+);
 
-void DrawText(string text, Vec2<float> pos, TextEffects effects);
+void DrawText(
+    string text,
+    Vec2<float> pos,
+    TextEffects effects
+);
 
-void DrawRectangle(Vec2<float> topLeft, Vec2<float> bottomRight, Color color);
+void DrawRectangle(
+    Vec2<float> topLeft,
+    Vec2<float> bottomRight,
+    Color color
+);
+
+void DrawTexture(
+    SDL_Texture *texture,
+    Vec2<float> pos,
+    Vec2<int> size
+)
 ```
 
 By default, `VisualActor` will draw its default sprite every frame. It contains its own member variables for position, rotation, scale, and color, which can be change to alter the sprite's appearance. Accordingly, most of the parameters of these functions are optional and will default to the Actor's member variables if not specified.
+
+## Assets
+
+All `Junebug` assets - meaning non-code files, like sprites and scene data - should be placed in an `assets` folder in the file root. When referencing asset paths in code, you can use paths that are either relative to the `assets` folder or, more conveniently, paths that are relative to an asset type subfolder, like `assets/sprites` or `assets/scenes`.
+
+All engine-specific asset data is stored as JSON files. This is to allow for more human readable/writable unstructured data. It also lends itself well for reading file data in a web context, especially from network requests or JavaScript interopability.
+
+## Sprites
+
+Sprites are represented internally via the `Sprite` class, which is responsible for managing its associated textures, animations, and metadata. These objects are not referenced directly. Instead, the `Game` instance can be used to retrieve a pointer to a `Sprite` from a given asset path. This means that a sprite's metadata, like its origin, will be shared across all objects, and altering any of that data from one sprite will alter it for all other objects. While technically a limitation, this reduces ambiguity and encourages you to keep assets consistent across different objects.
+
+A sprite can be imported through two ways:
+
+1.  A direct path to an image file in thes `assets/sprites` folder, ex: `joe.png`
+2.  A folder containing a series of images and a metadata JSON file, ex: `joe/joe.json`
+
+The only required metadata in a JSON file is `frames`, an ordered array of the sprite's image frames within the folder. For a comprehensive list of available metadata, see the Pong demo in `examples/pong`.
+
+## Animations
+
+Sprites can also hold animations, which can be initially loaded from a metadata file or added later from code.
+
+Animations are just a `vector` of sprite frames, along with an `mfps` member variable in a `Sprite` object to control the animation speed. Since `Sprite` objects contain all actual data instead of the `VisualActors` that use them, the actual animation processing is handled on a per-actor basis.
+
+`VisualActors` contain a `vector` of `Animation` structs, which represent a named animation for a `Sprite` pointer. By default, an animation containing all frames is created and set. The following functions can be used to interact with actors' animations:
+
+```cpp
+class VisualActor: public PureActor {
+    void AddSpriteAnimation(
+        string nickname, 
+        string spriteName, 
+        string spriteAnimName, 
+        float fps, 
+        bool loop = true
+    );
+    int GetAnimationFrame(std::string nickname);
+
+    void SetDefaultSpriteAnimation(string name);
+    int GetFrame();
+};
+```
+
+The 'default sprite animation' is just the animation that plays for the actor's main sprite. This gets used in the default Draw Event and its current frame can be retrieved with `GetFrame()`.
+
+This whole system may seem needlessly complicated, but it is designed to be more useful beyond just the an object's main sprite. The `Junebug` Draw Event allows and encourages drawing multiple different sprites for one object where necessary, useful for things like segmented 2D animation. This system can automatically process many different animations in the background, which can then be referenced for consecutive `DrawSprite` calls in the Draw Event.
+
+In other words, no more need to make frame and counter variables for every sub-animation within an object! It all just works under the hood.
 
 ## Math
 
@@ -212,8 +292,12 @@ Based heavily on [Game Programming in C++](https://books.google.com/books/about/
 
 Also inspired by @NoelFB's [blah](https://github.com/NoelFB/blah)
 
-External Libraries:
-[SDL_FontCache](https://github.com/grimfang4/SDL_FontCache)
+## Libraries
+
 [SDL2 v2.24.1](https://github.com/libsdl-org/SDL/releases/tag/release-2.24.1) (mostly forward compatible with later versions)
+
+[SDL_FontCache](https://github.com/grimfang4/SDL_FontCache)
+
+[rapidjson](https://github.com/Tencent/rapidjson)
 
 Development tracked on [Trello](https://trello.com/b/jWgkCUmD/junebug)

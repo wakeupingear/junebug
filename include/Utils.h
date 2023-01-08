@@ -14,6 +14,7 @@
 #include <sstream>
 #include <string>
 #include <time.h>
+#include <vector>
 
 namespace junebug
 {
@@ -127,6 +128,11 @@ namespace junebug
     /// @param str The string to check
     /// @return Whether or not the string is whitespace
     bool IsWhitespace(const std::string &str);
+
+    // Split a string
+    std::vector<std::string> StringSplit(const std::string &str, const std::string &delim);
+    // Get an indexed portion of a split string
+    std::string StringSplitEntry(const std::string &str, const std::string &delim, int ind);
 
     template <typename T>
     inline float RoundDec(T val, int n)

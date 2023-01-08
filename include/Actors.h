@@ -183,7 +183,11 @@ namespace junebug
 
         static Sprite __tempSprite__;
 
-        void SetSpriteAnimation(std::string name);
+        void SetDefaultSpriteAnimation(std::string nickname);
+
+        void AddSpriteAnimation(std::string nickname, std::string spriteName, std::string spriteAnimName, float fps, bool loop = true);
+
+        int GetAnimationFrame(std::string nickname);
 
         // Get the sprite name of the actor.
         /// @returns std::string

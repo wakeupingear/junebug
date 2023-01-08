@@ -94,8 +94,8 @@ SlideTransition::SlideTransition(std::string newScene, float startTime, float pa
     mFadeCol = fadeCol;
     SetColor(fadeCol);
 
-    dir = Vec2<float>(Cos(ToRadians(startDir)), Sin(ToRadians(endDir)));
-    dir /= Max(Abs(dir.x), Abs(dir.y));
+    mDir = Vec2<float>(Cos(ToRadians(startDir)), -Sin(ToRadians(endDir)));
+    mDir /= Max(Abs(mDir.x), Abs(mDir.y));
 }
 void SlideTransition::Update(float dt)
 {
@@ -104,13 +104,13 @@ void SlideTransition::Update(float dt)
     if (mState == 0)
     {
         SetPosition(Vec2<float>(
-            Twerp(-1.0f, 0.0f, mProg / mStartTime, mCurve) * dir.x,
-            Twerp(-1.0f, 0.0f, mProg / mStartTime, mCurve) * dir.y));
+            Twerp(-1.0f, 0.0f, mProg / mStartTime, mCurve) * mDir.x,
+            Twerp(-1.0f, 0.0f, mProg / mStartTime, mCurve) * mDir.y));
     }
     else if (mState == 2)
     {
         SetPosition(Vec2<float>(
-            Twerp(0.0f, 1.0f, mProg / mEndTime, mCurve) * dir.x, Twerp(0.0f, 1.0f, mProg / mEndTime, mCurve) * dir.y));
+            Twerp(0.0f, 1.0f, mProg / mEndTime, mCurve) * mDir.x, Twerp(0.0f, 1.0f, mProg / mEndTime, mCurve) * mDir.y));
     }
 }
 void SlideTransition::Draw()
@@ -121,4 +121,52 @@ void SlideTransition::Draw()
 
     Vec2<float> camPos = cam->GetPosition() + cam->GetSize() * GetPosition();
     DrawRectangle(camPos, camPos + cam->GetSize(), mColor);
+}
+
+ScrollTransition::ScrollTransition(std::string newScene, float time, float dir, Color bgCol, TwerpType curve) : SceneTransition(newScene, 0.0f, 0.0f, time, curve)
+{
+    SetColor(bgCol);
+
+    mDir = Vec2<float>(Cos(ToRadians(dir)), -Sin(ToRadians(dir)));
+    mDir /= Max(Abs(mDir.x), Abs(mDir.y));
+}
+ScrollTransition::~ScrollTransition()
+{
+    if (mPrevTex)
+        SDL_DestroyTexture(mPrevTex);
+}
+void ScrollTransition::Update(float dt)
+{
+    SceneTransition::Update(dt);
+
+    if (mState == 2)
+    {
+        SetPosition(Vec2<float>(
+            Twerp(0.0f, -1.0f, mProg / mEndTime, mCurve) * mDir.x,
+            Twerp(0.0f, -1.0f, mProg / mEndTime, mCurve) * mDir.y));
+        mCurrPos = Vec2<float>(
+            Twerp(1.0f, 1.0f, mProg / mEndTime, mCurve) * mDir.x,
+            Twerp(1.0f, 1.0f, mProg / mEndTime, mCurve) * mDir.y);
+    }
+}
+void ScrollTransition::Draw()
+{
+    Camera *cam = Game::Get()->GetActiveCamera();
+    if (!cam)
+        return;
+
+    SDL_Texture *camTex = cam->GetTexture();
+    if (!camTex)
+        return;
+    SDL_Texture *currTex = CopyTexture(camTex);
+    if (!mPrevTex)
+        mPrevTex = CopyTexture(camTex);
+
+    DrawRectangle(cam->GetPosition(), cam->GetPosition() + cam->GetSize(), mColor);
+
+    Vec2<float> prevPos = cam->GetPosition() + cam->GetSize() * GetPosition(), currPos = prevPos + cam->GetSize() * mCurrPos;
+    DrawTexture(mPrevTex, prevPos, cam->GetSize());
+    DrawTexture(currTex, currPos, cam->GetSize());
+
+    SDL_DestroyTexture(currTex);
 }

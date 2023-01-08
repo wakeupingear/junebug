@@ -52,6 +52,8 @@ namespace junebug
 
         void Shake(Vec2<int> intensity, float duration);
 
+        SDL_Texture *GetTexture() { return renderTex; };
+
     protected:
         friend class Game;
         void _UpdateCoordinates();

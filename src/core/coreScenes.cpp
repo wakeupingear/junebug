@@ -29,6 +29,12 @@ void Game::SlideScene(std::string newScene, float startTime, float pauseTime, fl
         return;
     new SlideTransition(newScene, startTime, pauseTime, endTime, startDir, endDir, col, curve);
 }
+void Game::ScrollScene(std::string newScene, float time, float dir, Color bgCol, TwerpType curve)
+{
+    if (IsSceneTransitioning())
+        return;
+    new ScrollTransition(newScene, time, dir, bgCol, curve);
+}
 
 void Game::SetSceneTransitioning(bool isTransitioning)
 {

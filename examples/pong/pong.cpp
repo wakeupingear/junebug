@@ -7,7 +7,7 @@ using namespace junebug;
 class Ball : public PhysicalActor
 {
 public:
-    Ball(Vec2<float> pos) : PhysicalActor(pos, "test/koopa.PNG")
+    Ball(Vec2<float> pos) : PhysicalActor(pos, "koopa")
     {
         GetSprite()->SetOrigin(SpriteOrigin::Center);
         SetScale(0.075f);
@@ -58,7 +58,7 @@ public:
 class Paddle : public PhysicalActor
 {
 public:
-    Paddle(Vec2<float> pos, int player) : PhysicalActor(pos, "test/koopa"), mPlayer(player)
+    Paddle(Vec2<float> pos, int player) : PhysicalActor(pos, "koopa"), mPlayer(player)
     {
         SetOrigin(SpriteOrigin::Center);
         SetScale(0.07f, 0.2f);
@@ -76,7 +76,7 @@ public:
 class Wall : public PhysicalActor
 {
 public:
-    Wall(Vec2<float> pos) : PhysicalActor(pos, "test/koopa.PNG")
+    Wall(Vec2<float> pos) : PhysicalActor(pos, "koopa")
     {
         SetVisible(false);
         SetScale(Game::Get()->GetSceneSize().x / GetSpriteSize().x, 0.1f);

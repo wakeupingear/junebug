@@ -48,6 +48,21 @@ namespace junebug
 
     private:
         Color mFadeCol;
-        Vec2<float> dir;
+        Vec2<float> mDir;
+    };
+
+    class ScrollTransition : public SceneTransition
+    {
+    public:
+        ScrollTransition(std::string newScene, float time, float dir, Color bgCol, TwerpType curve);
+        ~ScrollTransition();
+
+        void Update(float dt) override;
+        void Draw() override;
+
+    private:
+        Vec2<float> mDir, mCurrPos;
+
+        SDL_Texture *mPrevTex = nullptr;
     };
 };

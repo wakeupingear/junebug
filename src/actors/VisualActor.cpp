@@ -83,7 +83,7 @@ void VisualActor::SetSprite(std::string imagePath)
     Sprite *sprite = GetRawSprite();
     if (!sprite)
         return;
-    mFrameAnimations.insert_or_assign("_", Animation("_", LoadSprite(mSpritePath), sprite->GetFps()));
+    AddSpriteAnimation("_", mSpritePath, "_", sprite->GetFps());
 }
 
 Sprite *VisualActor::GetSprite()
@@ -198,7 +198,8 @@ void VisualActor::SetFrame(int frame)
 int VisualActor::GetFrame()
 {
     auto it = mFrameAnimations.find("_");
-    if (it != mFrameAnimations.end()) {
+    if (it != mFrameAnimations.end())
+    {
         Sprite *sprite = GetSprite();
         const std::vector<int> &frames = sprite->GetAnimation(it->second.sprAnimName);
         int frame = Clamp((int)it->second.frame, 0, (int)frames.size() - 1);
@@ -230,9 +231,22 @@ Color VisualActor::GetColor() const
     return mColor;
 }
 
-void VisualActor::SetSpriteAnimation(std::string name)
+void VisualActor::SetDefaultSpriteAnimation(std::string name)
 {
     mNextSpriteAnimation = name;
+}
+
+void VisualActor::AddSpriteAnimation(std::string nickname, std::string spriteName, std::string spriteAnimName, float fps, bool loop)
+{
+    mFrameAnimations.insert_or_assign(nickname, Animation(spriteAnimName, LoadSprite(spriteName), fps, loop));
+}
+
+int VisualActor::GetAnimationFrame(std::string nickname)
+{
+    auto it = mFrameAnimations.find(nickname);
+    if (it == mFrameAnimations.end())
+        return 0;
+    return (int)it->second.frame;
 }
 
 void VisualActor::InternalFirstUpdate(float dt)
@@ -242,6 +256,7 @@ void VisualActor::InternalFirstUpdate(float dt)
 
 void VisualActor::InternalUpdate(float dt)
 {
+    // Make sure that this actor has an actual sprite
     Sprite *sprite = GetRawSprite();
     if (!sprite)
         return;

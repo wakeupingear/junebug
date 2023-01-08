@@ -63,6 +63,32 @@ namespace junebug
         return std::all_of(str.begin(), str.end(), isspace);
     }
 
+    std::vector<std::string> StringSplit(const std::string &str, const std::string &delim)
+    {
+        std::vector<std::string> res;
+        size_t last = 0;
+        size_t next = 0;
+        while ((next = str.find(delim, last)) != std::string::npos)
+        {
+            res.push_back(str.substr(last, next - last));
+            last = next + 1;
+        }
+        res.push_back(str.substr(last));
+        return res;
+    }
+
+    std::string StringSplitEntry(const std::string &str, const std::string &delim, int ind)
+    {
+        if (str.empty())
+            return "";
+
+        auto vec = StringSplit(str, delim);
+        if (ind >= 0)
+            return vec[Min(ind, (int)vec.size() - 1)];
+        else
+            return vec[Max((int)vec.size() + ind, 0)];
+    }
+
     std::string GetFileName(const std::string &path)
     {
         size_t lastSlash = path.find_last_of("\\/");
