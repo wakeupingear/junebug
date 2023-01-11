@@ -29,7 +29,9 @@ bool TileCollider::Intersects(CollisionComponent *_other)
             for (tile.y = tileMin.y; tile.y <= tileMax.y; tile.y++)
             {
                 if (mOwner->TilePosHasCollider(tile))
+                {
                     return true;
+                }
             }
         }
     }
@@ -38,12 +40,15 @@ bool TileCollider::Intersects(CollisionComponent *_other)
 
 CollSide TileCollider::GetMinOverlap(CollisionComponent *_other, Vec2<float> &offset)
 {
+    if (!_other)
+        return CollSide::None;
+
     if (_other->GetType() == CollType::Box)
     {
         if (!Intersects(_other))
             return CollSide::None;
 
-        BoxCollider *other = dynamic_cast<BoxCollider *>(_other);
+        BoxCollider *other = static_cast<BoxCollider *>(_other);
 
         CollSide lastSide = CollSide::None;
         Vec2<float> otherMin = other->GetMin(), otherMax = other->GetMax();
@@ -76,7 +81,7 @@ CollSide TileCollider::GetMinOverlap(CollisionComponent *_other, Vec2<float> &of
             float xOverlap = std::min(thisMax.x, otherMax.x) - std::max(thisMin.x, otherMin.x);
             float yOverlap = std::min(thisMax.y, otherMax.y) - std::max(thisMin.y, otherMin.y);
 
-            if (xOverlap < yOverlap)
+            if (xOverlap < yOverlap && !NearZero(xOverlap))
             {
                 if (thisMax.x > otherMax.x)
                 {

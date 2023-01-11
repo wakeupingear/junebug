@@ -95,6 +95,14 @@ SDL_Texture *Camera::Render(SDL_Renderer *renderer, float dt)
         }
     }
 
+    for (auto &layer : game->GetCollLayers())
+    {
+        for (auto &comp : layer.second)
+        {
+            comp->Draw();
+        }
+    }
+
     SetPosition(oldPos);
 
     return renderTex;

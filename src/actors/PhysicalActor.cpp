@@ -1,6 +1,7 @@
 #include "Actors.h"
 #include "components/PhysicsComponent.h"
 #include "components/BoxCollider.h"
+#include "components/PolygonCollisionComponent.h"
 #include "Game.h"
 
 using namespace junebug;
@@ -25,9 +26,9 @@ void PhysicalActor::InternalFirstUpdate(float dt)
     InitializeComponents();
 }
 
-void PhysicalActor::InitializeComponents(CollType type)
+void PhysicalActor::InitializeComponents()
 {
-    if (mColl && mColl->GetType() != type)
+    if (mColl && mColl->GetType() != mCollType)
     {
         delete mColl;
         mColl = nullptr;
@@ -35,10 +36,13 @@ void PhysicalActor::InitializeComponents(CollType type)
 
     if (!mColl)
     {
-        switch (type)
+        switch (mCollType)
         {
         case CollType::Box:
             mColl = new BoxCollider(this, true, mCollLayer);
+            break;
+        case CollType::Polygon:
+            mColl = new PolygonCollisionComponent(this, mCollLayer);
             break;
         default:
             break;

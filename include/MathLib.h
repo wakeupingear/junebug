@@ -281,6 +281,14 @@ public:
 		return *this;
 	}
 
+	// Vec *=
+	Vec2 &operator*=(Vec2 vec)
+	{
+		x *= vec.x;
+		y *= vec.y;
+		return *this;
+	}
+
 	// Scalar /=
 	Vec2 &operator/=(float scalar)
 	{

@@ -90,6 +90,9 @@ void PhysicsComponent::OnCollide(CollisionComponent *other, CollSide side, Vec2<
     if (!NearZero(offset.y))
         newVel.y *= -mBounce;
     SetVelocity(newVel);
+
+    if (mColl)
+        mColl->UpdateCollPositions();
 }
 
 void PhysicsComponent::AddPhysLayer(std::string layer)

@@ -65,6 +65,10 @@ namespace junebug
         void AddAnimation(const std::string &name,
                           const std::vector<int> &frames);
 
+        // Set the vertices
+        void SetVertices(std::vector<Vec2<double>> &vertices) { mVertices = vertices; }
+        const std::vector<Vec2<double>> &GetVertices() const { return mVertices; }
+
     protected:
         // Texture to draw
         std::vector<SDL_Texture *> mTextures;
@@ -72,6 +76,8 @@ namespace junebug
         Vec2<int> mTexSize = Vec2<int>(0, 0);
         // Origin
         Vec2<int> mOrigin = Vec2<int>(0, 0);
+        // Polygon vertices
+        std::vector<Vec2<double>> mVertices;
 
         float mFps = 12.0f;
 

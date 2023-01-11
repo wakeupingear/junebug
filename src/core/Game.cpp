@@ -263,6 +263,7 @@ bool Game::Run(int screenWidth, int screenHeight)
 bool Game::_GameLoopIteration()
 {
     HaltFrame();
+
     DebugCheckpoint("GameLoop", mShowDefaultDebugCheckpoints);
 
     ProcessInput();
@@ -271,17 +272,16 @@ bool Game::_GameLoopIteration()
         UpdateGame();
     else
         return false;
+
     if (mGameIsRunning)
-    {
-        DebugCheckpoint("Renders", mShowDefaultDebugCheckpoints);
         GenerateOutput();
-        DebugCheckpointStop("Renders");
-    }
     else
         return false;
+
     LoadQueuedScenes();
 
     DebugCheckpointStop("GameLoop");
+
     if (mGameIsRunning && !mSkipDebugPrintThisFrame)
     {
         DebugPrintInfo();
@@ -349,14 +349,11 @@ void Game::UpdateGame()
 
         if (actor->GetState() == ActorState::Active)
         {
+            actor->InternalUpdate(mDeltaTime);
+            actor->Update(mDeltaTime);
+
             for (Component *comp : actor->mComponents)
                 comp->Update(mDeltaTime);
-
-            if (actor->GetState() == ActorState::Active)
-            {
-                actor->InternalUpdate(mDeltaTime);
-                actor->Update(mDeltaTime);
-            }
         }
     }
 
@@ -389,6 +386,8 @@ void Game::UpdateGame()
 
 void Game::GenerateOutput()
 {
+    DebugCheckpoint("Renders", mShowDefaultDebugCheckpoints);
+
     SDL_Rect windowR;
     windowR.x = 0;
     windowR.y = 0;
@@ -437,6 +436,8 @@ void Game::GenerateOutput()
     RenderEnd();
 
     SDL_RenderPresent(mRenderer);
+
+    DebugCheckpointStop("Renders");
 }
 
 Vec2<int> Game::GetMousePos()

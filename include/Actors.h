@@ -221,6 +221,8 @@ namespace junebug
         // Get the rotation of the actor
         /// @returns float rotation
         float GetRotation() const;
+        // Get a reference to the actor's rotation
+        float &GetRotationRef() { return mRotation; };
 
         // Set the alpha of the actor
         /// @param alpha The new alpha of the actor
@@ -319,16 +321,18 @@ namespace junebug
         class CollisionComponent *GetCollComponent() { return mColl; }
 
     protected:
+        friend class Game;
+
         class PhysicsComponent *mPhys{nullptr};
         class CollisionComponent *mColl{nullptr};
 
         // Member variables that mirror the CollisionComponent.
         // These are used to initialize the CollisionComponent when it is created to avoid unnecessary calls to Game::AddCollision()
         std::string mCollLayer = "";
-        CollType mCollType = CollType::Box;
+        CollType mCollType = CollType::Polygon;
 
     private:
-        void InitializeComponents(CollType type = CollType::Box);
+        void InitializeComponents();
         void InitializePhysComponent();
     };
 };

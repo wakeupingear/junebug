@@ -1,5 +1,4 @@
 #include "Tileset.h"
-#include "Game.h"
 #include "Camera.h"
 #include "Sprite.h"
 #include "components/TileCollider.h"
@@ -13,12 +12,9 @@ Tileset::Tileset(std::string sprite, Vec2<int> tileSize, Vec2<float> pos) : Visu
         mTileSize = GetSpriteSize();
     else
         mTileSize = tileSize;
-
-    mDrawInput = JB_INPUT_LEFT_CLICK;
-    mEraseInput = JB_INPUT_RIGHT_CLICK;
 }
 
-void Tileset::FirstUpdate(float dt)
+void Tileset::InternalFirstUpdate(float dt)
 {
     // Set the offset to the sprite's origin
     // This is so that the sprite is drawn from the top left corner regardless of the sprite's actual origin
@@ -29,16 +25,41 @@ void Tileset::FirstUpdate(float dt)
     }
 
     mRoundToCamera = true;
+
+    Game *game = Game::Get();
+    if (game)
+    {
+        game->SetInputMappings({mDrawInput,
+                                mEraseInput,
+                                mRotateCWInput,
+                                mRotateCCWInput,
+                                mFlipXInput,
+                                mFlipYInput});
+    }
+
+    Sprite *sprite = GetSprite();
+    if (sprite)
+    {
+        Vec2 sprSize = sprite->GetTexSize();
+        mNumTiles = (int)(sprSize.x / mTileSize.x) * (int)(sprSize.y / mTileSize.y);
+    }
 }
 
 void Tileset::InternalUpdate(float dt)
 {
     bool changed = false;
-
     if (mEditMode != TilesetEditMode::None)
     {
+        mDrawAngle = (mDrawAngle + InputsPressedDir(mRotateCWInput, mRotateCCWInput) * 90) % 360;
+        if (mDrawAngle < 0)
+            mDrawAngle += 360;
+        if (InputPressed(mFlipXInput))
+            mDrawFlip.x *= -1;
+        if (InputPressed(mFlipYInput))
+            mDrawFlip.y *= -1;
+
         if (Input(mDrawInput))
-            changed = SetWorldTile(Game::Get()->GetMousePos(), mDrawTile);
+            changed = SetWorldTile(Game::Get()->GetMousePos(), TransformTile(mDrawTile, mDrawAngle, mDrawFlip));
         else if (Input(mEraseInput))
             changed = SetWorldTile(Game::Get()->GetMousePos(), -1);
     }
@@ -60,7 +81,7 @@ void Tileset::InternalUpdate(float dt)
                         row.PushBack(tile, allocator);
                     tiles.PushBack(row, allocator);
                 }
-                
+
                 actor->RemoveMember("tiles");
                 actor->AddMember("tiles", tiles, allocator);
                 json->Save();
@@ -78,22 +99,28 @@ void Tileset::Draw()
     float tileGameWidth = GetTileWidth(), tileGameHeight = GetTileHeight();
     Vec2<float> pos = GetPosition().Round(mSpacingRoundDir);
     float startX = pos.x;
+
+    int angle = 0;
+    Vec2<int> flip;
+
     for (std::vector<int> &r : mTiles)
     {
-        size_t x = 0;
         for (int tile : r)
         {
-            if (tile < -1)
+            if (tile < 0)
             {
-                x++;
+                pos.x += tileGameWidth;
                 continue;
             }
 
-            partPos.x = (tile % (sprSize.x / mTileSize.x)) * mTileSize.x;
-            partPos.y = (tile / (sprSize.y / mTileSize.y)) * mTileSize.y;
+            int baseTile = tile % mNumTiles;
+            partPos.x = (baseTile % (sprSize.x / mTileSize.x)) * mTileSize.x;
+            partPos.y = (baseTile / (sprSize.y / mTileSize.y)) * mTileSize.y;
+
+            GetTileTransform(tile, angle, flip);
 
             DrawSpritePart(
-                mSpritePath, 0, pos, partPos, mTileSize, {mScale, mRotation, mColor});
+                mSpritePath, 0, pos, partPos, mTileSize, {mScale * flip, (float)angle, mColor});
             pos.x += tileGameWidth;
         }
         pos.y += tileGameHeight;
@@ -103,9 +130,10 @@ void Tileset::Draw()
     if (mEditMode != TilesetEditMode::None)
     {
         Vec2<int> tile = WorldToTile(Game::Get()->GetMousePos());
+
         partPos.x = (mDrawTile % (sprSize.x / mTileSize.x)) * mTileSize.x;
         partPos.y = (mDrawTile / (sprSize.y / mTileSize.y)) * mTileSize.y;
-        DrawSpritePart(mSpritePath, 0, TileToWorld(tile), partPos, mTileSize, {mScale, mRotation, Color(100, 100, 255, 100)});
+        DrawSpritePart(mSpritePath, 0, TileToWorld(tile), partPos, mTileSize, {mScale * mDrawFlip, (float)mDrawAngle, Color(100, 100, 255, 100)});
     }
 }
 
@@ -205,12 +233,16 @@ void Tileset::DisableCollision()
 
 bool Tileset::TilePosHasCollider(Vec2<int> tile)
 {
+    if (mNumTiles == 0) {
+        printLog("numTiles is 0");
+        return false;
+    }
     if (tile.x < 0 || tile.y < 0 || tile.y >= mTiles.size() || tile.x >= mTiles[tile.y].size())
         return false;
-    int tileNum = mTiles[tile.y][tile.x];
-    if (tileNum < 0 || tileNum >= mColliders.size())
+    int tileNum = mTiles[tile.y][tile.x], baseTile = tileNum % mNumTiles;
+    if (tileNum < 0 || baseTile >= mColliders.size())
         return false;
-    return mColliders[tileNum];
+    return mColliders[baseTile];
 }
 
 void Tileset::SetCollLayer(std::string layer)
@@ -220,4 +252,18 @@ void Tileset::SetCollLayer(std::string layer)
         EnableCollision();
     else
         mColl->SetCollLayer(layer);
+}
+
+int Tileset::TransformTile(int tile, int angle, Vec2<int> flipped)
+{
+    int newTile = tile + (angle / 90) * mNumTiles + (flipped.x == -1 ? 1 : 0) * mNumTiles * 4 + (flipped.y == -1 ? 1 : 0) * mNumTiles * 8;
+    return newTile;
+}
+
+void Tileset::GetTileTransform(int tile, int &angle, Vec2<int> &flipped)
+{
+    int baseTile = tile % mNumTiles;
+    angle = (tile / mNumTiles) % 4 * 90;
+    flipped.x = (tile / mNumTiles / 4) % 2 == 1 ? -1 : 1;
+    flipped.y = (tile / mNumTiles / 8) % 2 == 1 ? -1 : 1;
 }

@@ -24,6 +24,10 @@ namespace junebug
         virtual bool Intersects(CollisionComponent *other) = 0;
         virtual CollSide GetMinOverlap(CollisionComponent *other, Vec2<float> &offset) = 0;
 
+        virtual void UpdateCollPositions(){};
+
+        virtual void Draw(){};
+
     protected:
         VisualActor *mOwner;
 

@@ -120,6 +120,8 @@ namespace junebug
                 std::unordered_map<std::string, Layer> layers;
         };
 
+        typedef std::pair<std::string, std::vector<Uint8>> input_mapping;
+
         /// @brief The Game class is the main class for the Junebug engine. It contains the game loop and handles all of the SDL2 initialization and shutdown.
         class Game
         {
@@ -181,10 +183,11 @@ namespace junebug
                 /// @param key The name of the input
                 /// @param inputs A vector of SDL keycodes to map to the input
                 void SetInputMapping(std::string key, std::vector<Uint8> inputs, int player = 0);
+                typedef std::pair<std::string, std::vector<Uint8>> input_mapping;
                 // Set a list of input mappings
                 /// @param inputMapping A list of input mappings, where the each element is a pair with the input name and a vector of SDL keycodes
                 void SetInputMappings(
-                    std::vector<std::pair<std::string, std::vector<Uint8>>> inputMappings, int player = 0);
+                    std::vector<input_mapping> inputMappings, int player = 0);
                 // Get an input mapping if it exists
                 std::vector<Uint8> *GetInputMapping(std::string key, int player = 0);
                 // Check if an input mapping exists
@@ -409,7 +412,6 @@ namespace junebug
                 // Scroll the camera to a scene
                 void ScrollScene(std::string newScene, float time, float dir, Color col = Color::Black, TwerpType curve = TwerpType::TWERP_LINEAR);
                 inline void ScrollScene(std::string newScene, float time, int dir, Color col = Color::Black, TwerpType curve = TwerpType::TWERP_LINEAR) { ScrollScene(newScene, time, (float)dir, col, curve); }
-
 
                 // Set the transitioning bool
                 /// @param isTransitioning

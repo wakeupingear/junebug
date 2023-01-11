@@ -26,9 +26,14 @@ int main()
 
 # Features
 
+## Scenes
+
+-   Actor management across multiple Scenes
+-   Scene transition effects
+
 ## Physics
 
--   2D box collision
+-   2D polygon collision
 -   Separated physics and collision components
 -   Per-scene and per-actor gravity
 
@@ -48,11 +53,6 @@ int main()
 -   Muli-camera support
 -   Camera shake
 
-## Scenes
-
--   Actor management across multiple Scenes
--   Scene transition effects
-
 ## Serialisation
 
 -   Automatic reflection for base member variables
@@ -65,8 +65,8 @@ int main()
 
 ## Platform Support
 
--   Windows
 -   Linux
+-   Windows
 -   Mac
 
 ## Compiler Support
@@ -197,9 +197,9 @@ This is exactly how Game Maker Studio 2 works, and it's a very powerful paradigm
 
 ```cpp
 void DrawSprite(
-    string imagePath, 
-    int frame, 
-    Vec2<float> pos, 
+    string imagePath,
+    int frame,
+    Vec2<float> pos,
     SpriteProperties properties
 );
 
@@ -261,10 +261,10 @@ Animations are just a `vector` of sprite frames, along with an `mfps` member var
 ```cpp
 class VisualActor: public PureActor {
     void AddSpriteAnimation(
-        string nickname, 
-        string spriteName, 
-        string spriteAnimName, 
-        float fps, 
+        string nickname,
+        string spriteName,
+        string spriteAnimName,
+        float fps,
         bool loop = true
     );
     int GetAnimationFrame(std::string nickname);
@@ -294,7 +294,7 @@ Also inspired by @NoelFB's [blah](https://github.com/NoelFB/blah)
 
 ## Libraries
 
-[SDL2 v2.24.1](https://github.com/libsdl-org/SDL/releases/tag/release-2.24.1) (mostly forward compatible with later versions)
+[SDL2 v2.24.1](https://github.com/libsdl-org/SDL/releases/tag/release-2.24.1) (but should be compatible with later versions)
 
 [SDL_FontCache](https://github.com/grimfang4/SDL_FontCache)
 

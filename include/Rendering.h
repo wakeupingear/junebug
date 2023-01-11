@@ -9,6 +9,7 @@
 #include "SDL_FontCache.h"
 #include <string>
 #include <memory>
+#include <vector>
 
 namespace junebug
 {
@@ -99,6 +100,13 @@ namespace junebug
 
     // Draw a rectangle
     void DrawRectangle(const Vec2<float> &topLeft, const Vec2<float> &bottomRight, const Color &color);
+
+    // Draw a line
+    void DrawLine(const Vec2<float> &start, const Vec2<float> &end, const Color &color, const float thickness = 1.0f);
+
+    // Draw a polygon outline
+    void DrawPolygonOutline(const std::vector<Vec2<float>> &vertices, const Color &color, const float thickness = 1.0f);
+    void DrawPolygonOutline(const std::vector<Vec2<double>> &vertices, const Color &color, const float thickness = 1.0f);
 
     // Draw a texture
     void DrawTexture(SDL_Texture *texture, const Vec2<float> &pos, const Vec2<int> &size);

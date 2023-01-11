@@ -7,7 +7,7 @@ using namespace junebug;
 
 BoxCollider::BoxCollider(class VisualActor *owner, bool useSprite, std::string layer) : CollisionComponent(owner, layer), mUseSprite(useSprite)
 {
-    mType = CollType::Box;
+    SetType(CollType::Box);
 }
 
 void BoxCollider::Update(float dt)

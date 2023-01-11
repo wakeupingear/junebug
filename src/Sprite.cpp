@@ -57,8 +57,8 @@ void Sprite::Draw(Camera *cam, SDL_Renderer *renderer, const Vec2<float> &pos, c
         src.y = static_cast<int>(partPos.y);
 
         SDL_Rect dest;
-        dest.w = static_cast<int>(partSize.x * properties.scale.x * cam->GetZoom());
-        dest.h = static_cast<int>(partSize.y * properties.scale.y * cam->GetZoom());
+        dest.w = static_cast<int>(partSize.x * Abs(properties.scale.x) * cam->GetZoom());
+        dest.h = static_cast<int>(partSize.y * Abs(properties.scale.y) * cam->GetZoom());
 
         Vec2<float> dPos = GetDrawPosition(pos - mOrigin * properties.scale);
         if (properties.roundToCamera)
@@ -71,13 +71,23 @@ void Sprite::Draw(Camera *cam, SDL_Renderer *renderer, const Vec2<float> &pos, c
 
         SDL_SetTextureColorMod(texture, properties.color.r, properties.color.g, properties.color.b);
         SDL_SetTextureAlphaMod(texture, properties.color.a);
-        SDL_RenderCopyEx(renderer,
-                         texture,
-                         &src,
-                         &dest,
-                         -properties.rotation,
-                         nullptr,
-                         SDL_FLIP_NONE);
+        if (properties.scale.x < 0 && properties.scale.y < 0)
+            SDL_RenderCopyEx(renderer,
+                             texture,
+                             &src,
+                             &dest,
+                             -properties.rotation + 180.0f,
+                             nullptr,
+                             SDL_FLIP_NONE);
+        else
+            SDL_RenderCopyEx(renderer,
+                             texture,
+                             &src,
+                             &dest,
+                             -properties.rotation,
+                             nullptr,
+                             (properties.scale.x < 0) ? SDL_FLIP_HORIZONTAL : (properties.scale.y < 0) ? SDL_FLIP_VERTICAL
+                                                                                                       : SDL_FLIP_NONE);
     }
 }
 
@@ -160,6 +170,36 @@ bool Sprite::LoadMetadataFile(std::string &folder)
             }
         }
         AddAnimation(name, frames);
+    }
+
+    // Set origin
+    Vec2<float> origin = Json::GetVec2<float>(&json, "origin");
+    if (origin.x >= 1.0f)
+        mOrigin.x = origin.x;
+    else
+        mOrigin.x = origin.x * mTexSize.x;
+    if (origin.y >= 1.0f)
+        mOrigin.y = origin.y;
+    else
+        mOrigin.y = origin.y * mTexSize.y;
+
+    // Load vertices
+    if (json.GetDoc()->HasMember("vertices"))
+    {
+        const auto &verticesRef = json.Get("vertices")->value.GetArray();
+        for (auto &v : verticesRef)
+        {
+            Vec2<double> vertex = Json::GetVec2<double>(v);
+            mVertices.push_back(vertex);
+        }
+    }
+    else
+    {
+        // Default box vertices
+        mVertices.push_back(Vec2<double>(0, 0));
+        mVertices.push_back(Vec2<double>(mTexSize.x, 0));
+        mVertices.push_back(Vec2<double>(mTexSize.x, mTexSize.y));
+        mVertices.push_back(Vec2<double>(0, mTexSize.y));
     }
 
     return true;

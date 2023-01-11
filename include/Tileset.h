@@ -4,6 +4,7 @@
 #endif
 
 #include "Actors.h"
+#include "GlobalGame.h"
 
 #include <vector>
 
@@ -22,7 +23,7 @@ namespace junebug
 
         Tileset(std::string sprite = "", Vec2<int> tileSize = Vec2<int>::Zero, Vec2<float> pos = Vec2<>::Zero);
 
-        void FirstUpdate(float dt) override;
+        void InternalFirstUpdate(float dt) override;
         void InternalUpdate(float dt) override;
         void Draw() override;
 
@@ -56,8 +57,12 @@ namespace junebug
         void SetEditMode(TilesetEditMode mode) { mEditMode = mode; };
         TilesetEditMode GetEditMode() const { return mEditMode; };
 
+        int TransformTile(int tile, int angle, Vec2<int> flipped);
+        void GetTileTransform(int tile, int &angle, Vec2<int> &flipped);
+
     private:
         Vec2<int> mTileSize;
+        int mNumTiles;
         bool mCenterTopLeft{true};
 
         std::vector<std::vector<int>> mTiles;
@@ -73,7 +78,9 @@ namespace junebug
         std::string mCollLayer{""};
 
         TilesetEditMode mEditMode{TilesetEditMode::None};
-        std::string mDrawInput, mEraseInput;
-        int mDrawTile{0};
+        input_mapping mDrawInput{JB_INPUT_LEFT_CLICK, {MOUSE_LEFT}}, mEraseInput{JB_INPUT_RIGHT_CLICK, {MOUSE_RIGHT}};
+        input_mapping mRotateCWInput{"_tileCW", {KEY_E}}, mRotateCCWInput{"_tileCCW", {KEY_Q}}, mFlipXInput{"_tileX", {KEY_X}}, mFlipYInput{"_tileY", {KEY_Y}};
+        int mDrawTile{0}, mDrawAngle{0};
+        Vec2<int> mDrawFlip{1, 1};
     };
 }
