@@ -39,8 +39,6 @@ void PhysicsComponent::PhysicsUpdate(float dt)
 
 void PhysicsComponent::CheckCollisions()
 {
-    // print(mColl);
-
     if (mStatic || !mColl || mColl->GetType() == CollType::None)
         return;
 
@@ -72,7 +70,7 @@ void PhysicsComponent::CheckCollisionList(const std::vector<CollisionComponent *
     {
         if (other == mColl)
             continue;
-        fixSide = mColl->GetMinOverlap(other, fixVec);
+        fixSide = mColl->Intersects(other, fixVec);
         if (fixSide != CollSide::None)
         {
             OnCollide(other, fixSide, fixVec);

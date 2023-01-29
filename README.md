@@ -143,7 +143,7 @@ To access member variables on `Junebug` objects, use the explicitly defined Sett
 
 ## Game Class
 
-Every `Junebug` application starts with one instancee of a single global `Game`. This object controls all aspects of game management, from window creation and rendering to input and object management. It can also be inherited from to override the following Event Functions to easily customize its behavior:
+Every `Junebug` application starts with one instance of a single global `Game`. This object controls all aspects of game management, from window creation and rendering to input and object management. It can also be inherited from to override the following Event Functions to easily customize its behavior:
 
 ```cpp
 void LoadData();

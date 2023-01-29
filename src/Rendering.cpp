@@ -151,22 +151,31 @@ namespace junebug
         Camera *camera = game->GetActiveCamera();
         const Vec2<float> &camPos = (camera) ? camera->GetPosition() : Vec2<>::Zero;
 
-        SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
+        Uint8 r, g, b, a;
+        SDL_GetRenderDrawColor(renderer, &r, &g, &b, &a);
+        bool shouldChange = (r != color.r || g != color.g || b != color.b || a != color.a);
+
+        if (shouldChange)
+            SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
+
         SDL_RenderDrawLine(renderer, static_cast<int>(start.x - camPos.x), static_cast<int>(start.y - camPos.y), static_cast<int>(end.x - camPos.x), static_cast<int>(end.y - camPos.y));
+
+        if (shouldChange)
+            SDL_SetRenderDrawColor(renderer, r, g, b, a);
     }
 
-    void DrawPolygonOutline(const std::vector<Vec2<float>> &vertices, const Color &color, const float thickness)
+    void DrawPolygonOutline(const std::vector<Vec2<float>> &vertices, const Color &color, const Vec2<float> offset, const float thickness)
     {
         for (int i = 0; i < vertices.size(); i++)
         {
-            DrawLine(vertices[i], vertices[(i + 1) % vertices.size()], Color(255, 0, 0, 255));
+            DrawLine(offset + vertices[i], offset + vertices[(i + 1) % vertices.size()], color);
         }
     }
-    void DrawPolygonOutline(const std::vector<Vec2<double>> &vertices, const Color &color, const float thickness)
+    void DrawPolygonOutline(const std::vector<Vec2<double>> &vertices, const Color &color, const Vec2<float> offset, const float thickness)
     {
         for (int i = 0; i < vertices.size(); i++)
         {
-            DrawLine(Vec2<float>(vertices[i]), Vec2<float>(vertices[(i + 1) % vertices.size()]), Color(255, 0, 0, 255));
+            DrawLine(Vec2<float>(offset + vertices[i]), Vec2<float>(offset + vertices[(i + 1) % vertices.size()]), color);
         }
     }
 

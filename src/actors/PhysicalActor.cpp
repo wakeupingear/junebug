@@ -1,7 +1,6 @@
 #include "Actors.h"
 #include "components/PhysicsComponent.h"
-#include "components/BoxCollider.h"
-#include "components/PolygonCollisionComponent.h"
+#include "components/PolygonCollider.h"
 #include "Game.h"
 
 using namespace junebug;
@@ -38,11 +37,8 @@ void PhysicalActor::InitializeComponents()
     {
         switch (mCollType)
         {
-        case CollType::Box:
-            mColl = new BoxCollider(this, true, mCollLayer);
-            break;
         case CollType::Polygon:
-            mColl = new PolygonCollisionComponent(this, mCollLayer);
+            mColl = new PolygonCollider(this, mCollLayer);
             break;
         default:
             break;

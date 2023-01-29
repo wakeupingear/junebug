@@ -52,8 +52,7 @@ add_library(${LIBNAME} STATIC
     src/Component.cpp
     src/components/PhysicsComponent.cpp
     src/components/CollisionComponent.cpp
-    src/components/PolygonCollisionComponent.cpp
-    src/components/BoxCollider.cpp
+    src/components/PolygonCollider.cpp
     src/components/TileCollider.cpp
 
     src/Sprite.cpp

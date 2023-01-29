@@ -128,8 +128,8 @@ bool Sprite::LoadMetadataFile(std::string &folder)
     if (__IsTempSprite__())
         return false;
 
-    std::string spriteName = StringSplitEntry(folder, "/", -1);
-    Json json(folder + "/" + spriteName + ".json");
+    mName = StringSplitEntry(folder, "/", -1);
+    Json json(folder + "/" + mName + ".json");
     if (!json.IsValid())
     {
         print("Sprite metadata", folder, "is invalid");
@@ -157,19 +157,22 @@ bool Sprite::LoadMetadataFile(std::string &folder)
     AddAnimation("_", framesInt);
 
     // Load animations
-    const auto &animsRef = json.Get("animations")->value.GetObject();
-    for (auto &animRef : animsRef)
+    if (json.GetDoc()->HasMember("animations") && json.Get("Animations")->value.IsObject())
     {
-        std::string name = animRef.name.GetString();
-        std::vector<int> frames;
-        if (animRef.value.IsArray())
+        const auto &animsRef = json.Get("animations")->value.GetObject();
+        for (auto &animRef : animsRef)
         {
-            for (auto &v : animRef.value.GetArray())
+            std::string name = animRef.name.GetString();
+            std::vector<int> frames;
+            if (animRef.value.IsArray())
             {
-                frames.push_back(Json::GetNumber<int>(v));
+                for (auto &v : animRef.value.GetArray())
+                {
+                    frames.push_back(Json::GetNumber<int>(v));
+                }
             }
+            AddAnimation(name, frames);
         }
-        AddAnimation(name, frames);
     }
 
     // Set origin
@@ -184,13 +187,26 @@ bool Sprite::LoadMetadataFile(std::string &folder)
         mOrigin.y = origin.y * mTexSize.y;
 
     // Load vertices
-    if (json.GetDoc()->HasMember("vertices"))
+    if (json.GetDoc()->HasMember("colliders"))
     {
-        const auto &verticesRef = json.Get("vertices")->value.GetArray();
+        const auto &verticesRef = json.Get("colliders")->value.GetArray();
+        bool isFractional = false;
         for (auto &v : verticesRef)
         {
             Vec2<double> vertex = Json::GetVec2<double>(v);
             mVertices.push_back(vertex);
+            isFractional |=
+                ((!NearZero(vertex.x) && !NearZero(vertex.x - 1.0) && vertex.x < 1.0) ||
+                 (!NearZero(vertex.y) && !NearZero(vertex.y - 1.0) && vertex.y < 1.0));
+        }
+
+        if (isFractional)
+        {
+            for (auto &v : mVertices)
+            {
+                v.x *= mTexSize.x;
+                v.y *= mTexSize.y;
+            }
         }
     }
     else

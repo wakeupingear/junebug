@@ -43,7 +43,15 @@ void Game::LoadActor(rapidjson::Value &actorRef, Scene &newScene)
     if (visualActor)
     {
         visualActor->SetPosition(Json::GetVec2<float>(actorObj, "pos", Vec2<>::Zero));
-        visualActor->SetScale(Json::GetVec2<float>(actorObj, "scale", Vec2(1.0f, 1.0f)));
+
+        if (actorRef.HasMember("scale"))
+        {
+            if (actorRef["scale"].IsArray())
+                visualActor->SetScale(Json::GetVec2<float>(actorObj, "scale", Vec2(1.0f, 1.0f)));
+            else
+                visualActor->SetScale(Json::GetNumber<float>(actorObj, "scale", 1.0f));
+        }
+
         visualActor->SetRotation(Json::GetNumber<float>(actorObj, "rotation"));
         visualActor->SetRoundToCamera(Json::GetBool(actorObj, "roundToCamera", false));
 
@@ -104,9 +112,45 @@ void Game::LoadActor(rapidjson::Value &actorRef, Scene &newScene)
             tileset->SetTileSize(Json::GetVec2<int>(actorObj, "tileSize", Vec2<int>::Zero));
             tileset->SetTiles(Json::GetNumberArray2D<int>(actorObj, "tiles"));
 
-            std::vector<bool> colliders = Json::GetNumberArray<bool>(actorObj, "colliders");
-            if (colliders.size() > 0)
-                tileset->SetColliders(colliders);
+            if (actorObj.HasMember("colliders") && actorObj["colliders"].IsArray())
+            {
+                auto &colliders = tileset->GetColliders();
+                const auto &scale = tileset->GetScale();
+                std::vector<Vec2<double>> squareCollider = {
+                    Vec2<double>(0.0, 0.0),
+                    Vec2<double>(tileset->GetTileSize().x * scale.x, 0.0),
+                    Vec2<double>(tileset->GetTileSize().x * scale.x, tileset->GetTileSize().y * scale.y),
+                    Vec2<double>(0.0, tileset->GetTileSize().y * scale.y)};
+
+                const auto &collList = actorObj["colliders"].GetArray();
+                for (auto &collider : collList)
+                {
+                    if (collider.IsBool() && collider.GetBool())
+                    {
+                        colliders.push_back(squareCollider);
+                    }
+                    else if (collider.IsArray())
+                    {
+                        std::vector<Vec2<double>> newCollider;
+                        for (auto &point : collider.GetArray())
+                        {
+                            if (point.IsArray())
+                            {
+                                const auto &pointArr = point.GetArray();
+                                if (pointArr.Size() == 2)
+                                {
+                                    newCollider.push_back(Vec2<double>(pointArr[0].GetDouble() * scale.x, pointArr[1].GetDouble() * scale.y));
+                                }
+                            }
+                        }
+                        colliders.push_back(newCollider);
+                    }
+                    else
+                        colliders.push_back({});
+                }
+            }
+
+            tileset->CalculateNumTiles();
             tileset->SetCollLayer(Json::GetString(actorObj, "collLayer", tileset->GetCollLayer()));
 
             tileset->SetEditMode((Tileset::TilesetEditMode)Json::GetInt(actorObj, "editMode", (int)tileset->GetEditMode()));

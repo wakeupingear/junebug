@@ -37,6 +37,12 @@ void Tileset::InternalFirstUpdate(float dt)
                                 mFlipYInput});
     }
 
+    if (mNumTiles == -1)
+        CalculateNumTiles();
+}
+
+void Tileset::CalculateNumTiles()
+{
     Sprite *sprite = GetSprite();
     if (sprite)
     {
@@ -141,10 +147,9 @@ Vec2<int> Tileset::WorldToTile(Vec2<float> pos)
 {
     if (mTileSize.x <= 0 || mTileSize.y <= 0)
         return Vec2<int>::Zero;
-    pos -= GetPosition();
-    if (mCenterTopLeft)
-        pos += Vec2<float>(GetSprite()->GetOrigin()) * mScale;
 
+    pos -= GetPosition();
+    pos += Vec2<float>(GetSprite()->GetOrigin()) * mScale;
     pos.x /= GetTileWidth();
     pos.y /= GetTileHeight();
     return Vec2<int>(pos.x, pos.y);
@@ -153,8 +158,6 @@ Vec2<int> Tileset::WorldToTile(Vec2<float> pos)
 Vec2<float> Tileset::TileToWorld(Vec2<int> pos)
 {
     Vec2<float> ret = GetPosition();
-    if (mCenterTopLeft)
-        ret -= Vec2<float>(GetSprite()->GetOrigin()) * mScale;
     ret.x += (float)pos.x * (float)GetTileWidth();
     ret.y += (float)pos.y * (float)GetTileHeight();
     return ret;
@@ -211,17 +214,10 @@ float Tileset::GetTileHeight()
     return Round(mTileSize.y * mScale.y, mSpacingRoundDir);
 }
 
-void Tileset::SetColliders(std::vector<bool> colliders)
-{
-    mColliders = colliders;
-    if (!mColl)
-        EnableCollision();
-}
-
 void Tileset::EnableCollision()
 {
     if (!mColl)
-        mColl = new TileCollider(this, mCollLayer);
+        mColl = new TileCollider(this, mColliders, mCollLayer);
     else
         mColl->SetType(CollType::Tileset);
 }
@@ -231,18 +227,24 @@ void Tileset::DisableCollision()
         mColl->SetType(CollType::None);
 }
 
-bool Tileset::TilePosHasCollider(Vec2<int> tile)
+std::vector<Vec2<double>> *Tileset::GetTileCollider(Vec2<int> tile)
 {
-    if (mNumTiles == 0) {
-        printLog("numTiles is 0");
-        return false;
-    }
+    if (mNumTiles == 0 || tile.x < 0 || tile.y < 0 || tile.y >= mTiles.size() || tile.x >= mTiles[tile.y].size())
+        return nullptr;
+    int tileNum = mTiles[tile.y][tile.x], baseTile = tileNum % mNumTiles;
+    if (tileNum < 0 || baseTile >= mColliders.size())
+        return nullptr;
+    return &mColliders[baseTile];
+}
+
+bool Tileset::TileHasCollider(Vec2<int> tile)
+{
     if (tile.x < 0 || tile.y < 0 || tile.y >= mTiles.size() || tile.x >= mTiles[tile.y].size())
         return false;
     int tileNum = mTiles[tile.y][tile.x], baseTile = tileNum % mNumTiles;
     if (tileNum < 0 || baseTile >= mColliders.size())
         return false;
-    return mColliders[baseTile];
+    return mColliders[baseTile].empty();
 }
 
 void Tileset::SetCollLayer(std::string layer)
@@ -266,4 +268,13 @@ void Tileset::GetTileTransform(int tile, int &angle, Vec2<int> &flipped)
     angle = (tile / mNumTiles) % 4 * 90;
     flipped.x = (tile / mNumTiles / 4) % 2 == 1 ? -1 : 1;
     flipped.y = (tile / mNumTiles / 8) % 2 == 1 ? -1 : 1;
+}
+
+void Tileset::GetCullBounds(const Vec2<float> &startPos, const Vec2<float> &endPos, Vec2<int> &min, Vec2<int> &max)
+{
+    Vec2<float> start = (startPos - GetPosition()) / Vec2<float>(GetTileSize() * GetScale()), end = (endPos - GetPosition()) / Vec2<float>(GetTileSize() * GetScale());
+    min.x = std::max((int)floor(start.x), 0);
+    min.y = Clamp((int)floor(start.y), 0, (int)mTiles.size()); // Allows loops to fully skip if the start is out of bounds
+    max.x = (int)ceil(end.x);
+    max.y = Clamp((int)ceil(end.y), 0, (int)mTiles.size() - 1);
 }

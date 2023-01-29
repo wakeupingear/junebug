@@ -6,7 +6,6 @@ using namespace junebug;
 
 CollisionComponent::CollisionComponent(VisualActor *owner, std::string layer) : Component(owner), mOwner(owner), mLayer(layer)
 {
-    UpdateCollEntry(true);
 }
 
 CollisionComponent::~CollisionComponent()

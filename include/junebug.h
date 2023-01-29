@@ -9,5 +9,5 @@
 #include "GlobalGame.h"
 
 #include "components/PhysicsComponent.h"
-#include "components/BoxCollider.h"
+#include "components/PolygonCollider.h"
 #include "components/TileCollider.h"

@@ -65,6 +65,9 @@ namespace junebug
         void AddAnimation(const std::string &name,
                           const std::vector<int> &frames);
 
+        /// Get the name of this sprite
+        const std::string &GetName() const { return mName; }
+
         // Set the vertices
         void SetVertices(std::vector<Vec2<double>> &vertices) { mVertices = vertices; }
         const std::vector<Vec2<double>> &GetVertices() const { return mVertices; }
@@ -80,6 +83,8 @@ namespace junebug
         std::vector<Vec2<double>> mVertices;
 
         float mFps = 12.0f;
+
+        std::string mName;
 
         // Map of animation name to vector of textures corresponding to the animation
         std::unordered_map<std::string, std::vector<int>> mAnims;

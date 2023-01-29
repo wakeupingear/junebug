@@ -237,6 +237,9 @@ namespace junebug
                 // Overridable callback after the game is rendered
                 virtual void RenderEnd(){};
 
+                // Get the DeltaTime
+                float GetDeltaTime() { return mDeltaTime; }
+
 #ifdef __EMSCRIPTEN__
                 void EmRunIteration()
                 {

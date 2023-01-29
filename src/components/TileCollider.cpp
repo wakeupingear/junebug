@@ -1,119 +1,128 @@
 #include "components/TileCollider.h"
-#include "components/BoxCollider.h"
+#include "components/PolygonCollider.h"
 #include "Game.h"
 #include "Sprite.h"
 #include "Tileset.h"
+#include "Camera.h"
 
 using namespace junebug;
 
-TileCollider::TileCollider(class VisualActor *owner, std::string layer) : CollisionComponent(owner, layer)
+TileCollider::TileCollider(class VisualActor *owner, std::vector<std::vector<Vec2<double>>> &collisionBounds, std::string layer) : CollisionComponent(owner, layer)
 {
     mType = CollType::Tileset;
+    UpdateCollEntry(true);
     mOwner = dynamic_cast<Tileset *>(owner);
     if (!owner)
     {
         PrintLog("TileCollider: Owner is not a Tileset");
         delete this;
     }
+
+    for (int i = 0; i < mOwner->GetNumTiles(); i++)
+    {
+        mColliders.push_back(PolygonCollisionBounds());
+        mColliders[i].LoadVertices(collisionBounds[i]);
+    }
+}
+
+void TileCollider::Update(float dt)
+{
+    UpdateCollPositions();
 }
 
 bool TileCollider::Intersects(CollisionComponent *_other)
 {
-
-    if (_other->GetType() == CollType::Box)
-    {
-        BoxCollider *other = dynamic_cast<BoxCollider *>(_other);
-        Vec2<int> tileMin = mOwner->WorldToTile(other->GetMin()), tileMax = mOwner->WorldToTile(other->GetMax());
-        for (Vec2<int> tile = tileMin; tile.x <= tileMax.x; tile.x++)
-        {
-            for (tile.y = tileMin.y; tile.y <= tileMax.y; tile.y++)
-            {
-                if (mOwner->TilePosHasCollider(tile))
-                {
-                    return true;
-                }
-            }
-        }
-    }
-    return false;
+    Vec2<float> offset;
+    return Intersects(_other, offset) != CollSide::None;
 }
 
-CollSide TileCollider::GetMinOverlap(CollisionComponent *_other, Vec2<float> &offset)
+CollSide TileCollider::Intersects(CollisionComponent *_other, Vec2<float> &_offset)
 {
-    if (!_other)
-        return CollSide::None;
-
-    if (_other->GetType() == CollType::Box)
+    if (_other->GetType() == CollType::Polygon)
     {
-        if (!Intersects(_other))
-            return CollSide::None;
+        UpdateCollPositions();
+        PolygonCollider *other = static_cast<PolygonCollider *>(_other);
+        auto otherBounds = other->GetCollBounds();
 
-        BoxCollider *other = static_cast<BoxCollider *>(_other);
-
-        CollSide lastSide = CollSide::None;
-        Vec2<float> otherMin = other->GetMin(), otherMax = other->GetMax();
+        Vec2<int> min, max;
+        Vec2<double> offset = Vec2<double>::Zero;
         for (int i = 0; i < 8; i++)
         {
-            Vec2<int> tileMin = mOwner->WorldToTile(otherMin), tileMax = mOwner->WorldToTile(otherMax);
-            Vec2<int> startTile = Vec2(-1, -1), endTile = Vec2(-1, -1);
-            for (Vec2<int> tile = tileMin; tile.x <= tileMax.x; tile.x++)
+            mOwner->GetCullBounds(otherBounds.topLeft, otherBounds.bottomRight, min, max);
+
+            bool collided = false;
+            for (Vec2<int> tile = min; tile.y <= max.y; tile.y++)
             {
-                for (tile.y = tileMin.y; tile.y <= tileMax.y; tile.y++)
+                for (tile.x = min.x; tile.x <= max.x; tile.x++)
                 {
-                    if (mOwner->TilePosHasCollider(tile))
-                    {
-                        startTile = tile;
-                        endTile = tile;
-                        while (endTile.x + 1 <= tileMax.x && mOwner->TilePosHasCollider(Vec2<int>(endTile.x + 1, endTile.y)))
-                            endTile.x++;
-                        while (endTile.y + 1 <= tileMax.y && mOwner->TilePosHasCollider(Vec2<int>(endTile.x, endTile.y + 1)))
-                            endTile.y++;
-                        break;
-                    }
+                    int tileIndex = mOwner->GetTile(tile);
+                    if (tileIndex == -1)
+                        continue;
+
+                    auto &collBounds = mColliders[tileIndex];
+                    Vec2<double> tilePos = Vec2<double>(tile) * mOwner->GetTileSize() * mOwner->GetScale();
+
+                    double overlap = 1000000000;
+                    Vec2<double> minAxis = Vec2<double>::Zero;
+                    bool thisIntersects = collBounds.CheckAxes(other->mCollBounds, overlap, minAxis, tilePos, offset);
+                    if (!thisIntersects)
+                        return CollSide::None;
+                    double currentOverlap = overlap;
+                    bool otherIntersects = other->mCollBounds.CheckAxes(collBounds, overlap, minAxis, offset, tilePos);
+                    if (!otherIntersects)
+                        return CollSide::None;
+
+                    if (overlap < currentOverlap)
+                        overlap = -overlap;
+                    offset -= (minAxis * overlap);
+                    collided = true;
+                    break;
                 }
+
+                if (collided)
+                    break;
             }
 
-            if (startTile.x == -1 || startTile.y == -1)
-                break;
-
-            Vec2<float> thisMin = mOwner->TileToWorld(startTile), thisMax = mOwner->TileToWorld(endTile + Vec2(1, 1)), tempOffset = Vec2<>::Zero;
-
-            float xOverlap = std::min(thisMax.x, otherMax.x) - std::max(thisMin.x, otherMin.x);
-            float yOverlap = std::min(thisMax.y, otherMax.y) - std::max(thisMin.y, otherMin.y);
-
-            if (xOverlap < yOverlap && !NearZero(xOverlap))
-            {
-                if (thisMax.x > otherMax.x)
-                {
-                    tempOffset.x = otherMax.x - thisMin.x;
-                    lastSide = CollSide::Left;
-                }
-                else
-                {
-                    tempOffset.x = otherMin.x - thisMax.x;
-                    lastSide = CollSide::Right;
-                }
-            }
-            else
-            {
-                if (thisMax.y > otherMax.y)
-                {
-                    tempOffset.y = otherMax.y - thisMin.y;
-                    lastSide = CollSide::Top;
-                }
-                else
-                {
-                    tempOffset.y = otherMin.y - thisMax.y;
-                    lastSide = CollSide::Bottom;
-                }
-            }
-
-            otherMin -= tempOffset;
-            otherMax -= tempOffset;
+            if (!collided)
+                return CollSide::None;
         }
 
-        offset = otherMin - other->GetMin();
-        return lastSide;
+        _offset = Vec2<float>(offset);
+        return FlipCollSide(VecCollSide(_offset));
     }
+    else if (_other->GetType() == CollType::Tileset)
+        return _other->Intersects(this, _offset);
+
     return CollSide::None;
+}
+
+void TileCollider::UpdateCollPositions()
+{
+    for (auto &collBounds : mColliders)
+    {
+        collBounds.UpdateWorldVertices(mOwner->GetPosition(), 0, mOwner->GetScale(), mOwner->GetSprite()->GetOrigin());
+    }
+}
+
+void TileCollider::Draw()
+{
+    Camera *cam = Game::Get()->GetActiveCamera();
+    if (!cam)
+        return;
+
+    Vec2<int> min, max;
+    mOwner->GetCullBounds(cam->GetPosition(), cam->GetBottomRight(), min, max);
+
+    Vec2<double> pos;
+    for (Vec2<int> tile = min; tile.y <= max.y; tile.y++)
+    {
+        for (tile.x = min.x; tile.x <= max.x; tile.x++)
+        {
+            int tileIndex = mOwner->GetTile(tile);
+            if (tileIndex == -1)
+                continue;
+
+            DrawPolygonOutline(*mColliders[tileIndex].vertices, Color::Red, mOwner->TileToWorld(tile));
+        }
+    }
 }

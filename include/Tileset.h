@@ -44,15 +44,18 @@ namespace junebug
         inline int GetWorldTile(Vec2<float> pos) { return GetTile(WorldToTile(pos)); }
         inline int GetWorldTile(Vec2<int> pos) { return GetWorldTile(Vec2<float>(pos)); }
 
-        void SetColliders(std::vector<bool> colliders);
-        std::vector<bool> GetColliders() const { return mColliders; };
+        void SetColliders(std::vector<std::vector<Vec2<double>>> colliders);
+        std::vector<std::vector<Vec2<double>>> &GetColliders() { return mColliders; };
         void EnableCollision();
         void DisableCollision();
         void SetCollLayer(std::string layer);
         std::string GetCollLayer() { return mCollLayer; };
+        void CalculateNumTiles();
 
-        bool TilePosHasCollider(Vec2<int> tile);
-        bool WorldPosHasCollider(Vec2<float> pos) { return TilePosHasCollider(WorldToTile(pos)); }
+        std::vector<Vec2<double>> *GetTileCollider(Vec2<int> tile);
+        inline std::vector<Vec2<double>> *GetWorldCollider(Vec2<float> pos) { return GetTileCollider(WorldToTile(pos)); }
+        bool TileHasCollider(Vec2<int> tile);
+        inline bool WorldHasCollider(Vec2<float> pos) { return TileHasCollider(WorldToTile(pos)); }
 
         void SetEditMode(TilesetEditMode mode) { mEditMode = mode; };
         TilesetEditMode GetEditMode() const { return mEditMode; };
@@ -60,10 +63,14 @@ namespace junebug
         int TransformTile(int tile, int angle, Vec2<int> flipped);
         void GetTileTransform(int tile, int &angle, Vec2<int> &flipped);
 
+        void GetCullBounds(const Vec2<float> &startPos, const Vec2<float> &endPos, Vec2<int> &min, Vec2<int> &max);
+
+        int GetNumTiles() const { return mNumTiles; };
+
     private:
         Vec2<int> mTileSize;
-        int mNumTiles;
-        bool mCenterTopLeft{true};
+        int mNumTiles = -1;
+        bool mCenterTopLeft{false};
 
         std::vector<std::vector<int>> mTiles;
 
@@ -73,7 +80,7 @@ namespace junebug
         inline float GetTileHeight();
 
         class TileCollider *mColl{nullptr};
-        std::vector<bool> mColliders;
+        std::vector<std::vector<Vec2<double>>> mColliders;
 
         std::string mCollLayer{""};
 

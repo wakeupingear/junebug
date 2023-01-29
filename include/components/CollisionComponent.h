@@ -22,7 +22,7 @@ namespace junebug
         CollType GetType() { return mType; };
 
         virtual bool Intersects(CollisionComponent *other) = 0;
-        virtual CollSide GetMinOverlap(CollisionComponent *other, Vec2<float> &offset) = 0;
+        virtual CollSide Intersects(CollisionComponent *other, Vec2<float> &offset) = 0;
 
         virtual void UpdateCollPositions(){};
 
@@ -32,9 +32,8 @@ namespace junebug
         VisualActor *mOwner;
 
         std::string mLayer;
-        CollType mType;
+        CollType mType = CollType::None;
 
-    private:
         void UpdateCollEntry(bool initial);
     };
 };
