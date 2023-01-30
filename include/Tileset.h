@@ -67,7 +67,8 @@ namespace junebug
 
         int GetNumTiles() const { return mNumTiles; };
 
-    private:
+    protected:
+        friend class TileCollider;
         Vec2<int> mTileSize;
         int mNumTiles = -1;
         bool mCenterTopLeft{false};

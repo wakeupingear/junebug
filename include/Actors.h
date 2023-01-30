@@ -211,6 +211,8 @@ namespace junebug
         // Get the starting position of the actor
         /// @returns const Vec2
         Vec2<float> GetStartPosition() const;
+        // Get the previous position of the actor
+        Vec2<float> GetPrevPosition() const;
         // Clamp the actor's position to the given bounds
         /// @param bounds The bounds to clamp the actor to
         void ClampPosition(const Vec2<float> &start, const Vec2<float> &end);
@@ -275,7 +277,7 @@ namespace junebug
 
         std::unordered_map<std::string, Animation> mFrameAnimations;
 
-        Vec2<float> mPosition{0, 0}, mStartPosition{0, 0};
+        Vec2<float> mPosition{0, 0}, mStartPosition{0, 0}, mPrevPosition{0, 0};
         float mRotation{0};
         Vec2<float> mScale{1, 1};
         bool mRoundToCamera{false};

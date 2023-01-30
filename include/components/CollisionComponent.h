@@ -24,11 +24,12 @@ namespace junebug
         virtual bool Intersects(CollisionComponent *other) = 0;
         virtual CollSide Intersects(CollisionComponent *other, Vec2<float> &offset) = 0;
 
-        virtual void UpdateCollPositions(){};
+        virtual void UpdateCollPositions(Vec2<float> offset = Vec2<float>::Zero){};
 
         virtual void Draw(){};
 
     protected:
+        friend class TileCollider;
         VisualActor *mOwner;
 
         std::string mLayer;

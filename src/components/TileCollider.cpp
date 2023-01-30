@@ -5,6 +5,8 @@
 #include "Tileset.h"
 #include "Camera.h"
 
+#include <map>
+
 using namespace junebug;
 
 TileCollider::TileCollider(class VisualActor *owner, std::vector<std::vector<Vec2<double>>> &collisionBounds, std::string layer) : CollisionComponent(owner, layer)
@@ -36,19 +38,24 @@ bool TileCollider::Intersects(CollisionComponent *_other)
     return Intersects(_other, offset) != CollSide::None;
 }
 
-CollSide TileCollider::Intersects(CollisionComponent *_other, Vec2<float> &_offset)
+CollSide TileCollider::Intersects(CollisionComponent *_other, Vec2<float> &offset)
 {
+    offset = Vec2<float>::Zero;
+
     if (_other->GetType() == CollType::Polygon)
     {
-        UpdateCollPositions();
         PolygonCollider *other = static_cast<PolygonCollider *>(_other);
         auto otherBounds = other->GetCollBounds();
-
         Vec2<int> min, max;
-        Vec2<double> offset = Vec2<double>::Zero;
+        Vec2<float> otherOffset = Vec2<float>::Zero;
+        Vec2<double> oppositeDir = Vec2<double>(_other->mOwner->GetPosition() - _other->mOwner->GetPrevPosition());
+        oppositeDir.Normalize();
+
+        std::map<Vec2<double>, std::pair<float, double>> axisCount;
         for (int i = 0; i < 8; i++)
         {
-            mOwner->GetCullBounds(otherBounds.topLeft, otherBounds.bottomRight, min, max);
+            axisCount.clear();
+            mOwner->GetCullBounds(otherBounds.topLeft + otherOffset, otherBounds.bottomRight + otherOffset, min, max);
 
             bool collided = false;
             for (Vec2<int> tile = min; tile.y <= max.y; tile.y++)
@@ -60,47 +67,75 @@ CollSide TileCollider::Intersects(CollisionComponent *_other, Vec2<float> &_offs
                         continue;
 
                     auto &collBounds = mColliders[tileIndex];
-                    Vec2<double> tilePos = Vec2<double>(tile) * mOwner->GetTileSize() * mOwner->GetScale();
+                    Vec2<double> tilePos = Vec2<double>(mOwner->TileToWorld(tile));
 
                     double overlap = 1000000000;
                     Vec2<double> minAxis = Vec2<double>::Zero;
-                    bool thisIntersects = collBounds.CheckAxes(other->mCollBounds, overlap, minAxis, tilePos, offset);
+                    bool thisIntersects = collBounds.CheckAxes(other->mCollBounds, overlap, minAxis, tilePos, Vec2<double>::Zero);
                     if (!thisIntersects)
-                        return CollSide::None;
+                        continue;
                     double currentOverlap = overlap;
-                    bool otherIntersects = other->mCollBounds.CheckAxes(collBounds, overlap, minAxis, offset, tilePos);
+                    bool otherIntersects = other->mCollBounds.CheckAxes(collBounds, overlap, minAxis, Vec2<double>::Zero, tilePos);
                     if (!otherIntersects)
-                        return CollSide::None;
+                        continue;
 
                     if (overlap < currentOverlap)
                         overlap = -overlap;
-                    offset -= (minAxis * overlap);
-                    collided = true;
-                    break;
-                }
+                    if (overlap < 0)
+                    {
+                        overlap = -overlap;
+                        minAxis = -1 * minAxis;
+                    }
 
-                if (collided)
-                    break;
+                    float val = Vec2<double>::Dot(oppositeDir, minAxis) + (oppositeDir == minAxis ? 0.5 : 0);
+
+                    auto it = axisCount.find(minAxis);
+                    if (it == axisCount.end())
+                        axisCount[minAxis] = std::pair<int, int>(val, overlap);
+                    else
+                    {
+                        axisCount[minAxis].first += val;
+                        axisCount[minAxis].second = Max(axisCount[minAxis].second, overlap);
+                    }
+                }
             }
 
-            if (!collided)
-                return CollSide::None;
+            if (!axisCount.empty())
+            {
+                Vec2<double> minAxis = Vec2<double>::Zero;
+                float maxCount = -100000.0f;
+                double minOverlap = 1000000000;
+                for (auto &axis : axisCount)
+                {
+                    if (axis.second.first > maxCount)
+                    {
+                        maxCount = axis.second.first;
+                        minAxis = axis.first;
+                        minOverlap = axis.second.second;
+                    }
+                }
+
+                otherOffset -= Vec2<float>(minAxis * minOverlap);
+                other->UpdateCollPositions(otherOffset);
+            }
+            else
+                break;
         }
 
-        _offset = Vec2<float>(offset);
-        return FlipCollSide(VecCollSide(_offset));
+        offset = Vec2<float>(otherOffset);
+        return otherOffset != Vec2<float>::Zero ? FlipCollSide(VecCollSide(offset)) : CollSide::None;
     }
     else if (_other->GetType() == CollType::Tileset)
-        return _other->Intersects(this, _offset);
+        return _other->Intersects(this, offset);
 
     return CollSide::None;
 }
 
-void TileCollider::UpdateCollPositions()
+void TileCollider::UpdateCollPositions(Vec2<float> offset)
 {
     for (auto &collBounds : mColliders)
     {
-        collBounds.UpdateWorldVertices(mOwner->GetPosition(), 0, mOwner->GetScale(), mOwner->GetSprite()->GetOrigin());
+        collBounds.UpdateWorldVertices(offset, 0, Vec2<float>::One, Vec2<int>::Zero);
     }
 }
 

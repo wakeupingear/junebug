@@ -89,9 +89,11 @@ SDL_Texture *Camera::Render(SDL_Renderer *renderer, float dt)
     for (PureActor *actor : game->GetActors())
     {
         VisualActor *visualActor = dynamic_cast<VisualActor *>(actor);
-        if (visualActor && visualActor->Visible())
+        if (visualActor)
         {
-            visualActor->Draw();
+            if (visualActor->Visible())
+                visualActor->Draw();
+            visualActor->mPrevPosition = visualActor->GetPosition();
         }
     }
 

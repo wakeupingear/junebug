@@ -263,6 +263,7 @@ bool Game::Run(int screenWidth, int screenHeight)
 bool Game::_GameLoopIteration()
 {
     HaltFrame();
+    mFrameCount++;
 
     DebugCheckpoint("GameLoop", mShowDefaultDebugCheckpoints);
 

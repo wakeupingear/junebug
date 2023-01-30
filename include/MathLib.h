@@ -341,6 +341,8 @@ public:
 	void Normalize()
 	{
 		float length = Length();
+		if (NearZero(length))
+			return;
 		x /= length;
 		y /= length;
 	}

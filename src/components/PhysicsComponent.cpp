@@ -39,9 +39,10 @@ void PhysicsComponent::PhysicsUpdate(float dt)
 
 void PhysicsComponent::CheckCollisions()
 {
-    if (mStatic || !mColl || mColl->GetType() == CollType::None)
+    if (!mColl || mColl->GetType() == CollType::None)
         return;
 
+    mColl->UpdateCollPositions();
     if (mPhysLayers.empty())
     {
         for (auto &layer : Game::Get()->GetCollLayers())
@@ -81,6 +82,7 @@ void PhysicsComponent::CheckCollisionList(const std::vector<CollisionComponent *
 
 void PhysicsComponent::OnCollide(CollisionComponent *other, CollSide side, Vec2<float> offset)
 {
+    // print("moving", mOwner->GetPosition(), offset, Game::Get()->GetFrameCount());
     mOwner->MovePosition(offset);
     Vec2<float> newVel = GetVelocity();
     if (!NearZero(offset.x))

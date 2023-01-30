@@ -141,6 +141,10 @@ Vec2<float> VisualActor::GetStartPosition() const
 {
     return mStartPosition;
 }
+Vec2<float> VisualActor::GetPrevPosition() const
+{
+    return mPrevPosition;
+}
 
 void VisualActor::ClampPosition(const Vec2<float> &min, const Vec2<float> &max)
 {
@@ -252,6 +256,7 @@ int VisualActor::GetAnimationFrame(std::string nickname)
 void VisualActor::InternalFirstUpdate(float dt)
 {
     mStartPosition = mPosition;
+    mPrevPosition = mPosition;
 }
 
 void VisualActor::InternalUpdate(float dt)

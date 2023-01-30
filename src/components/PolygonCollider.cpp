@@ -15,7 +15,7 @@ bool PolygonCollisionBounds::CheckAxes(const PolygonCollisionBounds &other, doub
     for (int i = 0; i < worldVertices.size(); i++)
     {
         Vec2<double> proj = Project(axes[i], offset), otherProj = other.Project(axes[i], otherOffset);
-        if (proj.x > otherProj.y || otherProj.x > proj.y)
+        if (proj.x >= otherProj.y || otherProj.x >= proj.y)
             return false;
 
         double o = otherProj.y - proj.x;
@@ -117,13 +117,14 @@ bool PolygonCollider::Intersects(CollisionComponent *_other)
 
 CollSide PolygonCollider::Intersects(CollisionComponent *_other, Vec2<float> &offset)
 {
-    UpdateCollPositions();
+    offset = Vec2<float>::Zero;
+
     if (_other->GetType() == CollType::Polygon)
     {
         PolygonCollider *other = static_cast<PolygonCollider *>(_other);
-
         double overlap = 1000000000;
         Vec2<double> minAxis = Vec2<double>::Zero;
+
         bool thisIntersects = mCollBounds.CheckAxes(other->mCollBounds, overlap, minAxis);
         if (!thisIntersects)
             return CollSide::None;
@@ -145,9 +146,9 @@ CollSide PolygonCollider::Intersects(CollisionComponent *_other, Vec2<float> &of
     return CollSide::None;
 }
 
-void PolygonCollider::UpdateCollPositions()
+void PolygonCollider::UpdateCollPositions(Vec2<float> offset)
 {
-    mCollBounds.UpdateWorldVertices(mOwner->GetPosition(), mOwner->GetRotation(), mOwner->GetScale(), mOwner->GetSprite()->GetOrigin());
+    mCollBounds.UpdateWorldVertices(mOwner->GetPosition() + offset, mOwner->GetRotation(), mOwner->GetScale(), mOwner->GetSprite()->GetOrigin());
 }
 
 void PolygonCollider::Draw()

@@ -240,6 +240,9 @@ namespace junebug
                 // Get the DeltaTime
                 float GetDeltaTime() { return mDeltaTime; }
 
+                // Get the number of frames that have passed since the game started
+                unsigned long GetFrameCount() { return mFrameCount; }
+
 #ifdef __EMSCRIPTEN__
                 void EmRunIteration()
                 {
@@ -525,6 +528,8 @@ namespace junebug
                 // The FPS of the previous frame
                 unsigned int mFps = 0;
                 void HaltFrame();
+                // The number of frames that have elapsed since the game started
+                unsigned long mFrameCount = 0;
 
                 // Get the display size
                 /// @returns A Vec2<int> containing the display size

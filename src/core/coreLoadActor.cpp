@@ -139,7 +139,7 @@ void Game::LoadActor(rapidjson::Value &actorRef, Scene &newScene)
                                 const auto &pointArr = point.GetArray();
                                 if (pointArr.Size() == 2)
                                 {
-                                    newCollider.push_back(Vec2<double>(pointArr[0].GetDouble() * scale.x, pointArr[1].GetDouble() * scale.y));
+                                    newCollider.push_back(Vec2<double>(pointArr[0].GetDouble() * scale.x, pointArr[1].GetDouble() * scale.y) * tileset->GetTileSize());
                                 }
                             }
                         }

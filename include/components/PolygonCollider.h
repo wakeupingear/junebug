@@ -34,7 +34,7 @@ namespace junebug
         bool Intersects(CollisionComponent *other) override;
         CollSide Intersects(CollisionComponent *other, Vec2<float> &offset) override;
 
-        void UpdateCollPositions() override;
+        void UpdateCollPositions(Vec2<float> offset = Vec2<float>::Zero) override;
 
         void Draw() override;
 

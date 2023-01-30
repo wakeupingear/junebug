@@ -158,6 +158,7 @@ Vec2<int> Tileset::WorldToTile(Vec2<float> pos)
 Vec2<float> Tileset::TileToWorld(Vec2<int> pos)
 {
     Vec2<float> ret = GetPosition();
+    ret -= Vec2<float>(GetSprite()->GetOrigin()) * mScale;
     ret.x += (float)pos.x * (float)GetTileWidth();
     ret.y += (float)pos.y * (float)GetTileHeight();
     return ret;
