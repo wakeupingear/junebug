@@ -1,28 +1,28 @@
-#include "components/PhysicsComponent.h"
-#include "components/CollisionComponent.h"
+#include "components/Rigidbody.h"
+#include "components/Collider.h"
 #include "Actors.h"
 #include "Game.h"
 
 using namespace junebug;
 
-PhysicsComponent::PhysicsComponent(VisualActor *owner, CollisionComponent *coll) : Component(owner), mOwner(owner), mColl(coll)
+Rigidbody::Rigidbody(VisualActor *owner, Collider *coll) : Component(owner), mOwner(owner), mColl(coll)
 {
 }
 
-void PhysicsComponent::Update(float dt)
+void Rigidbody::Update(float dt)
 {
     AddForce(Game::Get()->GetGravity() + mGravityOffset);
 
     PhysicsUpdate(dt);
 }
 
-void PhysicsComponent::AddForce(Vec2<float> force)
+void Rigidbody::AddForce(Vec2<float> force)
 {
     if (!mStatic)
         mPendingForces += force;
 }
 
-void PhysicsComponent::PhysicsUpdate(float dt)
+void Rigidbody::PhysicsUpdate(float dt)
 {
     if (!mStatic)
     {
@@ -37,7 +37,7 @@ void PhysicsComponent::PhysicsUpdate(float dt)
     CheckCollisions();
 }
 
-void PhysicsComponent::CheckCollisions()
+void Rigidbody::CheckCollisions()
 {
     if (!mColl || mColl->GetType() == CollType::None)
         return;
@@ -63,11 +63,11 @@ void PhysicsComponent::CheckCollisions()
     }
 }
 
-void PhysicsComponent::CheckCollisionList(const std::vector<CollisionComponent *> &collisions)
+void Rigidbody::CheckCollisionList(const std::vector<Collider *> &collisions)
 {
     Vec2<float> fixVec = Vec2<float>::Zero;
     CollSide fixSide = CollSide::None;
-    for (CollisionComponent *other : collisions)
+    for (Collider *other : collisions)
     {
         if (other == mColl)
             continue;
@@ -80,7 +80,7 @@ void PhysicsComponent::CheckCollisionList(const std::vector<CollisionComponent *
     }
 }
 
-void PhysicsComponent::OnCollide(CollisionComponent *other, CollSide side, Vec2<float> offset)
+void Rigidbody::OnCollide(Collider *other, CollSide side, Vec2<float> offset)
 {
     // print("moving", mOwner->GetPosition(), offset, Game::Get()->GetFrameCount());
     mOwner->MovePosition(offset);
@@ -95,19 +95,19 @@ void PhysicsComponent::OnCollide(CollisionComponent *other, CollSide side, Vec2<
         mColl->UpdateCollPositions();
 }
 
-void PhysicsComponent::AddPhysLayer(std::string layer)
+void Rigidbody::AddPhysLayer(std::string layer)
 {
     auto loc = std::find(mPhysLayers.begin(), mPhysLayers.end(), layer);
     if (loc == mPhysLayers.end())
         mPhysLayers.push_back(layer);
 }
-void PhysicsComponent::RemovePhysLayer(std::string layer)
+void Rigidbody::RemovePhysLayer(std::string layer)
 {
     auto loc = std::find(mPhysLayers.begin(), mPhysLayers.end(), layer);
     if (loc != mPhysLayers.end())
         mPhysLayers.erase(loc);
 }
-void PhysicsComponent::ClearPhysLayers()
+void Rigidbody::ClearPhysLayers()
 {
     mPhysLayers.clear();
 }

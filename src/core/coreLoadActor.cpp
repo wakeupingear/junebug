@@ -116,7 +116,7 @@ void Game::LoadActor(rapidjson::Value &actorRef, Scene &newScene)
             {
                 auto &colliders = tileset->GetColliders();
                 const auto &scale = tileset->GetScale();
-                std::vector<Vec2<double>> squareCollider = {
+                Vertices squareCollider = {
                     Vec2<double>(0.0, 0.0),
                     Vec2<double>(tileset->GetTileSize().x * scale.x, 0.0),
                     Vec2<double>(tileset->GetTileSize().x * scale.x, tileset->GetTileSize().y * scale.y),
@@ -131,7 +131,7 @@ void Game::LoadActor(rapidjson::Value &actorRef, Scene &newScene)
                     }
                     else if (collider.IsArray())
                     {
-                        std::vector<Vec2<double>> newCollider;
+                        Vertices newCollider;
                         for (auto &point : collider.GetArray())
                         {
                             if (point.IsArray())

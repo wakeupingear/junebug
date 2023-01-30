@@ -8,6 +8,6 @@
 #include "Inputs.h"
 #include "GlobalGame.h"
 
-#include "components/PhysicsComponent.h"
+#include "components/Rigidbody.h"
 #include "components/PolygonCollider.h"
 #include "components/TileCollider.h"

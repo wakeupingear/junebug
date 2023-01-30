@@ -114,15 +114,15 @@ namespace junebug
     /// @param type The type of curve to use
     /// @param looped OPTIONAL Whether or not the curve is looped
     /// @return The coroutine ID, or -1 if the coroutine could not be created
-    void TwerpCoroutine(class PureActor *actor, float &value, float start, float end, float time, TwerpType type = TWERP_LINEAR, bool looped = false, float opt1 = Twerp_Undefined, float opt2 = Twerp_Undefined);
-    void TwerpCoroutine(class PureActor *actor, int &value, int start, int end, float time, TwerpType type = TWERP_LINEAR, bool looped = false, float opt1 = Twerp_Undefined, float opt2 = Twerp_Undefined);
-    void TwerpCoroutine(class PureActor *actor, Uint8 &value, Uint8 start, Uint8 end, float time, TwerpType type = TWERP_LINEAR, bool looped = false, float opt1 = Twerp_Undefined, float opt2 = Twerp_Undefined);
+    void TwerpAsync(class PureActor *actor, float &value, float start, float end, float time, TwerpType type = TWERP_LINEAR, bool looped = false, float opt1 = Twerp_Undefined, float opt2 = Twerp_Undefined);
+    void TwerpAsync(class PureActor *actor, int &value, int start, int end, float time, TwerpType type = TWERP_LINEAR, bool looped = false, float opt1 = Twerp_Undefined, float opt2 = Twerp_Undefined);
+    void TwerpAsync(class PureActor *actor, Uint8 &value, Uint8 start, Uint8 end, float time, TwerpType type = TWERP_LINEAR, bool looped = false, float opt1 = Twerp_Undefined, float opt2 = Twerp_Undefined);
 
-    bool ToggleTwerpCoroutine(class PureActor *actor, float &value, int forceState = -1);
-    bool ToggleTwerpCoroutine(class PureActor *actor, int &value, int forceState = -1);
-    bool ToggleTwerpCoroutine(class PureActor *actor, Uint8 &value, int forceState = -1);
+    bool ToggleTwerpAsync(class PureActor *actor, float &value, int forceState = -1);
+    bool ToggleTwerpAsync(class PureActor *actor, int &value, int forceState = -1);
+    bool ToggleTwerpAsync(class PureActor *actor, Uint8 &value, int forceState = -1);
 
-    bool StopTwerpCoroutine(class PureActor *actor, float &value);
-    bool StopTwerpCoroutine(class PureActor *actor, int &value);
-    bool StopTwerpCoroutine(class PureActor *actor, Uint8 &value);
+    bool StopTwerpAsync(class PureActor *actor, float &value);
+    bool StopTwerpAsync(class PureActor *actor, int &value);
+    bool StopTwerpAsync(class PureActor *actor, Uint8 &value);
 };

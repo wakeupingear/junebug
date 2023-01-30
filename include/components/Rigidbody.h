@@ -5,16 +5,16 @@
 
 #include "Component.h"
 #include "MathLib.h"
-#include "CollisionComponent.h"
+#include "Collider.h"
 
 #include <vector>
 
 namespace junebug
 {
-    class PhysicsComponent : public Component
+    class Rigidbody : public Component
     {
     public:
-        PhysicsComponent(class VisualActor *owner, class CollisionComponent *coll = nullptr);
+        Rigidbody(class VisualActor *owner, class Collider *coll = nullptr);
 
         void Update(float dt) override;
 
@@ -40,18 +40,18 @@ namespace junebug
         void ClearPhysLayers();
         std::vector<std::string> &GetPhysLayers() { return mPhysLayers; };
 
-        void SetCollComponent(class CollisionComponent *coll) { mColl = coll; };
-        class CollisionComponent *GetCollComponent() { return mColl; };
+        void SetCollComponent(class Collider *coll) { mColl = coll; };
+        class Collider *GetCollComponent() { return mColl; };
 
     protected:
         VisualActor *mOwner;
-        class CollisionComponent *mColl{nullptr};
+        class Collider *mColl{nullptr};
 
         float mMass = 1.0f;
         bool mStatic = false;
         float mBounce = 0.0f;
 
-        virtual void OnCollide(class CollisionComponent *other, CollSide side, Vec2<float> offset);
+        virtual void OnCollide(class Collider *other, CollSide side, Vec2<float> offset);
 
         Vec2<float> mVelocity = Vec2<float>::Zero;
         Vec2<float> mAcceleration = Vec2<float>::Zero;
@@ -61,7 +61,7 @@ namespace junebug
 
         void PhysicsUpdate(float dt);
         void CheckCollisions();
-        void CheckCollisionList(const std::vector<class CollisionComponent *> &collisions);
+        void CheckCollisionList(const std::vector<class Collider *> &collisions);
 
         std::vector<std::string> mPhysLayers;
     };

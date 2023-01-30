@@ -475,9 +475,9 @@ void Game::RemoveActor(PureActor *actor)
     // Remove any active twerp coroutines
     if (actor)
     {
-        mTwerpCoroutinesFloat.erase(actor);
-        mTwerpCoroutinesInt.erase(actor);
-        mTwerpCoroutinesUint8.erase(actor);
+        mTwerpAsyncsFloat.erase(actor);
+        mTwerpAsyncsInt.erase(actor);
+        mTwerpAsyncsUint8.erase(actor);
     }
 }
 

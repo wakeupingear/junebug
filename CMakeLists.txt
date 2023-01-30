@@ -50,8 +50,8 @@ add_library(${LIBNAME} STATIC
     src/actors/Transitions.cpp
     
     src/Component.cpp
-    src/components/PhysicsComponent.cpp
-    src/components/CollisionComponent.cpp
+    src/components/Rigidbody.cpp
+    src/components/Collider.cpp
     src/components/PolygonCollider.cpp
     src/components/TileCollider.cpp
 

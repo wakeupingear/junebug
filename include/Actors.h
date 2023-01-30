@@ -6,7 +6,7 @@
 #include "MathLib.h"
 #include "Color.h"
 #include "Sprite.h"
-#include "components/CollisionComponent.h"
+#include "components/Collider.h"
 
 #include <functional>
 #include <vector>
@@ -303,7 +303,7 @@ namespace junebug
         Vec2<float> GetGravityOffset();
         void SetStatic(bool isStatic);
         bool IsStatic();
-        class PhysicsComponent *GetPhysicsComponent() { return mPhys; }
+        class Rigidbody *GetRigidbody() { return mPhys; }
         void SetBounce(float bounce);
         float GetBounce();
         void SetMass(float mass);
@@ -320,16 +320,16 @@ namespace junebug
         std::string GetCollLayer() { return mCollLayer; };
         void SetCollType(CollType type);
         CollType GetCollType() { return mCollType; };
-        class CollisionComponent *GetCollComponent() { return mColl; }
+        class Collider *GetCollComponent() { return mColl; }
 
     protected:
         friend class Game;
 
-        class PhysicsComponent *mPhys{nullptr};
-        class CollisionComponent *mColl{nullptr};
+        class Rigidbody *mPhys{nullptr};
+        class Collider *mColl{nullptr};
 
-        // Member variables that mirror the CollisionComponent.
-        // These are used to initialize the CollisionComponent when it is created to avoid unnecessary calls to Game::AddCollision()
+        // Member variables that mirror the Collider.
+        // These are used to initialize the Collider when it is created to avoid unnecessary calls to Game::AddCollision()
         std::string mCollLayer = "";
         CollType mCollType = CollType::Polygon;
 

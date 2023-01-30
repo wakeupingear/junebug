@@ -9,11 +9,11 @@
 
 namespace junebug
 {
-    class CollisionComponent : public Component
+    class Collider : public Component
     {
     public:
-        CollisionComponent(class VisualActor *owner, std::string layer);
-        ~CollisionComponent();
+        Collider(class VisualActor *owner, std::string layer);
+        ~Collider();
 
         void SetCollLayer(std::string layer);
         std::string GetCollLayer() { return mLayer; };
@@ -21,8 +21,8 @@ namespace junebug
         void SetType(CollType type);
         CollType GetType() { return mType; };
 
-        virtual bool Intersects(CollisionComponent *other) = 0;
-        virtual CollSide Intersects(CollisionComponent *other, Vec2<float> &offset) = 0;
+        virtual bool Intersects(Collider *other) = 0;
+        virtual CollSide Intersects(Collider *other, Vec2<float> &offset) = 0;
 
         virtual void UpdateCollPositions(Vec2<float> offset = Vec2<float>::Zero){};
 

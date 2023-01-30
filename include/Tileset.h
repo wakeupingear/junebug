@@ -44,16 +44,16 @@ namespace junebug
         inline int GetWorldTile(Vec2<float> pos) { return GetTile(WorldToTile(pos)); }
         inline int GetWorldTile(Vec2<int> pos) { return GetWorldTile(Vec2<float>(pos)); }
 
-        void SetColliders(std::vector<std::vector<Vec2<double>>> colliders);
-        std::vector<std::vector<Vec2<double>>> &GetColliders() { return mColliders; };
+        void SetColliders(std::vector<Vertices> colliders);
+        std::vector<Vertices> &GetColliders() { return mColliders; };
         void EnableCollision();
         void DisableCollision();
         void SetCollLayer(std::string layer);
         std::string GetCollLayer() { return mCollLayer; };
         void CalculateNumTiles();
 
-        std::vector<Vec2<double>> *GetTileCollider(Vec2<int> tile);
-        inline std::vector<Vec2<double>> *GetWorldCollider(Vec2<float> pos) { return GetTileCollider(WorldToTile(pos)); }
+        Vertices *GetTileCollider(Vec2<int> tile);
+        inline Vertices *GetWorldCollider(Vec2<float> pos) { return GetTileCollider(WorldToTile(pos)); }
         bool TileHasCollider(Vec2<int> tile);
         inline bool WorldHasCollider(Vec2<float> pos) { return TileHasCollider(WorldToTile(pos)); }
 
@@ -81,7 +81,7 @@ namespace junebug
         inline float GetTileHeight();
 
         class TileCollider *mColl{nullptr};
-        std::vector<std::vector<Vec2<double>>> mColliders;
+        std::vector<Vertices> mColliders;
 
         std::string mCollLayer{""};
 

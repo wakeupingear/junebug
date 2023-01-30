@@ -9,15 +9,15 @@
 
 namespace junebug
 {
-    class TileCollider : public CollisionComponent
+    class TileCollider : public Collider
     {
     public:
-        TileCollider(class VisualActor *owner, std::vector<std::vector<Vec2<double>>> &collisionBounds, std::string layer = "");
+        TileCollider(class VisualActor *owner, std::vector<Vertices> &collisionBounds, std::string layer = "");
 
         void Update(float dt) override;
 
-        bool Intersects(CollisionComponent *other);
-        CollSide Intersects(CollisionComponent *other, Vec2<float> &offset) override;
+        bool Intersects(Collider *other);
+        CollSide Intersects(Collider *other, Vec2<float> &offset) override;
 
         void UpdateCollPositions(Vec2<float> offset = Vec2<float>::Zero) override;
 

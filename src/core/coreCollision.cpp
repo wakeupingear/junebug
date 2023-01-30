@@ -1,14 +1,14 @@
 #include "Game.h"
-#include "components/CollisionComponent.h"
+#include "components/Collider.h"
 
 using namespace junebug;
 
-void Game::AddCollision(CollisionComponent *coll)
+void Game::AddCollision(Collider *coll)
 {
     mCollLayers[coll->GetCollLayer()].push_back(coll);
 }
 
-void Game::RemoveCollision(CollisionComponent *coll)
+void Game::RemoveCollision(Collider *coll)
 {
     auto &layer = mCollLayers[coll->GetCollLayer()];
     auto it = std::find(layer.begin(), layer.end(), coll);

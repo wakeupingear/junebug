@@ -1,19 +1,19 @@
-#include "components/CollisionComponent.h"
+#include "components/Collider.h"
 #include "Actors.h"
 #include "Game.h"
 
 using namespace junebug;
 
-CollisionComponent::CollisionComponent(VisualActor *owner, std::string layer) : Component(owner), mOwner(owner), mLayer(layer)
+Collider::Collider(VisualActor *owner, std::string layer) : Component(owner), mOwner(owner), mLayer(layer)
 {
 }
 
-CollisionComponent::~CollisionComponent()
+Collider::~Collider()
 {
     Game::Get()->RemoveCollision(this);
 }
 
-void CollisionComponent::SetCollLayer(std::string layer)
+void Collider::SetCollLayer(std::string layer)
 {
     bool shouldUpdate = mLayer != layer;
     mLayer = layer;
@@ -21,7 +21,7 @@ void CollisionComponent::SetCollLayer(std::string layer)
         UpdateCollEntry(false);
 }
 
-void CollisionComponent::SetType(CollType type)
+void Collider::SetType(CollType type)
 {
     bool shouldUpdate = mType != type;
     mType = type;
@@ -29,7 +29,7 @@ void CollisionComponent::SetType(CollType type)
         UpdateCollEntry(false);
 }
 
-void CollisionComponent::UpdateCollEntry(bool initial)
+void Collider::UpdateCollEntry(bool initial)
 {
     if (!initial)
         Game::Get()->RemoveCollision(this);

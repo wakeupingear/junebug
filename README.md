@@ -4,7 +4,7 @@
 
 C++ is performant, but it's not easy to use. `Junebug` takes that performance and wraps it in various abstractions to make it easy to use. The goal is to make a stand in replacement for Game Maker Studio 2 that can scale to the needs of a production game.
 
-It also bundles a bunch of useful game functions and implementations that Game Maker ideally should include out of the box but doesn't.
+It also bundles a bunch of useful game functions and implementations that Game Maker ideally should include out of the box but doesn't. 2D games have a lot of shared features and systems, so it makes sense to bundle the most common ones together inside the engine.
 
 ## Dead Simple Sample
 
@@ -26,15 +26,22 @@ int main()
 
 # Features
 
+## Sprites
+
+-   PNG loading
+-   Internal sprite management system
+-   Supports raw sprites and optional metadata
+
 ## Scenes
 
 -   Actor management across multiple Scenes
 -   Scene transition effects
+-   Layer and depth sorting
 
 ## Physics
 
 -   2D polygon collision
--   Separated physics and collision components
+-   Separated rigidbody and collider components
 -   Per-scene and per-actor gravity
 
 ## Tilesets
@@ -43,31 +50,42 @@ int main()
 -   Actor collision
 -   Built in editor
 
-## Coroutine Animations
+## Async Animations
 
--   Interpolate any variable in the background
--   Apply animation curves to interpolation
+-   Asyncronously animate any member variable
+-   Apply animation curves to animations
 
 ## Cameras
 
 -   Muli-camera support
 -   Camera shake
 
+## Backgrounds
+
+-   Parallax scrolling
+-   Tiled backgrounds
+
 ## Serialisation
 
 -   Automatic reflection for base member variables
 -   JSON saving/loading of Scenes and Actors
+-   Extendable serialisation for custom classes
+
+## Opt-In Plugins
+-   Discord Rich Presence
 
 ## Debug
 
 -   CLI profiler
 -   Automatic error logging
+-   Adjustable frame timing
 
-## Platform Support
+## Verified Platform Support
 
 -   Linux
 -   Windows
 -   Mac
+-   HTML5 (Emscripten)
 
 ## Compiler Support
 
@@ -83,15 +101,15 @@ The recommended structure of a `Junebug` project is as follows:
 ```sh
 MyGame
 ├── CMakeLists.txt
-├── lib
+├── lib/
 │   ├── junebug
-├── assets
-│   ├── fonts
-│   ├── sprites
-│   ├── scenes
-├── include
+├── assets/
+│   ├── fonts/
+│   ├── sprites/
+│   ├── scenes/
+├── include/
 │   ├── Your Header Files
-├── src
+├── src/
 │   ├── Your Source Files
 ```
 
@@ -120,7 +138,7 @@ Mac users only need to have an installed C++ compiler. `g++/gcc` is generally re
 
 ## HTML5 (Emscripten)
 
-`Junebug` games can also be compiled directly to Webassembly, which can then be run in any modern browser. This is done using the Emscripten SDK, which can be downloaded from [here](https://emscripten.org/docs/getting_started/downloads.html).
+`Junebug` games can also be compiled directly to WebAssembly, which can then be run in any modern browser. This is done using the Emscripten SDK, which can be downloaded from [here](https://emscripten.org/docs/getting_started/downloads.html).
 
 Once Enscripten is installed and added to PATH (or aliased), you can compile a `Junebug` game to HTML5 by running the following commands from the project root:
 
@@ -181,17 +199,17 @@ class PhysicalActor : public VisualActor;
 
 `VisualActor` is the most common class and should be used for any object that needs to be drawn to the screen. It has a member variable `mSpritePath` to indicate the actor's default sprite, plus an optionally overrideable `Draw()` function. See the below section on `Rendering` for more information.
 
-`PhysicalActor` doesn't add any new callbacks, but it automatically adds two new member variables: `mPhys` (`PhysicsComponent`) and `mColl` (`CollisionComponent`).
+`PhysicalActor` doesn't add any new callbacks, but it automatically adds two new member variables: `mPhys` (`Rigidbody`) and `mColl` (`Collider`).
 
 ## Components
 
-Although `Junebug`'s actor system is built around inheritance, it also supports the use of Components. Components are objects that can be attached to Actors to add common functionality, like the aforementioned `PhysicsComponent` which makes the Actor automatically obey the current scene's physics rules. Components are managed automatically by the `Game` class and can be directly created and destroyed at any time.
+Although `Junebug`'s actor system is built around inheritance, it also supports the use of Components. Components are objects that can be attached to actors to add common functionality, like the aforementioned `Rigidbody` which makes the actor automatically obey the current scene's physics rules. Components are managed automatically by the `Game` class and can be directly created and destroyed at any time.
 
-While Components aren't actors, they also have an overridable `Update` function that is called every frame BEFORE the Actor's `Update` function. This allows the Component to modify the Actor's state before it is updated.
+While Components aren't actors, they also have an overridable `Update` function that is called every frame BEFORE the actor's `Update` function. This allows the Component to modify the actor's state before it is updated.
 
 ## Rendering
 
-Rendering is where `Junebug` differs from many engines like Unity and Unreal. Every draw call, whether drawing a Sprite or Text, must be explicitly issued in code every frame. This can be very useful for 2D sprite-based games specifically since it allows for complex and effects that involve many different sprites or transformations separate from a given Actor. In other words, an Actor's internal state doesn't strictly determine how it is drawn.
+Rendering is where `Junebug` differs from many engines like Unity and Unreal. Every draw call, whether drawing a Sprite or Text, must be explicitly issued in code every frame. This can be very useful for 2D sprite-based games specifically since it allows for complex and effects that involve many different sprites or transformations separate from a given actor. In other words, an actor's internal state doesn't strictly determine how it is drawn.
 
 This is exactly how Game Maker Studio 2 works, and it's a very powerful paradigm when used responsibly. The following namespace-level functions are available for drawing:
 
@@ -279,6 +297,58 @@ The 'default sprite animation' is just the animation that plays for the actor's 
 This whole system may seem needlessly complicated, but it is designed to be more useful beyond just the an object's main sprite. The `Junebug` Draw Event allows and encourages drawing multiple different sprites for one object where necessary, useful for things like segmented 2D animation. This system can automatically process many different animations in the background, which can then be referenced for consecutive `DrawSprite` calls in the Draw Event.
 
 In other words, no more need to make frame and counter variables for every sub-animation within an object! It all just works under the hood.
+
+## Physics
+
+`Junebug` makes heavy use of the [Separating Axis Theorem (SAT)](https://dyn4j.org/2010/01/sat/) for collision detection. This allows for precise collision detection between any convex polygonal shapes, regardless of rotation or axis alignment. The implementation provided is custom and far less efficient than a standard libary like Box2D, but it is also much more lightweight and easier to understand. It's also still fast enough to use as standard physics system, even in places where a traditional Axis-Aligned Bounding Box (AABB) system would be used.
+
+It's important to note that this physics system mostly focuses on collision handling. Some basic inbuilt physics interactions are provided, such as gravity and bounce, but the system leaves most complicated dynamics up to the user. All physics components can be easily extended and overriden for such purposes.
+
+Physics interactions can also be isolated to different layers, allowing for more complex interactions between different types objects. For example, a player character can be set to collide with the ground, but not with enemies. By default, all components that use the physics system will use a `default` layer to interact with all other components.
+
+The actual system is split into two main components: `Collider` and `Rigidbody`. The former is responsible for detecting collisions and the latter is responsible for handling them. 
+
+For ease of use, a third actor class, `PhysicsActor`, is provided that defaults with both components. The `Collider` will use the actor's sprite to determine its shape - specifically, the `mVertices` member variable in the `Sprite` class. This shape defaults to a squre but can be overriden with one or more custom frames with the `collision` field in a `Sprite`'s metadata file. See below for more info on how this collider data is stored.
+
+## Physcs Rigidbody
+
+The `Rigidbody` component allows an actor to be affected by the physics system. It will update after the actor updates and before the actor draws. During this update phase, the rigidbody will move the actor according to its acceleration, velocity, and pending forces. If the parent has a `Collider` component, it will also check for collisions with other colliders and resolve them accordingly in this phase.
+
+Below are the most useful functions for interacting with a rigidbody:
+
+```cpp
+class Rigidbody : public Component
+{
+    void AddForce(Vec2<float> force); // Adds a force to the rigidbody
+    void SetStatic(bool isStatic); // Sets the rigidbody to be static (disables physics) or not
+    void SetMass(float mass); // Sets the rigidbody's mass
+    void SetGravityOffset(Vec2<float> gravity); // Sets an addative offset to the scene's gravity
+
+    void AddPhysLayer(string layer); // Add a physics layer for this rigidbody to collide with
+};
+```
+
+## Physics Collider
+
+The `Collider` component represents an actor's physical shape and size for collision detection. It is an abstract class that must be extended to be used, since different types of collision will need different data to be stored. Any child class must implement the following two functions, which are used by the `Rigidbody` component to check for collisions:
+
+```cpp
+class Collider : public Component
+{
+    // Checks if this collider intersects another collider, and returns the approximate side of intersection
+    // The offset reference is set to the minimum translation vector to resolve the collision
+    CollSide Intersects(Collider *other, Vec2<float> &offset);
+
+    // A wrapper for the above function that only returns a boolean
+    bool Intersects(Collider *other);
+};
+```
+
+The main usable collider is the `PolygonCollider`, which performs intersection checks against a single polygonal collision mask. Collision masks are represented with the `Vertices` typedef, which is just a `vector` of `Vec2<double>`s. `double` is used for extra precision and better equality checking.
+
+A `TileCollider` is also included to handle collision with a tilemap. This inherits directly from `Collider` but uses similar methods as `PolygonCollider` to perform intersection checks. This allows you to specify a custom collision mask for each tile in the tilemap, which can be useful for non-rectangular tiles like slopes. Similar to the `Sprite` metadata, this data is stored in a `collision` field in the tilemap's metadata from a `Scene` file.
+
+Note: The `TileCollider` has trouble with collisions at high speeds. This is because the current implementation doesn't merge connected tiles into a single collision mask, resulting in some strange overlaps. Nonetheless, it still fine for most basic 2D games and will be improved in the future.
 
 ## Math
 

@@ -1,5 +1,5 @@
 #include "Actors.h"
-#include "components/PhysicsComponent.h"
+#include "components/Rigidbody.h"
 #include "components/PolygonCollider.h"
 #include "Game.h"
 
@@ -162,7 +162,7 @@ void PhysicalActor::SetCollType(CollType type)
 void PhysicalActor::InitializePhysComponent()
 {
     if (!mPhys)
-        mPhys = new PhysicsComponent(this, mColl);
+        mPhys = new Rigidbody(this, mColl);
     else
         mPhys->SetCollComponent(mColl);
 }

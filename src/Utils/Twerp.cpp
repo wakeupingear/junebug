@@ -181,112 +181,112 @@ namespace junebug
         return (Uint8)_TwerpHelper((float)_start, (float)_end, _pos, _type, _looped, _opt1, _opt2);
     }
 
-    void TwerpCoroutine(PureActor *actor, float &value, float start, float end, float time, TwerpType type, bool looped, float opt1, float opt2)
+    void TwerpAsync(PureActor *actor, float &value, float start, float end, float time, TwerpType type, bool looped, float opt1, float opt2)
     {
         TwerpPropertyFloat prop = {&(value), start, end, time, 0.0f, type, looped, opt1, opt2};
         Game *game = Game::Get();
         if (game)
         {
-            game->RegisterTwerpCoroutine(actor, prop, game->GetTwerpCoroutinesFloat());
+            game->RegisterTwerpAsync(actor, prop, game->GetTwerpAsyncsFloat());
             value = start;
         }
     }
-    void TwerpCoroutine(PureActor *actor, int &value, int start, int end, float time, TwerpType type, bool looped, float opt1, float opt2)
+    void TwerpAsync(PureActor *actor, int &value, int start, int end, float time, TwerpType type, bool looped, float opt1, float opt2)
     {
         TwerpPropertyInt prop = {&(value), start, end, time, 0.0f, type, looped, opt1, opt2};
         Game *game = Game::Get();
         if (game)
         {
-            game->RegisterTwerpCoroutine(actor, prop, game->GetTwerpCoroutinesInt());
+            game->RegisterTwerpAsync(actor, prop, game->GetTwerpAsyncsInt());
             value = start;
         }
     }
-    void TwerpCoroutine(PureActor *actor, Uint8 &value, Uint8 start, Uint8 end, float time, TwerpType type, bool looped, float opt1, float opt2)
+    void TwerpAsync(PureActor *actor, Uint8 &value, Uint8 start, Uint8 end, float time, TwerpType type, bool looped, float opt1, float opt2)
     {
         TwerpPropertyUint8 prop = {&(value), start, end, time, 0.0f, type, looped, opt1, opt2};
         Game *game = Game::Get();
         if (game)
         {
-            game->RegisterTwerpCoroutine(actor, prop, game->GetTwerpCoroutinesUint8());
+            game->RegisterTwerpAsync(actor, prop, game->GetTwerpAsyncsUint8());
             value = start;
         }
     }
     // Probably should make this better since it's a bit of a hack
-    void TwerpCoroutine(PureActor *actor, Vec2<float> &value, Vec2<float> start, Vec2<float> end, float time, TwerpType type, bool looped, float opt1, float opt2)
+    void TwerpAsync(PureActor *actor, Vec2<float> &value, Vec2<float> start, Vec2<float> end, float time, TwerpType type, bool looped, float opt1, float opt2)
     {
-        TwerpCoroutine(actor, value.x, start.x, end.x, time, type, looped, opt1, opt2);
-        TwerpCoroutine(actor, value.y, start.y, end.y, time, type, looped, opt1, opt2);
+        TwerpAsync(actor, value.x, start.x, end.x, time, type, looped, opt1, opt2);
+        TwerpAsync(actor, value.y, start.y, end.y, time, type, looped, opt1, opt2);
     }
-    void TwerpCoroutine(PureActor *actor, Vec2<int> &value, Vec2<int> start, Vec2<int> end, float time, TwerpType type, bool looped, float opt1, float opt2)
+    void TwerpAsync(PureActor *actor, Vec2<int> &value, Vec2<int> start, Vec2<int> end, float time, TwerpType type, bool looped, float opt1, float opt2)
     {
-        TwerpCoroutine(actor, value.x, start.x, end.x, time, type, looped, opt1, opt2);
-        TwerpCoroutine(actor, value.y, start.y, end.y, time, type, looped, opt1, opt2);
+        TwerpAsync(actor, value.x, start.x, end.x, time, type, looped, opt1, opt2);
+        TwerpAsync(actor, value.y, start.y, end.y, time, type, looped, opt1, opt2);
     }
 
-    bool ToggleTwerpCoroutine(PureActor *actor, float &value, int forceState)
+    bool ToggleTwerpAsync(PureActor *actor, float &value, int forceState)
     {
         TwerpPropertyFloat prop = {&(value)};
         Game *game = Game::Get();
         if (game)
-            return game->ToggleTwerpCoroutine(actor, prop, game->GetTwerpCoroutinesFloat(), forceState);
+            return game->ToggleTwerpAsync(actor, prop, game->GetTwerpAsyncsFloat(), forceState);
         return false;
     }
-    bool ToggleTwerpCoroutine(PureActor *actor, int &value, int forceState)
+    bool ToggleTwerpAsync(PureActor *actor, int &value, int forceState)
     {
         TwerpPropertyInt prop = {&(value)};
         Game *game = Game::Get();
         if (game)
-            return game->ToggleTwerpCoroutine(actor, prop, game->GetTwerpCoroutinesInt(), forceState);
+            return game->ToggleTwerpAsync(actor, prop, game->GetTwerpAsyncsInt(), forceState);
         return false;
     }
-    bool ToggleTwerpCoroutine(PureActor *actor, Uint8 &value, int forceState)
+    bool ToggleTwerpAsync(PureActor *actor, Uint8 &value, int forceState)
     {
         TwerpPropertyUint8 prop = {&(value)};
         Game *game = Game::Get();
         if (game)
-            return game->ToggleTwerpCoroutine(actor, prop, game->GetTwerpCoroutinesUint8(), forceState);
+            return game->ToggleTwerpAsync(actor, prop, game->GetTwerpAsyncsUint8(), forceState);
         return false;
     }
-    bool ToggleTwerpCoroutine(PureActor *actor, Vec2<float> &value, int forceState)
+    bool ToggleTwerpAsync(PureActor *actor, Vec2<float> &value, int forceState)
     {
-        return ToggleTwerpCoroutine(actor, value.x, forceState) && ToggleTwerpCoroutine(actor, value.y, forceState);
+        return ToggleTwerpAsync(actor, value.x, forceState) && ToggleTwerpAsync(actor, value.y, forceState);
     }
-    bool ToggleTwerpCoroutine(PureActor *actor, Vec2<int> &value, int forceState)
+    bool ToggleTwerpAsync(PureActor *actor, Vec2<int> &value, int forceState)
     {
-        return ToggleTwerpCoroutine(actor, value.x, forceState) && ToggleTwerpCoroutine(actor, value.y, forceState);
+        return ToggleTwerpAsync(actor, value.x, forceState) && ToggleTwerpAsync(actor, value.y, forceState);
     }
 
-    bool StopTwerpCoroutine(PureActor *actor, float &value)
+    bool StopTwerpAsync(PureActor *actor, float &value)
     {
         TwerpPropertyFloat prop = {&(value)};
         Game *game = Game::Get();
         if (game)
-            return game->StopTwerpCoroutine(actor, prop, game->GetTwerpCoroutinesFloat());
+            return game->StopTwerpAsync(actor, prop, game->GetTwerpAsyncsFloat());
         return false;
     }
-    bool StopTwerpCoroutine(PureActor *actor, int &value)
+    bool StopTwerpAsync(PureActor *actor, int &value)
     {
         TwerpPropertyInt prop = {&(value)};
         Game *game = Game::Get();
         if (game)
-            return game->StopTwerpCoroutine(actor, prop, game->GetTwerpCoroutinesInt());
+            return game->StopTwerpAsync(actor, prop, game->GetTwerpAsyncsInt());
         return false;
     }
-    bool StopTwerpCoroutine(PureActor *actor, Uint8 &value)
+    bool StopTwerpAsync(PureActor *actor, Uint8 &value)
     {
         TwerpPropertyUint8 prop = {&(value)};
         Game *game = Game::Get();
         if (game)
-            return game->StopTwerpCoroutine(actor, prop, game->GetTwerpCoroutinesUint8());
+            return game->StopTwerpAsync(actor, prop, game->GetTwerpAsyncsUint8());
         return false;
     }
-    bool StopTwerpCoroutine(PureActor *actor, Vec2<float> &value)
+    bool StopTwerpAsync(PureActor *actor, Vec2<float> &value)
     {
-        return StopTwerpCoroutine(actor, value.x) && StopTwerpCoroutine(actor, value.y);
+        return StopTwerpAsync(actor, value.x) && StopTwerpAsync(actor, value.y);
     }
-    bool StopTwerpCoroutine(PureActor *actor, Vec2<int> &value)
+    bool StopTwerpAsync(PureActor *actor, Vec2<int> &value)
     {
-        return StopTwerpCoroutine(actor, value.x) && StopTwerpCoroutine(actor, value.y);
+        return StopTwerpAsync(actor, value.x) && StopTwerpAsync(actor, value.y);
     }
 }
 
@@ -294,7 +294,7 @@ using namespace junebug;
 
 void Game::UpdateTwerps(float dt)
 {
-    UpdateTwerpList(mTwerpCoroutinesFloat, dt);
-    UpdateTwerpList(mTwerpCoroutinesInt, dt);
-    UpdateTwerpList(mTwerpCoroutinesUint8, dt);
+    UpdateTwerpList(mTwerpAsyncsFloat, dt);
+    UpdateTwerpList(mTwerpAsyncsInt, dt);
+    UpdateTwerpList(mTwerpAsyncsUint8, dt);
 }

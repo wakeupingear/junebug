@@ -228,7 +228,7 @@ void Tileset::DisableCollision()
         mColl->SetType(CollType::None);
 }
 
-std::vector<Vec2<double>> *Tileset::GetTileCollider(Vec2<int> tile)
+Vertices *Tileset::GetTileCollider(Vec2<int> tile)
 {
     if (mNumTiles == 0 || tile.x < 0 || tile.y < 0 || tile.y >= mTiles.size() || tile.x >= mTiles[tile.y].size())
         return nullptr;

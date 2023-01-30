@@ -299,19 +299,19 @@ namespace junebug
                 using twerp_map = std::unordered_map<class PureActor *, std::vector<T>>;
                 // Register a twerp coroutine
                 template <typename T>
-                void RegisterTwerpCoroutine(class PureActor *actor, T prop, twerp_map<T> &map)
+                void RegisterTwerpAsync(class PureActor *actor, T prop, twerp_map<T> &map)
                 {
                         if (actor)
                         {
                                 map[actor].push_back(prop);
                         }
                 }
-                twerp_map<TwerpPropertyFloat> &GetTwerpCoroutinesFloat() { return mTwerpCoroutinesFloat; }
-                twerp_map<TwerpPropertyInt> &GetTwerpCoroutinesInt() { return mTwerpCoroutinesInt; }
-                twerp_map<TwerpPropertyUint8> &GetTwerpCoroutinesUint8() { return mTwerpCoroutinesUint8; }
+                twerp_map<TwerpPropertyFloat> &GetTwerpAsyncsFloat() { return mTwerpAsyncsFloat; }
+                twerp_map<TwerpPropertyInt> &GetTwerpAsyncsInt() { return mTwerpAsyncsInt; }
+                twerp_map<TwerpPropertyUint8> &GetTwerpAsyncsUint8() { return mTwerpAsyncsUint8; }
 
                 template <typename T>
-                bool ToggleTwerpCoroutine(PureActor *actor, T prop, twerp_map<T> &map, int forceState = -1)
+                bool ToggleTwerpAsync(PureActor *actor, T prop, twerp_map<T> &map, int forceState = -1)
                 {
                         if (actor)
                         {
@@ -334,7 +334,7 @@ namespace junebug
                 }
 
                 template <typename T>
-                bool StopTwerpCoroutine(PureActor *actor, T prop, twerp_map<T> &map)
+                bool StopTwerpAsync(PureActor *actor, T prop, twerp_map<T> &map)
                 {
                         if (actor)
                         {
@@ -359,12 +359,12 @@ namespace junebug
 #pragma region Collision
                 // Add a collision component to the game
                 /// @param component The component to add
-                void AddCollision(class CollisionComponent *component);
+                void AddCollision(class Collider *component);
                 // Remove a collision component from the game
                 /// @param component The component to remove
-                void RemoveCollision(class CollisionComponent *component);
+                void RemoveCollision(class Collider *component);
 
-                typedef std::unordered_map<std::string, std::vector<class CollisionComponent *>> collision_layers;
+                typedef std::unordered_map<std::string, std::vector<class Collider *>> collision_layers;
                 // Get a const reference to the list of collision components
                 /// @returns A const reference to the list of collision components
                 const collision_layers &GetCollLayers() const;
@@ -613,9 +613,9 @@ namespace junebug
                 collision_layers mCollLayers;
 
                 // Twerp coroutines
-                twerp_map<TwerpPropertyFloat> mTwerpCoroutinesFloat;
-                twerp_map<TwerpPropertyInt> mTwerpCoroutinesInt;
-                twerp_map<TwerpPropertyUint8> mTwerpCoroutinesUint8;
+                twerp_map<TwerpPropertyFloat> mTwerpAsyncsFloat;
+                twerp_map<TwerpPropertyInt> mTwerpAsyncsInt;
+                twerp_map<TwerpPropertyUint8> mTwerpAsyncsUint8;
                 // Helper function to update all twerp coroutines
                 void UpdateTwerps(float dt);
                 template <typename T>

@@ -69,8 +69,8 @@ namespace junebug
         const std::string &GetName() const { return mName; }
 
         // Set the vertices
-        void SetVertices(std::vector<Vec2<double>> &vertices) { mVertices = vertices; }
-        const std::vector<Vec2<double>> &GetVertices() const { return mVertices; }
+        void SetVertices(Vertices &vertices) { mVertices = vertices; }
+        const Vertices &GetVertices() const { return mVertices; }
 
     protected:
         // Texture to draw
@@ -79,8 +79,9 @@ namespace junebug
         Vec2<int> mTexSize = Vec2<int>(0, 0);
         // Origin
         Vec2<int> mOrigin = Vec2<int>(0, 0);
+
         // Polygon vertices
-        std::vector<Vec2<double>> mVertices;
+        Vertices mVertices;
 
         float mFps = 12.0f;
 

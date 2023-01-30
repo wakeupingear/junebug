@@ -9,7 +9,7 @@
 
 using namespace junebug;
 
-TileCollider::TileCollider(class VisualActor *owner, std::vector<std::vector<Vec2<double>>> &collisionBounds, std::string layer) : CollisionComponent(owner, layer)
+TileCollider::TileCollider(class VisualActor *owner, std::vector<Vertices> &collisionBounds, std::string layer) : Collider(owner, layer)
 {
     mType = CollType::Tileset;
     UpdateCollEntry(true);
@@ -32,13 +32,13 @@ void TileCollider::Update(float dt)
     UpdateCollPositions();
 }
 
-bool TileCollider::Intersects(CollisionComponent *_other)
+bool TileCollider::Intersects(Collider *_other)
 {
     Vec2<float> offset;
     return Intersects(_other, offset) != CollSide::None;
 }
 
-CollSide TileCollider::Intersects(CollisionComponent *_other, Vec2<float> &offset)
+CollSide TileCollider::Intersects(Collider *_other, Vec2<float> &offset)
 {
     offset = Vec2<float>::Zero;
 

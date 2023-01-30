@@ -10,6 +10,7 @@
 #include <limits>
 #include <fstream>
 #include <SDL2/SDL.h>
+#include <vector>
 
 namespace junebug
 {
@@ -433,6 +434,11 @@ public:
 	static const Vec2<T> NegUnitX;
 	static const Vec2<T> NegUnitY;
 };
+
+namespace junebug
+{
+	typedef std::vector<Vec2<double>> Vertices;
+}
 
 // 3D Vector
 template <typename T = float>

@@ -171,7 +171,7 @@ namespace junebug
             DrawLine(offset + vertices[i], offset + vertices[(i + 1) % vertices.size()], color);
         }
     }
-    void DrawPolygonOutline(const std::vector<Vec2<double>> &vertices, const Color &color, const Vec2<float> offset, const float thickness)
+    void DrawPolygonOutline(const Vertices &vertices, const Color &color, const Vec2<float> offset, const float thickness)
     {
         for (int i = 0; i < vertices.size(); i++)
         {

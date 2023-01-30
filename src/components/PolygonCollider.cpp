@@ -5,7 +5,7 @@
 
 using namespace junebug;
 
-void PolygonCollisionBounds::LoadVertices(const std::vector<Vec2<double>> &vertices)
+void PolygonCollisionBounds::LoadVertices(const Vertices &vertices)
 {
     this->vertices = &vertices;
 }
@@ -90,7 +90,7 @@ void PolygonCollisionBounds::UpdateWorldVertices(const Vec2<float> &pos, float r
     }
 }
 
-PolygonCollider::PolygonCollider(VisualActor *owner, std::string layer) : CollisionComponent(owner, layer)
+PolygonCollider::PolygonCollider(VisualActor *owner, std::string layer) : Collider(owner, layer)
 {
     mType = CollType::Polygon;
     UpdateCollEntry(true);
@@ -109,13 +109,13 @@ void PolygonCollider::Update(float dt)
     UpdateCollPositions();
 }
 
-bool PolygonCollider::Intersects(CollisionComponent *_other)
+bool PolygonCollider::Intersects(Collider *_other)
 {
     Vec2<float> offset;
     return Intersects(_other, offset) != CollSide::None;
 }
 
-CollSide PolygonCollider::Intersects(CollisionComponent *_other, Vec2<float> &offset)
+CollSide PolygonCollider::Intersects(Collider *_other, Vec2<float> &offset)
 {
     offset = Vec2<float>::Zero;
 
