@@ -1,16 +1,19 @@
-#https://stackoverflow.com/questions/17511496/how-to-create-a-shared-library-with-cmake
+# https://github.com/suikki/simpleSDL/
 
+cmake_minimum_required(VERSION 3.13 FATAL_ERROR)
 set(LIBNAME junebug)
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-cmake_minimum_required(VERSION 3.9)
-project(${LIBNAME} VERSION 0.1.0 DESCRIPTION "A lightweight C++ game engine")
+set(sdlDir "${junebugDir}/lib/SDL")
+set(SDL2MAIN_LIBRARY SDL2main)
+set(SDL2_LIBRARY SDL2)
+
+
+# Joysticks were causing trouble on android.
+add_definitions(-DSDL_JOYSTICK=0)
+
 include(GNUInstallDirs)
-
-file(GLOB_RECURSE LIB_SRC_CPP "lib/*.cpp")
-
-if (NOT EMSCRIPTEN)
-    file(GLOB_RECURSE LIB_PLUGINS_CPP "plugins/*.cpp")
-endif()
 
 file(GLOB_RECURSE LIB_SRC_C "lib/*.c")
 set_source_files_properties(
@@ -64,63 +67,50 @@ add_library(${LIBNAME} STATIC
     ${LIB_PLUGINS_CPP}
 )
 
-set_target_properties(${LIBNAME} PROPERTIES
-    VERSION ${PROJECT_VERSION}
-    SOVERSION 1
-    PUBLIC_HEADER include/${LIBNAME}.h
+
+set(junebugIncludeDirs ${junebugIncludeDirs}
+    "${junebugDir}/include"
+    "${junebugDir}/lib/SDL/include"
+    "${junebugDir}/lib/GLEW/include"
+    "${junebugDir}/lib/rapidjson/include"
+    "${junebugDir}/lib/SDL_FontCache"
 )
 
-if (WIN32)
-    include_directories(lib/GLEW/include)
-    include_directories(lib/SDL/include)
-    include_directories(lib/rapidjson/include)
-    include_directories(lib/SDL_FontCache)
-    link_directories(lib/GLEW/lib/win/x64)
-    link_directories(lib/SDL/lib/win/x64)
+target_include_directories(${LIBNAME} PRIVATE include)
+target_include_directories(${LIBNAME} PRIVATE lib/SDL_FontCache)
+target_include_directories(${LIBNAME} PRIVATE lib/rapidjson/include)
+target_include_directories(${LIBNAME} PRIVATE src)
 
-    include_directories(plugins/discord/discord_game_sdk)
-    link_directories(plugins/discord/discord_game_sdk/lib/x86_64)
+target_compile_features(${LIBNAME} PRIVATE cxx_std_17)
 
-	target_link_libraries(${LIBNAME} SDL2 SDL2_image SDL2_mixer SDL2_ttf glew32 opengl32 discord_game_sdk)
+#
+# Platform dependent stuff.
+#
 
-    configure_file(${LIBNAME}.pc.in ${LIBNAME}.pc @ONLY)
-    target_include_directories(${LIBNAME} PRIVATE include)
-    target_include_directories(${LIBNAME} PRIVATE src)
-    target_compile_features(${LIBNAME} PRIVATE cxx_std_17)
+if(MINGW)
+  # -Link standard libs statically to reduce dll clutter.
+  # -lmingw32 is needed to make WinMain not disappear when linking.
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -static -static-libgcc -lmingw32")
 
-    install(TARGETS ${LIBNAME}
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
-    install(FILES ${CMAKE_BINARY_DIR}/${LIBNAME}.pc
-    DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/pkgconfig)
-elseif (APPLE)
-    include_directories(lib/GLEW/include)
-    include_directories(lib/SDL/include)
-    include_directories(lib/rapidjson/include)
-    link_directories(lib/GLEW/lib/mac)
-    link_directories(lib/SDL/lib/mac)
+  # Only show the console in debug builds and also strip unused dependencies on MinSizeRel.
+  set(CMAKE_EXE_LINKER_FLAGS_DEBUG "-mconsole")
+  set(CMAKE_EXE_LINKER_FLAGS_RELEASE "-mwindows")
+  set(CMAKE_EXE_LINKER_FLAGS_MINSIZEREL "-mwindows -s")
 
-    include_directories(lib/discord_game_sdk)
-    link_directories(lib/discord_game_sdk/lib/x86_64)
+  link_directories(lib/GLEW/lib/win/x64)
+  link_directories(lib/SDL/lib/win/x64)
+endif()
 
-	target_link_libraries(${LIBNAME} SDL2 SDL2_image SDL2_mixer SDL2_ttf discord_game_sdk)
+if(EMSCRIPTEN)
+  # This makes emscripten build a html page in addition to the js code.
+  set(CMAKE_EXECUTABLE_SUFFIX ".html")
 
-    configure_file(${LIBNAME}.pc.in ${LIBNAME}.pc @ONLY)
-    target_include_directories(${LIBNAME} PRIVATE include)
-    target_include_directories(${LIBNAME} PRIVATE src)
-    target_compile_features(${LIBNAME} PRIVATE cxx_std_17)
+  # Embedding and mapping files at from_path@to_path
+  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --preload-file ../../assets@/")
 
-    install(TARGETS ${LIBNAME}
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
-    install(FILES ${CMAKE_BINARY_DIR}/${LIBNAME}.pc
-    DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/pkgconfig)
-else()
-    configure_file(${LIBNAME}.pc.in ${LIBNAME}.pc @ONLY)
-    target_include_directories(${LIBNAME} PRIVATE include)
-    target_include_directories(${LIBNAME} PRIVATE src)
-    target_compile_features(${LIBNAME} PRIVATE cxx_std_17)
-
+  # Emscripten requires static linking.
+  set(SDL2_LIBRARY SDL2-static)
+elseif(UNIX)
     include(FindPkgConfig)
 
     if (NOT EMSCRIPTEN)
@@ -139,17 +129,15 @@ else()
         ${SDL2MIXER_LIBRARIES}
         ${SDL2TTF_LIBRARIES}
     )
-    
+
     if (NOT EMSCRIPTEN)
         include_directories(lib/discord_game_sdk)
         link_directories(lib/discord_game_sdk/lib/x86_64)
 
         target_link_libraries(${LIBNAME} discord_game_sdk)
     endif()
-
-    install(TARGETS ${LIBNAME}
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
-    install(FILES ${CMAKE_BINARY_DIR}/${LIBNAME}.pc
-    DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/pkgconfig)
 endif()
+
+target_include_directories(${GAMENAME}
+  PRIVATE ${junebugIncludeDirs}
+)
