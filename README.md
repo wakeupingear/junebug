@@ -2,9 +2,9 @@
 
 ## C++ game engine for high performance game prototyping
 
-C++ is performant, but it's not easy to use. `Junebug` takes that performance and wraps it in various abstractions to make it easy to use. The goal is to make a stand in replacement for Game Maker Studio 2 that can scale to the needs of a production game.
+C++ is performant, but it's not easy to use. `Junebug` takes that performance and wraps it in various abstractions to make it easy to use. The goal is to make a stand in replacement for GameMaker Studio 2 that can scale to the needs of a production game.
 
-It also bundles a bunch of useful game functions and implementations that Game Maker ideally should include out of the box but doesn't. 2D games have a lot of shared features and systems, so it makes sense to bundle the most common ones together inside the engine.
+It also bundles a bunch of useful game functions and implementations that GameMaker ideally should include out of the box but doesn't. 2D games have a lot of shared features and systems, so it makes sense to bundle the most common ones together inside the engine.
 
 ## Dead Simple Sample
 
@@ -91,6 +91,18 @@ int main()
 
 -   GCC (recommended)
 -   Clang
+
+# Who is this for?
+
+Me, mostly.
+
+Seriously though, `Junebug` is first and foremost a hobby project to take a tricky workflow (cross-platform C++ game dev) and try to get it as close to the usability and enjoyability of modern engines. Emphasis on  "try". This is a heavily WIP project - nothing is a ground truth at this time and all features, naming, and designs are subject to breaking changes at any time.
+
+This is also a 2D, sprite-based engine in the purest sense. No 3D support of any kind and limited support for mesh transformations and similar effects. High-fidelity 2D games can be made in this just fine, although many usability considerations were made with pixel art specifically in mind.
+
+Physics are also much more limited than most mainstay engines, even GameMaker. What's included is a highly in depth and flexible collision system, but actual physics dynamics are not a main focus of the project right now.
+
+The fun caveat to all these limitations is that this is C++, so you can theoretically integrate any external libraries as plugins. Want detailed physics? Add Box2D. Obviously easier said than done, but it's for this reason that the lowest level systems - actors, scenes, rendering - are kept as simple and extendable as possible.
 
 # Setup
 
@@ -211,7 +223,7 @@ While Components aren't actors, they also have an overridable `Update` function 
 
 Rendering is where `Junebug` differs from many engines like Unity and Unreal. Every draw call, whether drawing a Sprite or Text, must be explicitly issued in code every frame. This can be very useful for 2D sprite-based games specifically since it allows for complex and effects that involve many different sprites or transformations separate from a given actor. In other words, an actor's internal state doesn't strictly determine how it is drawn.
 
-This is exactly how Game Maker Studio 2 works, and it's a very powerful paradigm when used responsibly. The following namespace-level functions are available for drawing:
+This is exactly how GameMaker Studio 2 works, and it's a very powerful paradigm when used responsibly. The following namespace-level functions are available for drawing:
 
 ```cpp
 void DrawSprite(
@@ -348,7 +360,7 @@ The main usable collider is the `PolygonCollider`, which performs intersection c
 
 A `TileCollider` is also included to handle collision with a tilemap. This inherits directly from `Collider` but uses similar methods as `PolygonCollider` to perform intersection checks. This allows you to specify a custom collision mask for each tile in the tilemap, which can be useful for non-rectangular tiles like slopes. Similar to the `Sprite` metadata, this data is stored in a `collision` field in the tilemap's metadata from a `Scene` file.
 
-Note: The `TileCollider` has trouble with collisions at high speeds. This is because the current implementation doesn't merge connected tiles into a single collision mask, resulting in some strange overlaps. Nonetheless, it still fine for most basic 2D games and will be improved in the future.
+NOTE: The `TileCollider` has trouble with collisions at high speeds. This is because the current implementation doesn't merge connected tiles into a single collision mask, resulting in some strange overlaps. Nonetheless, it still fine for most basic 2D games and will be improved in the future.
 
 ## Math
 

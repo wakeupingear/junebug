@@ -97,15 +97,18 @@ SDL_Texture *Camera::Render(SDL_Renderer *renderer, float dt)
         }
     }
 
-    SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
-    for (auto &layer : game->GetCollLayers())
+    if (game->Options().drawColliders)
     {
-        for (auto &comp : layer.second)
+        SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+        for (auto &layer : game->GetCollLayers())
         {
-            comp->Draw();
+            for (auto &comp : layer.second)
+            {
+                comp->Draw();
+            }
         }
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     }
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
 
     SetPosition(oldPos);
 

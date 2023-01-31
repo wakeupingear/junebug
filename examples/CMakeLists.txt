@@ -136,11 +136,6 @@ elseif (EMSCRIPTEN)
 	
 	file(COPY assets DESTINATION ${CMAKE_BINARY_DIR})
 else()
-	set_target_properties(${GAMENAME}
-		PROPERTIES
-		LINK_FLAGS_RELEASE "-mwindows"
-	)
-
 	target_link_libraries(${GAMENAME} junebug)
 	target_link_libraries(${GAMENAME} SDL2)
 endif()

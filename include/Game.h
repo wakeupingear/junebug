@@ -82,6 +82,9 @@ namespace junebug
                 Vec2<float> defaultCameraSize = Vec2(384.0f, 216.0f);
                 Vec2<float> defaultCameraPos = Vec2(0.0f, 0.0f);
 
+                // Whether the game should render the colliders of all actors
+                bool drawColliders{false};
+
                 // The game's target framerate
                 int fpsTarget{120};
                 // Whether the game should automatically target the display's refresh rate
