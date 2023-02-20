@@ -12,8 +12,9 @@ namespace junebug
         None = -1,
         Circle = 0,
         Box = 1,
-        Tileset = 2,
-        Polygon = 3
+        Polygon = 2,
+        TilesetIndividual = 3,
+        TilesetMerged = 4
     };
 
     enum class CollSide

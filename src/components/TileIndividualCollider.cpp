@@ -1,4 +1,4 @@
-#include "components/TileCollider.h"
+#include "components/TileIndividualCollider.h"
 #include "components/PolygonCollider.h"
 #include "Game.h"
 #include "Sprite.h"
@@ -9,14 +9,14 @@
 
 using namespace junebug;
 
-TileCollider::TileCollider(class VisualActor *owner, std::vector<Vertices> &collisionBounds, std::string layer) : Collider(owner, layer)
+TileIndividualCollider::TileIndividualCollider(class VisualActor *owner, std::vector<Vertices> &collisionBounds, std::string layer) : Collider(owner, layer)
 {
-    mType = CollType::Tileset;
+    mType = CollType::TilesetIndividual;
     UpdateCollEntry(true);
     mOwner = dynamic_cast<Tileset *>(owner);
     if (!owner)
     {
-        PrintLog("TileCollider: Owner is not a Tileset");
+        PrintLog("TileIndividualCollider: Owner is not a Tileset");
         delete this;
     }
 
@@ -27,18 +27,18 @@ TileCollider::TileCollider(class VisualActor *owner, std::vector<Vertices> &coll
     }
 }
 
-void TileCollider::Update(float dt)
+void TileIndividualCollider::Update(float dt)
 {
     UpdateCollPositions();
 }
 
-bool TileCollider::Intersects(Collider *_other)
+bool TileIndividualCollider::Intersects(Collider *_other)
 {
     Vec2<float> offset;
     return Intersects(_other, offset) != CollSide::None;
 }
 
-CollSide TileCollider::Intersects(Collider *_other, Vec2<float> &offset)
+CollSide TileIndividualCollider::Intersects(Collider *_other, Vec2<float> &offset)
 {
     offset = Vec2<float>::Zero;
 
@@ -125,13 +125,13 @@ CollSide TileCollider::Intersects(Collider *_other, Vec2<float> &offset)
         offset = Vec2<float>(otherOffset);
         return otherOffset != Vec2<float>::Zero ? FlipCollSide(VecCollSide(offset)) : CollSide::None;
     }
-    else if (_other->GetType() == CollType::Tileset)
+    else if (_other->GetType() == CollType::TilesetIndividual)
         return _other->Intersects(this, offset);
 
     return CollSide::None;
 }
 
-void TileCollider::UpdateCollPositions(Vec2<float> offset)
+void TileIndividualCollider::UpdateCollPositions(Vec2<float> offset)
 {
     for (auto &collBounds : mColliders)
     {
@@ -139,7 +139,7 @@ void TileCollider::UpdateCollPositions(Vec2<float> offset)
     }
 }
 
-void TileCollider::Draw()
+void TileIndividualCollider::Draw()
 {
     Camera *cam = Game::Get()->GetActiveCamera();
     if (!cam)
@@ -154,7 +154,7 @@ void TileCollider::Draw()
         for (tile.x = min.x; tile.x <= max.x; tile.x++)
         {
             int tileIndex = mOwner->GetTile(tile);
-            if (tileIndex == -1)
+            if (tileIndex == -1 || tileIndex >= mColliders.size() || !mColliders[tileIndex].vertices)
                 continue;
 
             DrawPolygonOutline(*mColliders[tileIndex].vertices, Color::Red, mOwner->TileToWorld(tile));

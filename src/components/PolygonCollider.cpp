@@ -138,7 +138,7 @@ CollSide PolygonCollider::Intersects(Collider *_other, Vec2<float> &offset)
         offset = Vec2<float>(minAxis * overlap);
         return FlipCollSide(VecCollSide(offset));
     }
-    else if (_other->GetType() == CollType::Tileset)
+    else if (_other->GetType() == CollType::TilesetIndividual || _other->GetType() == CollType::TilesetMerged)
     {
         return _other->Intersects(this, offset);
     }

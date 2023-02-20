@@ -29,7 +29,7 @@ namespace junebug
         virtual void Draw(){};
 
     protected:
-        friend class TileCollider;
+        friend class TileIndividualCollider;
         VisualActor *mOwner;
 
         std::string mLayer;

@@ -97,7 +97,7 @@ SDL_Texture *Camera::Render(SDL_Renderer *renderer, float dt)
         }
     }
 
-    if (game->Options().drawColliders)
+    if (game->GetOptions().drawColliders)
     {
         SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
         for (auto &layer : game->GetCollLayers())

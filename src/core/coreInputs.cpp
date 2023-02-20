@@ -148,7 +148,7 @@ void Game::ProcessInput()
     if (oldScreenSize.x != mScreenWidth || oldScreenSize.y != mScreenHeight)
     {
         // Update the screen cameras
-        if (!Game::Get()->Options().screenStretch)
+        if (!Game::Get()->GetOptions().screenStretch)
         {
             for (Camera *cam : mCameras)
             {

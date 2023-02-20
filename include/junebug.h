@@ -10,4 +10,4 @@
 
 #include "components/Rigidbody.h"
 #include "components/PolygonCollider.h"
-#include "components/TileCollider.h"
+#include "components/TileIndividualCollider.h"

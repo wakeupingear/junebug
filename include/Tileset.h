@@ -13,7 +13,7 @@ namespace junebug
     class Tileset : public VisualActor
     {
     public:
-        enum TilesetEditMode
+        enum class TilesetEditMode
         {
             None = 0,
             TileDraw = 1,
@@ -44,6 +44,9 @@ namespace junebug
         inline int GetWorldTile(Vec2<float> pos) { return GetTile(WorldToTile(pos)); }
         inline int GetWorldTile(Vec2<int> pos) { return GetWorldTile(Vec2<float>(pos)); }
 
+        void SetCollType(CollType mode) { mCollType = mode; };
+        CollType GetCollType() const { return mCollType; };
+
         void SetColliders(std::vector<Vertices> colliders);
         std::vector<Vertices> &GetColliders() { return mColliders; };
         void EnableCollision();
@@ -52,8 +55,8 @@ namespace junebug
         std::string GetCollLayer() { return mCollLayer; };
         void CalculateNumTiles();
 
-        Vertices *GetTileCollider(Vec2<int> tile);
-        inline Vertices *GetWorldCollider(Vec2<float> pos) { return GetTileCollider(WorldToTile(pos)); }
+        Vertices *GetTileIndividualCollider(Vec2<int> tile);
+        inline Vertices *GetWorldCollider(Vec2<float> pos) { return GetTileIndividualCollider(WorldToTile(pos)); }
         bool TileHasCollider(Vec2<int> tile);
         inline bool WorldHasCollider(Vec2<float> pos) { return TileHasCollider(WorldToTile(pos)); }
 
@@ -68,7 +71,7 @@ namespace junebug
         int GetNumTiles() const { return mNumTiles; };
 
     protected:
-        friend class TileCollider;
+        friend class TileIndividualCollider;
         Vec2<int> mTileSize;
         int mNumTiles = -1;
         bool mCenterTopLeft{false};
@@ -80,9 +83,10 @@ namespace junebug
         inline float GetTileWidth();
         inline float GetTileHeight();
 
-        class TileCollider *mColl{nullptr};
+        class TileIndividualCollider *mColl{nullptr};
         std::vector<Vertices> mColliders;
 
+        CollType mCollType{CollType::None};
         std::string mCollLayer{""};
 
         TilesetEditMode mEditMode{TilesetEditMode::None};

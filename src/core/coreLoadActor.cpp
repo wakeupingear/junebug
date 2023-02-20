@@ -114,6 +114,8 @@ void Game::LoadActor(rapidjson::Value &actorRef, Scene &newScene)
 
             if (actorObj.HasMember("colliders") && actorObj["colliders"].IsArray())
             {
+                tileset->SetCollType(CollType::TilesetIndividual);
+
                 auto &colliders = tileset->GetColliders();
                 const auto &scale = tileset->GetScale();
                 Vertices squareCollider = {
@@ -147,6 +149,25 @@ void Game::LoadActor(rapidjson::Value &actorRef, Scene &newScene)
                     }
                     else
                         colliders.push_back({});
+                }
+            }
+
+            if (actorObj.HasMember("collMode"))
+            {
+                if (actorObj["collMode"].IsString())
+                {
+                    std::string collMode = Json::GetString(actorObj, "collMode");
+                    if (collMode == "individual")
+                        tileset->SetCollType(CollType::TilesetIndividual);
+                    else if (collMode == "merged")
+                        tileset->SetCollType(CollType::TilesetMerged);
+                    else if (collMode == "none")
+                        tileset->SetCollType(CollType::None);
+                }
+                else if (actorObj["collMode"].IsInt())
+                {
+                    tileset->SetCollType(
+                        (CollType)Json::GetInt(actorObj, "collMode", (int)tileset->GetCollType()));
                 }
             }
 

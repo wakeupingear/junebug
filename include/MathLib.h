@@ -918,34 +918,34 @@ public:
 	// Get the translation component of the matrix
 	[[nodiscard]] Vec3<float> GetTranslation() const
 	{
-		return Vec3(mat[3][0], mat[3][1], mat[3][2]);
+		return Vec3<float>(mat[3][0], mat[3][1], mat[3][2]);
 	}
 
 	// Get the X axis of the matrix (forward)
 	[[nodiscard]] Vec3<float> GetXAxis() const
 	{
-		return Vec3<float>::Normalize(Vec3(mat[0][0], mat[0][1], mat[0][2]));
+		return Vec3<float>::Normalize(Vec3<float>(mat[0][0], mat[0][1], mat[0][2]));
 	}
 
 	// Get the Y axis of the matrix (left)
 	[[nodiscard]] Vec3<float> GetYAxis() const
 	{
-		return Vec3<float>::Normalize(Vec3(mat[1][0], mat[1][1], mat[1][2]));
+		return Vec3<float>::Normalize(Vec3<float>(mat[1][0], mat[1][1], mat[1][2]));
 	}
 
 	// Get the Z axis of the matrix (up)
 	[[nodiscard]] Vec3<float> GetZAxis() const
 	{
-		return Vec3<float>::Normalize(Vec3(mat[2][0], mat[2][1], mat[2][2]));
+		return Vec3<float>::Normalize(Vec3<float>(mat[2][0], mat[2][1], mat[2][2]));
 	}
 
 	// Extract the scale component from the matrix
 	[[nodiscard]] Vec3<float> GetScale() const
 	{
-		Vec3 retVal;
-		retVal.x = Vec3(mat[0][0], mat[0][1], mat[0][2]).Length();
-		retVal.y = Vec3(mat[1][0], mat[1][1], mat[1][2]).Length();
-		retVal.z = Vec3(mat[2][0], mat[2][1], mat[2][2]).Length();
+		Vec3<float> retVal;
+		retVal.x = Vec3<float>(mat[0][0], mat[0][1], mat[0][2]).Length();
+		retVal.y = Vec3<float>(mat[1][0], mat[1][1], mat[1][2]).Length();
+		retVal.z = Vec3<float>(mat[2][0], mat[2][1], mat[2][2]).Length();
 		return retVal;
 	}
 

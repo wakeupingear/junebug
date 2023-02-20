@@ -1,0 +1,7 @@
+Executable : /home/june/Android/Sdk/cmake/3.10.2.4988404/bin/ninja
+arguments : 
+-C
+/home/june/Desktop/kid-plus-soda/lib/junebug/platforms/android/app/.cxx/Debug/1m5g5x44/arm64-v8a
+KidPlusSoda
+jvmArgs : 
+

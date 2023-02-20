@@ -72,6 +72,7 @@ int main()
 -   Extendable serialisation for custom classes
 
 ## Opt-In Plugins
+
 -   Discord Rich Presence
 
 ## Debug
@@ -96,7 +97,7 @@ int main()
 
 Me, mostly.
 
-Seriously though, `Junebug` is first and foremost a hobby project to take a tricky workflow (cross-platform C++ game dev) and try to get it as close to the usability and enjoyability of modern engines. Emphasis on  "try". This is a heavily WIP project - nothing is a ground truth at this time and all features, naming, and designs are subject to breaking changes at any time.
+Seriously though, `Junebug` is first and foremost a hobby project to take a tricky workflow (cross-platform C++ game dev) and try to get it as close to the usability and enjoyability of modern engines. Emphasis on "try". This is a heavily WIP project - nothing is a ground truth at this time and all features, naming, and designs are subject to breaking changes at any time.
 
 This is also a 2D, sprite-based engine in the purest sense. No 3D support of any kind and limited support for mesh transformations and similar effects. High-fidelity 2D games can be made in this just fine, although many usability considerations were made with pixel art specifically in mind.
 
@@ -318,7 +319,7 @@ It's important to note that this physics system mostly focuses on collision hand
 
 Physics interactions can also be isolated to different layers, allowing for more complex interactions between different types objects. For example, a player character can be set to collide with the ground, but not with enemies. By default, all components that use the physics system will use a `default` layer to interact with all other components.
 
-The actual system is split into two main components: `Collider` and `Rigidbody`. The former is responsible for detecting collisions and the latter is responsible for handling them. 
+The actual system is split into two main components: `Collider` and `Rigidbody`. The former is responsible for detecting collisions and the latter is responsible for handling them.
 
 For ease of use, a third actor class, `PhysicsActor`, is provided that defaults with both components. The `Collider` will use the actor's sprite to determine its shape - specifically, the `mVertices` member variable in the `Sprite` class. This shape defaults to a squre but can be overriden with one or more custom frames with the `collision` field in a `Sprite`'s metadata file. See below for more info on how this collider data is stored.
 
@@ -358,9 +359,9 @@ class Collider : public Component
 
 The main usable collider is the `PolygonCollider`, which performs intersection checks against a single polygonal collision mask. Collision masks are represented with the `Vertices` typedef, which is just a `vector` of `Vec2<double>`s. `double` is used for extra precision and better equality checking.
 
-A `TileCollider` is also included to handle collision with a tilemap. This inherits directly from `Collider` but uses similar methods as `PolygonCollider` to perform intersection checks. This allows you to specify a custom collision mask for each tile in the tilemap, which can be useful for non-rectangular tiles like slopes. Similar to the `Sprite` metadata, this data is stored in a `collision` field in the tilemap's metadata from a `Scene` file.
+A `TileIndividualCollider` is also included to handle collision with a tilemap. This inherits directly from `Collider` but uses similar methods as `PolygonCollider` to perform intersection checks. This allows you to specify a custom collision mask for each tile in the tilemap, which can be useful for non-rectangular tiles like slopes. Similar to the `Sprite` metadata, this data is stored in a `collision` field in the tilemap's metadata from a `Scene` file.
 
-NOTE: The `TileCollider` has trouble with collisions at high speeds. This is because the current implementation doesn't merge connected tiles into a single collision mask, resulting in some strange overlaps. Nonetheless, it still fine for most basic 2D games and will be improved in the future.
+NOTE: The `TileIndividualCollider` has trouble with collisions at high speeds. This is because the current implementation doesn't merge connected tiles into a single collision mask, resulting in some strange overlaps. Nonetheless, it still fine for most basic 2D games and will be improved in the future.
 
 ## Math
 

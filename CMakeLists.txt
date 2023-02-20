@@ -1,6 +1,6 @@
 # https://github.com/suikki/simpleSDL/
 
-cmake_minimum_required(VERSION 3.13 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.10 FATAL_ERROR)
 set(LIBNAME junebug)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -56,7 +56,7 @@ add_library(${LIBNAME} STATIC
     src/components/Rigidbody.cpp
     src/components/Collider.cpp
     src/components/PolygonCollider.cpp
-    src/components/TileCollider.cpp
+    src/components/TileIndividualCollider.cpp
 
     src/Sprite.cpp
 
@@ -136,6 +136,11 @@ elseif(UNIX)
 
         target_link_libraries(${LIBNAME} discord_game_sdk)
     endif()
+endif()
+
+if(ANDROID)
+    set(GCCVERSION $(basename $(dirname $($GXX -print-libgcc-file-name))))
+    set(CPLUS_INCLUDE_PATH $PREFIX/$HOST/include/c++/$GCCVERSION:$PREFIX/lib/gcc/$HOST/$GCCVERSION/include)
 endif()
 
 target_include_directories(${GAMENAME}
