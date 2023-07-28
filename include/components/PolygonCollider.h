@@ -41,7 +41,7 @@ namespace junebug
         const PolygonCollisionBounds &GetCollBounds() const { return mCollBounds; }
 
     protected:
-        friend class TileIndividualCollider;
+        friend class TileCollider;
 
         PolygonCollisionBounds mCollBounds;
         std::string mParentSprite{""};

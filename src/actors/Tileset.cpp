@@ -1,7 +1,7 @@
 #include "Tileset.h"
 #include "Camera.h"
 #include "Sprite.h"
-#include "components/TileIndividualCollider.h"
+#include "components/TileCollider.h"
 #include "GlobalGame.h"
 
 using namespace junebug;
@@ -224,7 +224,7 @@ void Tileset::EnableCollision()
     }
 
     if (!mColl)
-        mColl = new TileIndividualCollider(this, mColliders, mCollLayer);
+        mColl = new TileCollider(this, mColliders, mCollLayer);
 
     mColl->SetType(mCollType);
 }
@@ -234,7 +234,7 @@ void Tileset::DisableCollision()
         mColl->SetType(CollType::None);
 }
 
-Vertices *Tileset::GetTileIndividualCollider(Vec2<int> tile)
+Vertices *Tileset::GetTileCollider(Vec2<int> tile)
 {
     if (mNumTiles == 0 || tile.x < 0 || tile.y < 0 || tile.y >= mTiles.size() || tile.x >= mTiles[tile.y].size())
         return nullptr;

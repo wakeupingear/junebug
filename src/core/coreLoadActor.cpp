@@ -114,22 +114,40 @@ void Game::LoadActor(rapidjson::Value &actorRef, Scene &newScene)
 
             if (actorObj.HasMember("colliders") && actorObj["colliders"].IsArray())
             {
+                Vertices scaledSquare;
+                const auto &scale = tileset->GetScale();
+                for (auto &point : squareCollider)
+                    scaledSquare.push_back(point * tileset->GetTileSize() * scale);
+
                 tileset->SetCollType(CollType::TilesetIndividual);
 
                 auto &colliders = tileset->GetColliders();
-                const auto &scale = tileset->GetScale();
-                Vertices squareCollider = {
-                    Vec2<double>(0.0, 0.0),
-                    Vec2<double>(tileset->GetTileSize().x * scale.x, 0.0),
-                    Vec2<double>(tileset->GetTileSize().x * scale.x, tileset->GetTileSize().y * scale.y),
-                    Vec2<double>(0.0, tileset->GetTileSize().y * scale.y)};
+                auto &squareColliders = tileset->GetSquareColliders();
 
                 const auto &collList = actorObj["colliders"].GetArray();
                 for (auto &collider : collList)
                 {
-                    if (collider.IsBool() && collider.GetBool())
+                    if (collider.IsBool())
                     {
-                        colliders.push_back(squareCollider);
+                        if (collider.GetBool())
+                        {
+                            colliders.push_back(scaledSquare);
+                            squareColliders.push_back(true);
+                        }
+                        else
+                        {
+                            colliders.push_back({});
+                            squareColliders.push_back(false);
+                        }
+                    }
+                    else if (collider.IsString())
+                    {
+                        std::string str = collider.GetString();
+                        if (str == "square")
+                        {
+                            colliders.push_back(scaledSquare);
+                            squareColliders.push_back(true);
+                        }
                     }
                     else if (collider.IsArray())
                     {
@@ -146,6 +164,7 @@ void Game::LoadActor(rapidjson::Value &actorRef, Scene &newScene)
                             }
                         }
                         colliders.push_back(newCollider);
+                        squareColliders.push_back(false);
                     }
                     else
                         colliders.push_back({});

@@ -9,6 +9,12 @@
 
 namespace junebug
 {
+    const Vertices squareCollider = {
+        Vec2<double>(0.0, 0.0),
+        Vec2<double>(1.0, 0.0),
+        Vec2<double>(1.0, 1.0),
+        Vec2<double>(0.0, 1.0)};
+
     class Collider : public Component
     {
     public:
@@ -29,7 +35,7 @@ namespace junebug
         virtual void Draw(){};
 
     protected:
-        friend class TileIndividualCollider;
+        friend class TileCollider;
         VisualActor *mOwner;
 
         std::string mLayer;

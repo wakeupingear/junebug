@@ -1,4 +1,4 @@
-#include "components/TileIndividualCollider.h"
+#include "components/TileCollider.h"
 #include "components/PolygonCollider.h"
 #include "Game.h"
 #include "Sprite.h"
@@ -9,14 +9,14 @@
 
 using namespace junebug;
 
-TileIndividualCollider::TileIndividualCollider(class VisualActor *owner, std::vector<Vertices> &collisionBounds, std::string layer) : Collider(owner, layer)
+TileCollider::TileCollider(class VisualActor *owner, std::vector<Vertices> &collisionBounds, std::string layer) : Collider(owner, layer)
 {
     mType = CollType::TilesetIndividual;
     UpdateCollEntry(true);
     mOwner = dynamic_cast<Tileset *>(owner);
     if (!owner)
     {
-        PrintLog("TileIndividualCollider: Owner is not a Tileset");
+        PrintLog("TileCollider: Owner is not a Tileset");
         delete this;
     }
 
@@ -27,18 +27,18 @@ TileIndividualCollider::TileIndividualCollider(class VisualActor *owner, std::ve
     }
 }
 
-void TileIndividualCollider::Update(float dt)
+void TileCollider::Update(float dt)
 {
     UpdateCollPositions();
 }
 
-bool TileIndividualCollider::Intersects(Collider *_other)
+bool TileCollider::Intersects(Collider *_other)
 {
     Vec2<float> offset;
     return Intersects(_other, offset) != CollSide::None;
 }
 
-CollSide TileIndividualCollider::Intersects(Collider *_other, Vec2<float> &offset)
+CollSide TileCollider::Intersects(Collider *_other, Vec2<float> &offset)
 {
     offset = Vec2<float>::Zero;
 
@@ -50,6 +50,8 @@ CollSide TileIndividualCollider::Intersects(Collider *_other, Vec2<float> &offse
         Vec2<float> otherOffset = Vec2<float>::Zero;
         Vec2<double> oppositeDir = Vec2<double>(_other->mOwner->GetPosition() - _other->mOwner->GetPrevPosition());
         oppositeDir.Normalize();
+
+        auto &squareColliders = mOwner->GetSquareColliders();
 
         std::map<Vec2<double>, std::pair<float, double>> axisCount;
         for (int i = 0; i < 8; i++)
@@ -64,6 +66,9 @@ CollSide TileIndividualCollider::Intersects(Collider *_other, Vec2<float> &offse
                 {
                     int tileIndex = mOwner->GetTile(tile);
                     if (tileIndex == -1)
+                        continue;
+
+                    if (tileIndex < squareColliders.size() && squareColliders[tileIndex])
                         continue;
 
                     auto &collBounds = mColliders[tileIndex];
@@ -131,15 +136,17 @@ CollSide TileIndividualCollider::Intersects(Collider *_other, Vec2<float> &offse
     return CollSide::None;
 }
 
-void TileIndividualCollider::UpdateCollPositions(Vec2<float> offset)
+void TileCollider::UpdateCollPositions(Vec2<float> offset)
 {
     for (auto &collBounds : mColliders)
     {
         collBounds.UpdateWorldVertices(offset, 0, Vec2<float>::One, Vec2<int>::Zero);
     }
+
+    UpdateMergedColliders();
 }
 
-void TileIndividualCollider::Draw()
+void TileCollider::Draw()
 {
     Camera *cam = Game::Get()->GetActiveCamera();
     if (!cam)
@@ -147,17 +154,80 @@ void TileIndividualCollider::Draw()
 
     Vec2<int> min, max;
     mOwner->GetCullBounds(cam->GetPosition(), cam->GetBottomRight(), min, max);
+    auto &squareColliders = mOwner->GetSquareColliders();
 
+    // Draw all colliders except for squares
     Vec2<double> pos;
     for (Vec2<int> tile = min; tile.y <= max.y; tile.y++)
     {
         for (tile.x = min.x; tile.x <= max.x; tile.x++)
         {
             int tileIndex = mOwner->GetTile(tile);
-            if (tileIndex == -1 || tileIndex >= mColliders.size() || !mColliders[tileIndex].vertices)
+            if (tileIndex == -1 || tileIndex >= mColliders.size() || !mColliders[tileIndex].vertices || (tileIndex < squareColliders.size() && squareColliders[tileIndex]))
                 continue;
 
             DrawPolygonOutline(*mColliders[tileIndex].vertices, Color::Red, mOwner->TileToWorld(tile));
+        }
+    }
+
+    // Draw merged colliders
+    for (auto &collider : mMergedColliders)
+    {
+        DrawPolygonOutline(*collider.vertices, Color::Green);
+    }
+}
+
+void TileCollider::UpdateMergedColliders()
+{
+    const auto &tiles = mOwner->GetTiles();
+    const auto &squareColliders = mOwner->GetSquareColliders();
+    Vec2<double> ownerSize = Vec2<double>(mOwner->GetTileSize() * mOwner->GetScale());
+
+    mMergedColliders.clear();
+    mMergedColliderVertices.clear();
+
+    std::vector<std::vector<bool>> visited(tiles.size());
+    for (size_t i = 0; i < visited.size(); i++)
+    {
+        visited[i].resize(tiles[i].size());
+        visited[i].assign(tiles[i].size(), false);
+    }
+
+    for (Vec2<int> tile = Vec2<int>::Zero; tile.y < tiles.size(); tile.y++)
+    {
+        for (tile.x = 0; tile.x < tiles[tile.y].size(); tile.x++)
+        {
+            if (visited[tile.y][tile.x])
+                continue;
+            visited[tile.y][tile.x] = true;
+
+            int tileIndex = mOwner->GetTile(tile);
+            if (tileIndex == -1 || tileIndex >= squareColliders.size() || !squareColliders[tileIndex])
+                continue;
+
+            int count = 1;
+            Vec2<double> offset = Vec2<double>(tile) * ownerSize;
+
+            // Check if the adjacent x tiles are also squares
+            int xTileIndex = mOwner->GetTile(tile + Vec2<int>(1, 0));
+            if (xTileIndex != -1 && xTileIndex < squareColliders.size() && squareColliders[xTileIndex])
+            {
+                while (xTileIndex != -1 && xTileIndex < squareColliders.size() && squareColliders[xTileIndex])
+                {
+                    visited[tile.y][tile.x + count] = true;
+                    count++;
+                    xTileIndex = mOwner->GetTile(tile + Vec2<int>(count, 0));
+                }
+
+                //return;
+
+                mMergedColliders.push_back(PolygonCollisionBounds());
+                mMergedColliderVertices.push_back({offset, offset + Vec2<double>(count * ownerSize.x, 0), offset + Vec2<double>(count * ownerSize.x, ownerSize.y), offset + Vec2<double>(0, ownerSize.y)});
+
+                mMergedColliders.back().LoadVertices(mMergedColliderVertices.back());
+
+                continue;
+            }
         }
     }
 }

@@ -9,10 +9,10 @@
 
 namespace junebug
 {
-    class TileIndividualCollider : public Collider
+    class TileCollider : public Collider
     {
     public:
-        TileIndividualCollider(class VisualActor *owner, std::vector<Vertices> &collisionBounds, std::string layer = "");
+        TileCollider(class VisualActor *owner, std::vector<Vertices> &collisionBounds, std::string layer = "");
 
         void Update(float dt) override;
 
@@ -25,8 +25,11 @@ namespace junebug
 
     private:
         class Tileset *mOwner;
-        std::string mParentSprite{""};
 
-        std::vector<PolygonCollisionBounds> mColliders;
+        std::string mParentSprite{""};
+        std::vector<PolygonCollisionBounds> mColliders, mMergedColliders;
+        std::vector<Vertices> mMergedColliderVertices;
+
+        void UpdateMergedColliders();
     };
 }

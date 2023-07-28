@@ -47,16 +47,17 @@ namespace junebug
         void SetCollType(CollType mode) { mCollType = mode; };
         CollType GetCollType() const { return mCollType; };
 
-        void SetColliders(std::vector<Vertices> colliders);
         std::vector<Vertices> &GetColliders() { return mColliders; };
+        std::vector<bool> &GetSquareColliders() { return mSquareColliders; };
+
         void EnableCollision();
         void DisableCollision();
         void SetCollLayer(std::string layer);
         std::string GetCollLayer() { return mCollLayer; };
         void CalculateNumTiles();
 
-        Vertices *GetTileIndividualCollider(Vec2<int> tile);
-        inline Vertices *GetWorldCollider(Vec2<float> pos) { return GetTileIndividualCollider(WorldToTile(pos)); }
+        Vertices *GetTileCollider(Vec2<int> tile);
+        inline Vertices *GetWorldCollider(Vec2<float> pos) { return GetTileCollider(WorldToTile(pos)); }
         bool TileHasCollider(Vec2<int> tile);
         inline bool WorldHasCollider(Vec2<float> pos) { return TileHasCollider(WorldToTile(pos)); }
 
@@ -71,7 +72,7 @@ namespace junebug
         int GetNumTiles() const { return mNumTiles; };
 
     protected:
-        friend class TileIndividualCollider;
+        friend class TileCollider;
         Vec2<int> mTileSize;
         int mNumTiles = -1;
         bool mCenterTopLeft{false};
@@ -83,8 +84,9 @@ namespace junebug
         inline float GetTileWidth();
         inline float GetTileHeight();
 
-        class TileIndividualCollider *mColl{nullptr};
+        class TileCollider *mColl{nullptr};
         std::vector<Vertices> mColliders;
+        std::vector<bool> mSquareColliders;
 
         CollType mCollType{CollType::None};
         std::string mCollLayer{""};

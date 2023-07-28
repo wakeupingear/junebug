@@ -359,9 +359,9 @@ class Collider : public Component
 
 The main usable collider is the `PolygonCollider`, which performs intersection checks against a single polygonal collision mask. Collision masks are represented with the `Vertices` typedef, which is just a `vector` of `Vec2<double>`s. `double` is used for extra precision and better equality checking.
 
-A `TileIndividualCollider` is also included to handle collision with a tilemap. This inherits directly from `Collider` but uses similar methods as `PolygonCollider` to perform intersection checks. This allows you to specify a custom collision mask for each tile in the tilemap, which can be useful for non-rectangular tiles like slopes. Similar to the `Sprite` metadata, this data is stored in a `collision` field in the tilemap's metadata from a `Scene` file.
+A `TileCollider` is also included to handle collision with a tilemap. This inherits directly from `Collider` but uses similar methods as `PolygonCollider` to perform intersection checks. This allows you to specify a custom collision mask for each tile in the tilemap, which can be useful for non-rectangular tiles like slopes. Similar to the `Sprite` metadata, this data is stored in a `collision` field in the tilemap's metadata from a `Scene` file.
 
-NOTE: The `TileIndividualCollider` has trouble with collisions at high speeds. This is because the current implementation doesn't merge connected tiles into a single collision mask, resulting in some strange overlaps. Nonetheless, it still fine for most basic 2D games and will be improved in the future.
+NOTE: The `TileCollider` has trouble with collisions at high speeds. This is because the current implementation doesn't merge connected tiles into a single collision mask, resulting in some strange overlaps. Nonetheless, it still fine for most basic 2D games and will be improved in the future.
 
 ## Math
 

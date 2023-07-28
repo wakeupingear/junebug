@@ -56,7 +56,7 @@ add_library(${LIBNAME} STATIC
     src/components/Rigidbody.cpp
     src/components/Collider.cpp
     src/components/PolygonCollider.cpp
-    src/components/TileIndividualCollider.cpp
+    src/components/TileCollider.cpp
 
     src/Sprite.cpp
 
