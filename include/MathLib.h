@@ -11,6 +11,7 @@
 #include <fstream>
 #include <SDL2/SDL.h>
 #include <vector>
+#include <memory>
 
 namespace junebug
 {
@@ -160,8 +161,8 @@ template <typename T = float>
 struct Vec2
 {
 public:
-	T x;
-	T y;
+	T x = 0;
+	T y = 0;
 
 	Vec2()
 	{
@@ -437,7 +438,8 @@ public:
 
 namespace junebug
 {
-	typedef std::vector<Vec2<double>> Vertices;
+	typedef std::vector<Vec2<float>> Vertices;
+	typedef std::shared_ptr<Vertices> VerticesPtr;
 }
 
 // 3D Vector

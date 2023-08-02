@@ -10,10 +10,10 @@
 namespace junebug
 {
     const Vertices squareCollider = {
-        Vec2<double>(0.0, 0.0),
-        Vec2<double>(1.0, 0.0),
-        Vec2<double>(1.0, 1.0),
-        Vec2<double>(0.0, 1.0)};
+        Vec2(0.0f, 0.0f),
+        Vec2(1.0f, 0.0f),
+        Vec2(1.0f, 1.0f),
+        Vec2(0.0f, 1.0f)};
 
     class Collider : public Component
     {

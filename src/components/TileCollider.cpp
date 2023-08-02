@@ -9,7 +9,7 @@
 
 using namespace junebug;
 
-TileCollider::TileCollider(class VisualActor *owner, std::vector<Vertices> &collisionBounds, std::string layer) : Collider(owner, layer)
+TileCollider::TileCollider(class VisualActor *owner, std::vector<VerticesPtr> &collisionBounds, std::string layer) : Collider(owner, layer)
 {
     mType = CollType::TilesetIndividual;
     UpdateCollEntry(true);
@@ -48,12 +48,12 @@ CollSide TileCollider::Intersects(Collider *_other, Vec2<float> &offset)
         auto otherBounds = other->GetCollBounds();
         Vec2<int> min, max;
         Vec2<float> otherOffset = Vec2<float>::Zero;
-        Vec2<double> oppositeDir = Vec2<double>(_other->mOwner->GetPosition() - _other->mOwner->GetPrevPosition());
+        Vec2<float> oppositeDir = Vec2<float>(_other->mOwner->GetPosition() - _other->mOwner->GetPrevPosition());
         oppositeDir.Normalize();
 
         auto &squareColliders = mOwner->GetSquareColliders();
 
-        std::map<Vec2<double>, std::pair<float, double>> axisCount;
+        std::map<Vec2<float>, std::pair<float, float>> axisCount;
         for (int i = 0; i < 8; i++)
         {
             axisCount.clear();
@@ -72,15 +72,15 @@ CollSide TileCollider::Intersects(Collider *_other, Vec2<float> &offset)
                         continue;
 
                     auto &collBounds = mColliders[tileIndex];
-                    Vec2<double> tilePos = Vec2<double>(mOwner->TileToWorld(tile));
+                    Vec2<float> tilePos = Vec2<float>(mOwner->TileToWorld(tile));
 
-                    double overlap = 1000000000;
-                    Vec2<double> minAxis = Vec2<double>::Zero;
-                    bool thisIntersects = collBounds.CheckAxes(other->mCollBounds, overlap, minAxis, tilePos, Vec2<double>::Zero);
+                    float overlap = 1000000000;
+                    Vec2<float> minAxis = Vec2<float>::Zero;
+                    bool thisIntersects = collBounds.CheckAxes(other->mCollBounds, overlap, minAxis, tilePos, Vec2<float>::Zero);
                     if (!thisIntersects)
                         continue;
-                    double currentOverlap = overlap;
-                    bool otherIntersects = other->mCollBounds.CheckAxes(collBounds, overlap, minAxis, Vec2<double>::Zero, tilePos);
+                    float currentOverlap = overlap;
+                    bool otherIntersects = other->mCollBounds.CheckAxes(collBounds, overlap, minAxis, Vec2<float>::Zero, tilePos);
                     if (!otherIntersects)
                         continue;
 
@@ -92,7 +92,7 @@ CollSide TileCollider::Intersects(Collider *_other, Vec2<float> &offset)
                         minAxis = -1 * minAxis;
                     }
 
-                    float val = Vec2<double>::Dot(oppositeDir, minAxis) + (oppositeDir == minAxis ? 0.5 : 0);
+                    float val = Vec2<float>::Dot(oppositeDir, minAxis) + (oppositeDir == minAxis ? 0.5 : 0);
 
                     auto it = axisCount.find(minAxis);
                     if (it == axisCount.end())
@@ -107,9 +107,9 @@ CollSide TileCollider::Intersects(Collider *_other, Vec2<float> &offset)
 
             if (!axisCount.empty())
             {
-                Vec2<double> minAxis = Vec2<double>::Zero;
+                Vec2<float> minAxis = Vec2<float>::Zero;
                 float maxCount = -100000.0f;
-                double minOverlap = 1000000000;
+                float minOverlap = 1000000000;
                 for (auto &axis : axisCount)
                 {
                     if (axis.second.first > maxCount)
@@ -157,7 +157,7 @@ void TileCollider::Draw()
     auto &squareColliders = mOwner->GetSquareColliders();
 
     // Draw all colliders except for squares
-    Vec2<double> pos;
+    Vec2<float> pos;
     for (Vec2<int> tile = min; tile.y <= max.y; tile.y++)
     {
         for (tile.x = min.x; tile.x <= max.x; tile.x++)
@@ -181,7 +181,7 @@ void TileCollider::UpdateMergedColliders()
 {
     const auto &tiles = mOwner->GetTiles();
     const auto &squareColliders = mOwner->GetSquareColliders();
-    Vec2<double> ownerSize = Vec2<double>(mOwner->GetTileSize() * mOwner->GetScale());
+    Vec2<float> ownerSize = Vec2<float>(mOwner->GetTileSize() * mOwner->GetScale());
 
     mMergedColliders.clear();
     mMergedColliderVertices.clear();
@@ -206,7 +206,7 @@ void TileCollider::UpdateMergedColliders()
                 continue;
 
             int count = 1;
-            Vec2<double> offset = Vec2<double>(tile) * ownerSize;
+            Vec2<float> offset = Vec2<float>(tile) * ownerSize;
 
             // Check if the adjacent x tiles are also squares
             int xTileIndex = mOwner->GetTile(tile + Vec2<int>(1, 0));
@@ -219,11 +219,11 @@ void TileCollider::UpdateMergedColliders()
                     xTileIndex = mOwner->GetTile(tile + Vec2<int>(count, 0));
                 }
 
-                //return;
+                VerticesPtr vertices = std::make_shared<Vertices>(Vertices{offset, offset + Vec2<float>(count * ownerSize.x, 0), offset + Vec2<float>(count * ownerSize.x, ownerSize.y), offset + Vec2<float>(0, ownerSize.y)});
 
-                mMergedColliders.push_back(PolygonCollisionBounds());
-                mMergedColliderVertices.push_back({offset, offset + Vec2<double>(count * ownerSize.x, 0), offset + Vec2<double>(count * ownerSize.x, ownerSize.y), offset + Vec2<double>(0, ownerSize.y)});
-
+                PolygonCollisionBounds bounds;
+                mMergedColliders.push_back(bounds);
+                mMergedColliderVertices.push_back(vertices);
                 mMergedColliders.back().LoadVertices(mMergedColliderVertices.back());
 
                 continue;

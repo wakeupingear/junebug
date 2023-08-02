@@ -1,3 +1,4 @@
+
 #include "Rendering.h"
 #include "Game.h"
 #include "Sprite.h"
@@ -164,18 +165,11 @@ namespace junebug
             SDL_SetRenderDrawColor(renderer, r, g, b, a);
     }
 
-    void DrawPolygonOutline(const std::vector<Vec2<float>> &vertices, const Color &color, const Vec2<float> offset, const float thickness)
-    {
-        for (int i = 0; i < vertices.size(); i++)
-        {
-            DrawLine(offset + vertices[i], offset + vertices[(i + 1) % vertices.size()], color);
-        }
-    }
     void DrawPolygonOutline(const Vertices &vertices, const Color &color, const Vec2<float> offset, const float thickness)
     {
         for (int i = 0; i < vertices.size(); i++)
         {
-            DrawLine(Vec2<float>(offset + vertices[i]), Vec2<float>(offset + vertices[(i + 1) % vertices.size()]), color);
+            DrawLine(offset + vertices[i], offset + vertices[(i + 1) % vertices.size()], color);
         }
     }
 

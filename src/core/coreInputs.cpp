@@ -11,7 +11,7 @@ void Game::ProcessInput()
     Vec2<int> oldScreenSize(mScreenWidth, mScreenHeight), oldWindowPos;
     SDL_GetWindowSize(mWindow, &mScreenWidth, &mScreenHeight);
 
-    SDL_Event event;
+    SDL_Event event = {0};
     std::unordered_map<Uint8, std::pair<int, float>> newInputs;
 
     // Read keyboard state

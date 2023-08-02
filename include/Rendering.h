@@ -105,10 +105,8 @@ namespace junebug
     void DrawLine(const Vec2<float> &start, const Vec2<float> &end, const Color &color, const float thickness = 1.0f);
 
     // Draw a polygon outline
-    void DrawPolygonOutline(const std::vector<Vec2<float>> &vertices, const Color &color, const Vec2<float> offset, const float thickness = 1.0f);
-    inline void DrawPolygonOutline(const std::vector<Vec2<float>> &vertices, const Color &color, const float thickness = 1.0f) { DrawPolygonOutline(vertices, color, Vec2<float>::Zero, thickness); }
     void DrawPolygonOutline(const Vertices &vertices, const Color &color, const Vec2<float> offset, const float thickness = 1.0f);
-    inline void DrawPolygonOutline(const Vertices &vertices, const Color &color, const float thickness = 1.0f) { DrawPolygonOutline(vertices, color, Vec2<float>::Zero, thickness); }
+    inline void DrawPolygonOutline(const Vertices &vertices, const Color &color, const float thickness = 1.0f) { DrawPolygonOutline(vertices, color, Vec2<float>::Zero, thickness); };
 
     // Draw a texture
     void DrawTexture(SDL_Texture *texture, const Vec2<float> &pos, const Vec2<int> &size);

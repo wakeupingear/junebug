@@ -234,7 +234,7 @@ void Tileset::DisableCollision()
         mColl->SetType(CollType::None);
 }
 
-Vertices *Tileset::GetTileCollider(Vec2<int> tile)
+VerticesPtr *Tileset::GetTileCollider(Vec2<int> tile)
 {
     if (mNumTiles == 0 || tile.x < 0 || tile.y < 0 || tile.y >= mTiles.size() || tile.x >= mTiles[tile.y].size())
         return nullptr;
@@ -251,7 +251,7 @@ bool Tileset::TileHasCollider(Vec2<int> tile)
     int tileNum = mTiles[tile.y][tile.x], baseTile = tileNum % mNumTiles;
     if (tileNum < 0 || baseTile >= mColliders.size())
         return false;
-    return mColliders[baseTile].empty();
+    return mColliders[baseTile]->empty();
 }
 
 void Tileset::SetCollLayer(std::string layer)

@@ -47,7 +47,7 @@ namespace junebug
         void SetCollType(CollType mode) { mCollType = mode; };
         CollType GetCollType() const { return mCollType; };
 
-        std::vector<Vertices> &GetColliders() { return mColliders; };
+        std::vector<VerticesPtr> &GetColliders() { return mColliders; };
         std::vector<bool> &GetSquareColliders() { return mSquareColliders; };
 
         void EnableCollision();
@@ -56,8 +56,8 @@ namespace junebug
         std::string GetCollLayer() { return mCollLayer; };
         void CalculateNumTiles();
 
-        Vertices *GetTileCollider(Vec2<int> tile);
-        inline Vertices *GetWorldCollider(Vec2<float> pos) { return GetTileCollider(WorldToTile(pos)); }
+        VerticesPtr *GetTileCollider(Vec2<int> tile);
+        inline VerticesPtr *GetWorldCollider(Vec2<float> pos) { return GetTileCollider(WorldToTile(pos)); }
         bool TileHasCollider(Vec2<int> tile);
         inline bool WorldHasCollider(Vec2<float> pos) { return TileHasCollider(WorldToTile(pos)); }
 
@@ -85,7 +85,7 @@ namespace junebug
         inline float GetTileHeight();
 
         class TileCollider *mColl{nullptr};
-        std::vector<Vertices> mColliders;
+        std::vector<VerticesPtr> mColliders;
         std::vector<bool> mSquareColliders;
 
         CollType mCollType{CollType::None};

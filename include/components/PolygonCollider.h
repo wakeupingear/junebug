@@ -3,23 +3,24 @@
 #define NAMESPACES
 #endif
 
-#include "components/Collider.h"
-
 #include <vector>
+#include <memory>
+
+#include "components/Collider.h"
 
 namespace junebug
 {
     struct PolygonCollisionBounds
     {
-        const Vertices *vertices = nullptr;
+        VerticesPtr vertices = nullptr;
         Vertices worldVertices, axes;
         Vec2<float> topLeft, bottomRight;
 
-        void LoadVertices(const Vertices &vertices);
+        void LoadVertices(const VerticesPtr vertices);
 
-        bool CheckAxes(const PolygonCollisionBounds &other, double &overlap, Vec2<double> &minAxis, Vec2<double> offset = Vec2<double>::Zero, Vec2<double> otherOffset = Vec2<double>::Zero);
+        bool CheckAxes(const PolygonCollisionBounds &other, float &overlap, Vec2<float> &minAxis, Vec2<float> offset = Vec2<float>::Zero, Vec2<float> otherOffset = Vec2<float>::Zero);
 
-        Vec2<double> Project(Vec2<double> &axis, Vec2<double> &offset) const;
+        Vec2<float> Project(Vec2<float> &axis, Vec2<float> &offset) const;
 
         void UpdateWorldVertices(const Vec2<float> &pos, float rot, const Vec2<float> &scale, const Vec2<int> &origin);
     };

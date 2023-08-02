@@ -357,7 +357,7 @@ class Collider : public Component
 };
 ```
 
-The main usable collider is the `PolygonCollider`, which performs intersection checks against a single polygonal collision mask. Collision masks are represented with the `Vertices` typedef, which is just a `vector` of `Vec2<double>`s. `double` is used for extra precision and better equality checking.
+The main usable collider is the `PolygonCollider`, which performs intersection checks against a single polygonal collision mask. Collision masks are represented with the `Vertices` typedef, which is just a `vector` of `Vec2<float>`s.
 
 A `TileCollider` is also included to handle collision with a tilemap. This inherits directly from `Collider` but uses similar methods as `PolygonCollider` to perform intersection checks. This allows you to specify a custom collision mask for each tile in the tilemap, which can be useful for non-rectangular tiles like slopes. Similar to the `Sprite` metadata, this data is stored in a `collision` field in the tilemap's metadata from a `Scene` file.
 

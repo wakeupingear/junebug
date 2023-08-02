@@ -187,14 +187,17 @@ bool Sprite::LoadMetadataFile(std::string &folder)
         mOrigin.y = origin.y * mTexSize.y;
 
     // Load vertices
+    if (!mVertices)
+        mVertices = std::make_shared<Vertices>();
+
     if (json.GetDoc()->HasMember("colliders"))
     {
         const auto &verticesRef = json.Get("colliders")->value.GetArray();
         bool isFractional = false;
         for (auto &v : verticesRef)
         {
-            Vec2<double> vertex = Json::GetVec2<double>(v);
-            mVertices.push_back(vertex);
+            Vec2<float> vertex = Json::GetVec2<float>(v);
+            mVertices->push_back(vertex);
             isFractional |=
                 ((!NearZero(vertex.x) && !NearZero(vertex.x - 1.0) && vertex.x < 1.0) ||
                  (!NearZero(vertex.y) && !NearZero(vertex.y - 1.0) && vertex.y < 1.0));
@@ -202,7 +205,7 @@ bool Sprite::LoadMetadataFile(std::string &folder)
 
         if (isFractional)
         {
-            for (auto &v : mVertices)
+            for (auto &v : *mVertices)
             {
                 v.x *= mTexSize.x;
                 v.y *= mTexSize.y;
@@ -212,10 +215,10 @@ bool Sprite::LoadMetadataFile(std::string &folder)
     else
     {
         // Default box vertices
-        mVertices.push_back(Vec2<double>(0, 0));
-        mVertices.push_back(Vec2<double>(mTexSize.x, 0));
-        mVertices.push_back(Vec2<double>(mTexSize.x, mTexSize.y));
-        mVertices.push_back(Vec2<double>(0, mTexSize.y));
+        mVertices->push_back(Vec2<float>(0, 0));
+        mVertices->push_back(Vec2<float>(mTexSize.x, 0));
+        mVertices->push_back(Vec2<float>(mTexSize.x, mTexSize.y));
+        mVertices->push_back(Vec2<float>(0, mTexSize.y));
     }
 
     return true;

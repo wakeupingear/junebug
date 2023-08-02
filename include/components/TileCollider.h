@@ -3,16 +3,17 @@
 #define NAMESPACES
 #endif
 
-#include "components/PolygonCollider.h"
-
 #include <unordered_map>
+#include <memory>
+
+#include "components/PolygonCollider.h"
 
 namespace junebug
 {
     class TileCollider : public Collider
     {
     public:
-        TileCollider(class VisualActor *owner, std::vector<Vertices> &collisionBounds, std::string layer = "");
+        TileCollider(class VisualActor *owner, std::vector<VerticesPtr> &collisionBounds, std::string layer = "");
 
         void Update(float dt) override;
 
@@ -28,7 +29,7 @@ namespace junebug
 
         std::string mParentSprite{""};
         std::vector<PolygonCollisionBounds> mColliders, mMergedColliders;
-        std::vector<Vertices> mMergedColliderVertices;
+        std::vector<VerticesPtr> mMergedColliderVertices;
 
         void UpdateMergedColliders();
     };

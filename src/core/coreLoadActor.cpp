@@ -114,10 +114,10 @@ void Game::LoadActor(rapidjson::Value &actorRef, Scene &newScene)
 
             if (actorObj.HasMember("colliders") && actorObj["colliders"].IsArray())
             {
-                Vertices scaledSquare;
+                VerticesPtr scaledSquare = std::make_shared<Vertices>();
                 const auto &scale = tileset->GetScale();
                 for (auto &point : squareCollider)
-                    scaledSquare.push_back(point * tileset->GetTileSize() * scale);
+                    scaledSquare->push_back(point * tileset->GetTileSize() * scale);
 
                 tileset->SetCollType(CollType::TilesetIndividual);
 
@@ -151,7 +151,7 @@ void Game::LoadActor(rapidjson::Value &actorRef, Scene &newScene)
                     }
                     else if (collider.IsArray())
                     {
-                        Vertices newCollider;
+                        VerticesPtr newCollider;
                         for (auto &point : collider.GetArray())
                         {
                             if (point.IsArray())
@@ -159,7 +159,7 @@ void Game::LoadActor(rapidjson::Value &actorRef, Scene &newScene)
                                 const auto &pointArr = point.GetArray();
                                 if (pointArr.Size() == 2)
                                 {
-                                    newCollider.push_back(Vec2<double>(pointArr[0].GetDouble() * scale.x, pointArr[1].GetDouble() * scale.y) * tileset->GetTileSize());
+                                    newCollider->push_back(Vec2<float>(pointArr[0].GetFloat() * scale.x, pointArr[1].GetFloat() * scale.y) * tileset->GetTileSize());
                                 }
                             }
                         }

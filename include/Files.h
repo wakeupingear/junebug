@@ -124,10 +124,10 @@ namespace junebug
                     return def;
                 }
             }
-            else if (val.IsDouble())
-                return (T)val.GetDouble();
             else if (val.IsBool())
                 return (T)val.GetBool();
+            else if (val.IsDouble())
+                return (T)val.GetDouble();
             else if (val.IsInt64())
                 return (T)val.GetInt64();
             else if (val.IsUint())

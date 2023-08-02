@@ -30,6 +30,8 @@ void EmMainLoop(void *arg)
 }
 #endif
 
+std::string Game::basePath = std::string(SDL_GetBasePath());
+
 void junebug::__CallGameFunction__(__GameFunctions__ func)
 {
     Game *game = Game::Get();
@@ -301,7 +303,6 @@ void Game::HaltFrame()
     ++mFramesThisSecond;
     if (time_in_seconds > mPrevSecond)
     {
-        mFps = Clamp(mFramesThisSecond, 0, 10000);
         mFramesThisSecond = 0;
         mPrevSecond = time_in_seconds;
     }

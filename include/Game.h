@@ -56,64 +56,64 @@ namespace junebug
         struct GameOptions
         {
                 Uint32 initFlags{SDL_INIT_AUDIO | SDL_INIT_VIDEO};
-                Uint32 windowFlags{0};
+                Uint32 windowFlags = 0;
                 Uint32 renderFlags{SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC};
-                int rendererIndex{-1};
+                int rendererIndex = -1;
 
                 int windowX{SDL_WINDOWPOS_CENTERED}, windowY{SDL_WINDOWPOS_CENTERED};
-                bool resizable{false};
-                bool screenStretch{true};
+                bool resizable = false;
+                bool screenStretch = true;
 
                 int bufferCol[4]{0, 0, 0, 255};
 
-                std::string title{"Junebug Game"};
+                std::string title = "Junebug Game";
 
                 // Whether the game should close itself on a SDL_QUIT event
-                bool autoCloseOnQuit{true};
+                bool autoCloseOnQuit = true;
                 // Whether the game should close after the escape key
-                bool quitOnEscape{true};
+                bool quitOnEscape = true;
                 // The time that a quit key needs to be pressed to quit
-                float quitCloseTime{0.0f};
+                float quitCloseTime = 0.0f;
                 // Whether the game should toggle fullscreen after the F11 key
-                bool fullscreenOnF11{true};
+                bool fullscreenOnF11 = true;
 
                 // Whether the game should automatically create a camera
-                bool createDefaultCamera{true};
+                bool createDefaultCamera = true;
                 Vec2<float> defaultCameraSize = Vec2(384.0f, 216.0f);
                 Vec2<float> defaultCameraPos = Vec2(0.0f, 0.0f);
 
                 // Whether the game should render the colliders of all actors
-                bool drawColliders{false};
+                bool drawColliders = false;
 
                 // The game's target framerate
-                int fpsTarget{120};
+                int fpsTarget = 60;
                 // Whether the game should automatically target the display's refresh rate
-                bool detectFps{true};
+                bool detectFps = true;
                 // Whether the game should block the main thread until the target framerate is reached
                 // True == Low CPU, occasional frame time spikes
                 // False == High CPU, consistent frame time
-                bool shouldThreadSleep{true};
+                bool shouldThreadSleep = true;
                 // The number of milliseconds to under-sleep the main thread by
                 // This is to account for the fact that a sleeping thread will not wake up exactly when it is supposed to, and will likely overshoot the target time
                 // A higher value will result in more consistent frame times, but will also result in more CPU usage
                 // Only used if shouldThreadSleep is true
-                double sleepMargin{9.};
+                double sleepMargin = 9.;
 
-                int randomSeed{-1};
+                int randomSeed = -1;
 
-                bool showCursor{true};
+                bool showCursor = true;
 
-                std::string windowIcon{""};
+                std::string windowIcon;
 
-                std::string startingScene{""};
+                std::string startingScene;
         };
 
         struct Layer
         {
-                std::string name{""};
-                int depth{0};
-                std::string id{""};
-                bool visible{true};
+                std::string name;
+                int depth = 0;
+                std::string id;
+                bool visible = true;
         };
 
         struct Scene
@@ -472,12 +472,13 @@ namespace junebug
 #pragma endregion
 
 #pragma region Asset Lookup
+                static std::string basePath;
                 // The default paths appended to various asset lookups by file path
                 struct AssetPaths
                 {
-                        std::string sprites{"assets/sprites/"};
-                        std::string fonts{"assets/fonts/"};
-                        std::string scenes{"assets/scenes/"};
+                        std::string sprites{basePath + "assets/sprites/"};
+                        std::string fonts{basePath + "assets/fonts/"};
+                        std::string scenes{basePath + "assets/scenes/"};
                 };
                 // Get the asset paths
                 /// @returns A reference to the asset paths
@@ -523,11 +524,11 @@ namespace junebug
                 system_clock::duration mInvTargetFps = round<system_clock::duration>(dsec{1. / 60});
                 system_clock::duration mSleepMargin = round<system_clock::duration>(dsec{1. / 1000});
                 // The previous time in seconds
-                time_point<system_clock, seconds> mPrevSecond;
+                time_point<system_clock, seconds> mPrevSecond = time_point_cast<seconds>(system_clock::now());
                 // The accumulated frames in the current second
-                int mFramesThisSecond;
+                unsigned int mFramesThisSecond = 0;
                 time_point<system_clock, nanoseconds> mBeginFrame = system_clock::now();
-                time_point<system_clock, nanoseconds> mEndFrame;
+                time_point<system_clock, nanoseconds> mEndFrame = mBeginFrame;
                 // The FPS of the previous frame
                 unsigned int mFps = 0;
                 void HaltFrame();
@@ -538,13 +539,13 @@ namespace junebug
                 /// @returns A Vec2<int> containing the display size
                 Vec2<int> GetDisplaySize() const;
                 // The game's screen size
-                int mScreenWidth, mScreenHeight;
+                int mScreenWidth = 0, mScreenHeight = 0;
                 // the Previous screen size (for fullscreen toggling)
                 Vec2<int> mPrevScreenSize;
                 // The previous window position (for fullscreen toggling)
                 Vec2<int> mPrevWindowPos;
                 // The game's render size
-                int mRenderWidth, mRenderHeight;
+                int mRenderWidth = 0, mRenderHeight = 0;
 
                 // Whether the game is currently in fullscreen mode
                 bool mFullscreen = false;
@@ -693,7 +694,7 @@ namespace junebug
                 bool mSkipDebugPrintThisFrame = false;
 
                 std::vector<std::tuple<std::string, time_point<system_clock, nanoseconds>, bool>> mDebugCheckpoints;
-                time_point<system_clock, nanoseconds> mDebugCheckpointStart;
+                time_point<system_clock, nanoseconds> mDebugCheckpointStart = system_clock::now();
                 void DebugPrintCheckpoints();
                 void DebugResetCheckpoints();
                 bool mShowDefaultDebugCheckpoints = true;
