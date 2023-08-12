@@ -21,8 +21,7 @@ Json::Json(std::string data, bool isFile) : Json()
 
     if (data[0] == '{')
     {
-        doc.Parse(data.c_str());
-
+        doc.Parse<ParseFlag::kParseCommentsFlag | ParseFlag::kParseTrailingCommasFlag>(data.c_str());
         if (!IsValid())
         {
             PrintLog("Json parse error:", std::to_string(doc.GetParseError()), "at", std::to_string(doc.GetErrorOffset()));
@@ -32,7 +31,7 @@ Json::Json(std::string data, bool isFile) : Json()
     {
         std::ifstream file(data);
         std::string str((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
-        doc.Parse(str.c_str());
+        doc.Parse<ParseFlag::kParseCommentsFlag | ParseFlag::kParseTrailingCommasFlag>(str.c_str());
 
         if (!IsValid())
         {

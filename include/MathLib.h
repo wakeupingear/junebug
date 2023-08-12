@@ -438,7 +438,8 @@ public:
 
 namespace junebug
 {
-	typedef std::vector<Vec2<float>> Vertices;
+	typedef Vec2<float> Vertex;
+	typedef std::vector<Vertex> Vertices;
 	typedef std::shared_ptr<Vertices> VerticesPtr;
 }
 

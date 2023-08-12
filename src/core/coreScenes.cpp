@@ -75,10 +75,15 @@ void Game::LoadQueuedScenes()
 
             if (sceneStr[0] == '{')
                 mSceneInfo = new Json(sceneStr);
-            else if (!StringEndsWith(sceneStr, ".json"))
-                mSceneInfo = new Json(GetAssetPaths().scenes + sceneStr + ".json", true);
             else
-                mSceneInfo = new Json(sceneStr + ".json", true);
+            {
+                if (!StringEndsWith(sceneStr, ".json"))
+                    sceneStr += ".json";
+
+                mSceneInfo = new Json(GetAssetPaths().scenes + sceneStr, true);
+                if (!mSceneInfo->IsValid())
+                    mSceneInfo = new Json(sceneStr, true);
+            }
 
             if (!mSceneInfo->IsValid())
             {

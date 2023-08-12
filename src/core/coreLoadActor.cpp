@@ -151,7 +151,7 @@ void Game::LoadActor(rapidjson::Value &actorRef, Scene &newScene)
                     }
                     else if (collider.IsArray())
                     {
-                        VerticesPtr newCollider;
+                        VerticesPtr newCollider = std::make_shared<Vertices>();
                         for (auto &point : collider.GetArray())
                         {
                             if (point.IsArray())
@@ -159,7 +159,7 @@ void Game::LoadActor(rapidjson::Value &actorRef, Scene &newScene)
                                 const auto &pointArr = point.GetArray();
                                 if (pointArr.Size() == 2)
                                 {
-                                    newCollider->push_back(Vec2<float>(pointArr[0].GetFloat() * scale.x, pointArr[1].GetFloat() * scale.y) * tileset->GetTileSize());
+                                    newCollider->push_back(Vertex(pointArr[0].GetFloat() * scale.x, pointArr[1].GetFloat() * scale.y) * tileset->GetTileSize());
                                 }
                             }
                         }

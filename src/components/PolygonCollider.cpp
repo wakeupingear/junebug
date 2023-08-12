@@ -98,9 +98,9 @@ PolygonCollider::PolygonCollider(VisualActor *owner, std::string layer) : Collid
 
 void PolygonCollider::Update(float dt)
 {
-    Sprite *sprite = mOwner->GetSprite();
     if (mParentSprite != mOwner->GetSpriteName())
     {
+        Sprite *sprite = mOwner->GetSprite();
         mParentSprite = mOwner->GetSpriteName();
         if (sprite)
             mCollBounds.LoadVertices(sprite->GetVertices());
@@ -122,7 +122,7 @@ CollSide PolygonCollider::Intersects(Collider *_other, Vec2<float> &offset)
     if (_other->GetType() == CollType::Polygon)
     {
         PolygonCollider *other = static_cast<PolygonCollider *>(_other);
-        float overlap = 1000000000;
+        float overlap = FLT_MAX;
         Vec2<float> minAxis = Vec2<float>::Zero;
 
         bool thisIntersects = mCollBounds.CheckAxes(other->mCollBounds, overlap, minAxis);

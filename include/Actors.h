@@ -203,8 +203,8 @@ namespace junebug
         /// @param pos The new position of the actor
         void SetPosition(const Vec2<float> &pos);
         // Move the actor by a given amount
-        /// @param pos The amount to move the actor
-        void MovePosition(const Vec2<float> &pos);
+        /// @param amount The amount to move the actor
+        void MovePosition(const Vec2<float> &amount);
         // Get the position of the actor
         /// @returns const Vec2
         Vec2<float> GetPosition() const;

@@ -68,13 +68,13 @@ CollSide TileCollider::Intersects(Collider *_other, Vec2<float> &offset)
                     if (tileIndex == -1)
                         continue;
 
-                    if (tileIndex < squareColliders.size() && squareColliders[tileIndex])
-                        continue;
+                    //if (tileIndex < squareColliders.size() && squareColliders[tileIndex])
+                    //    continue;
 
                     auto &collBounds = mColliders[tileIndex];
                     Vec2<float> tilePos = Vec2<float>(mOwner->TileToWorld(tile));
 
-                    float overlap = 1000000000;
+                    float overlap = FLT_MAX;
                     Vec2<float> minAxis = Vec2<float>::Zero;
                     bool thisIntersects = collBounds.CheckAxes(other->mCollBounds, overlap, minAxis, tilePos, Vec2<float>::Zero);
                     if (!thisIntersects)
@@ -108,8 +108,8 @@ CollSide TileCollider::Intersects(Collider *_other, Vec2<float> &offset)
             if (!axisCount.empty())
             {
                 Vec2<float> minAxis = Vec2<float>::Zero;
-                float maxCount = -100000.0f;
-                float minOverlap = 1000000000;
+                float maxCount = FLT_MIN;
+                float minOverlap = FLT_MAX;
                 for (auto &axis : axisCount)
                 {
                     if (axis.second.first > maxCount)
@@ -219,7 +219,7 @@ void TileCollider::UpdateMergedColliders()
                     xTileIndex = mOwner->GetTile(tile + Vec2<int>(count, 0));
                 }
 
-                VerticesPtr vertices = std::make_shared<Vertices>(Vertices{offset, offset + Vec2<float>(count * ownerSize.x, 0), offset + Vec2<float>(count * ownerSize.x, ownerSize.y), offset + Vec2<float>(0, ownerSize.y)});
+                VerticesPtr vertices = std::make_shared<Vertices>(Vertices{offset, offset + Vertex(count * ownerSize.x, 0), offset + Vertex(count * ownerSize.x, ownerSize.y), offset + Vertex(0, ownerSize.y)});
 
                 PolygonCollisionBounds bounds;
                 mMergedColliders.push_back(bounds);
