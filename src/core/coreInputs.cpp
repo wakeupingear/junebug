@@ -5,7 +5,7 @@ using namespace junebug;
 
 void Game::ProcessInput()
 {
-    DebugCheckpoint("Inputs", mShowDefaultDebugCheckpoints);
+    DebugCheckpoint("Inputs", options.showDefaultDebugCheckpoints);
 
     // Store the current screen size in case fullscreen is toggled
     Vec2<int> oldScreenSize(mScreenWidth, mScreenHeight), oldWindowPos;

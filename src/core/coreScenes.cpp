@@ -93,15 +93,15 @@ void Game::LoadQueuedScenes()
 
             // Unload the current scene
             int numPersistentActors = 0;
-            std::vector<PureActor *> destroyActors;
-            for (PureActor *actor : mActors)
+            std::vector<Actor *> destroyActors;
+            for (Actor *actor : mActors)
             {
                 if (!actor->IsPersistent())
                     destroyActors.push_back(actor);
                 else
                     numPersistentActors++;
             }
-            for (PureActor *actor : destroyActors)
+            for (Actor *actor : destroyActors)
                 delete actor;
             mScene.layers.clear();
 

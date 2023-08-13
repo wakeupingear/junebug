@@ -48,7 +48,7 @@ void VisualActor::Animation::Update(std::string name, float dt, std::string &nex
     frame = newFrame;
 }
 
-VisualActor::VisualActor(Vec2<float> pos) : PureActor()
+VisualActor::VisualActor(Vec2<float> pos) : Actor()
 {
     SetPosition(pos);
 }
@@ -56,7 +56,7 @@ VisualActor::VisualActor(Vec2<int> pos) : VisualActor(Vec2<float>((float)pos.x, 
 {
 }
 
-VisualActor::VisualActor(Vec2<float> pos, std::string imagePath) : PureActor()
+VisualActor::VisualActor(Vec2<float> pos, std::string imagePath) : Actor()
 {
     SetPosition(pos);
     SetSprite(imagePath);

@@ -180,7 +180,7 @@ Every `Junebug` application starts with one instance of a single global `Game`. 
 void LoadData();
 void UnloadData();
 
-void LoadActor(PureActor* actor, rapidjson::Value& actorRef, Scene &newScene);
+void LoadActor(Actor* actor, rapidjson::Value& actorRef, Scene &newScene);
 
 void InputsProcessed(const Uint8 *state);
 
@@ -196,19 +196,19 @@ void RenderEnd();
 Entities in `Junebug` are called `Actors`. They are automatically managed by the `Game` class and can be directly created and destroyed at any time. There are 3 types of base `Actors` to choose from, each with their own overridable Event Functions:
 
 ```cpp
-class PureActor {
+class Actor {
     void FirstUpdate(float deltaTime);
     void Update(float deltaTime);
 };
 
-class VisualActor : public PureActor {
+class VisualActor : public Actor {
     void Draw();
 };
 
 class PhysicalActor : public VisualActor;
 ```
 
-`PureActor` is the simplest class and should be used to represent any object that doesn't need to be drawn or interact with the physics engine, like manager obejcts for internal game logic.
+`Actor` is the simplest class and should be used to represent any object that doesn't need to be drawn or interact with the physics engine, like manager obejcts for internal game logic.
 
 `VisualActor` is the most common class and should be used for any object that needs to be drawn to the screen. It has a member variable `mSpritePath` to indicate the actor's default sprite, plus an optionally overrideable `Draw()` function. See the below section on `Rendering` for more information.
 
@@ -290,7 +290,7 @@ Animations are just a `vector` of sprite frames, along with an `mfps` member var
 `VisualActors` contain a `vector` of `Animation` structs, which represent a named animation for a `Sprite` pointer. By default, an animation containing all frames is created and set. The following functions can be used to interact with actors' animations:
 
 ```cpp
-class VisualActor: public PureActor {
+class VisualActor: public Actor {
     void AddSpriteAnimation(
         string nickname,
         string spriteName,

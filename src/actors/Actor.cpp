@@ -4,12 +4,12 @@
 
 using namespace junebug;
 
-PureActor::PureActor()
+Actor::Actor()
 {
     Game::Get()->AddActor(this);
 }
 
-PureActor::~PureActor()
+Actor::~Actor()
 {
     for (Component *comp : mComponents)
         delete comp;
@@ -17,7 +17,7 @@ PureActor::~PureActor()
     Game::Get()->RemoveActor(this);
 }
 
-void PureActor::AddComponent(Component *c)
+void Actor::AddComponent(Component *c)
 {
     mComponents.emplace_back(c);
     std::sort(mComponents.begin(), mComponents.end(), [](Component *a, Component *b)

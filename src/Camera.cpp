@@ -86,7 +86,7 @@ SDL_Texture *Camera::Render(SDL_Renderer *renderer, float dt)
     }
 
     game->SetActiveCamera(this);
-    for (PureActor *actor : game->GetActors())
+    for (Actor *actor : game->GetAllActors())
     {
         VisualActor *visualActor = dynamic_cast<VisualActor *>(actor);
         if (visualActor)

@@ -63,7 +63,7 @@ namespace junebug
     };
 
     // A class to handle Discord Rich Presence
-    class DiscordPresence : public PureActor
+    class DiscordPresence : public Actor
     {
     public:
         // Instantiate a new DiscordPresence object. Automatically connects to the supplied client ID.

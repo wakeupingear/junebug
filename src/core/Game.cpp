@@ -267,7 +267,7 @@ bool Game::_GameLoopIteration()
     HaltFrame();
     mFrameCount++;
 
-    DebugCheckpoint("GameLoop", mShowDefaultDebugCheckpoints);
+    DebugCheckpoint("GameLoop", options.showDefaultDebugCheckpoints);
 
     ProcessInput();
 
@@ -323,14 +323,14 @@ void Game::HaltFrame()
     mEndFrame = mBeginFrame + mInvTargetFps;
 }
 
-bool Game::CompareActors(PureActor *a1, PureActor *a2)
+bool Game::CompareActors(Actor *a1, Actor *a2)
 {
     return (a1->mDepth < a2->mDepth);
 }
 
 void Game::UpdateGame()
 {
-    DebugCheckpoint("Updates", mShowDefaultDebugCheckpoints);
+    DebugCheckpoint("Updates", options.showDefaultDebugCheckpoints);
 
     // User-defined callback
     UpdateStart(mDeltaTime);
@@ -340,7 +340,7 @@ void Game::UpdateGame()
 
     // Update actors
     auto tempActors = mActors;
-    for (PureActor *actor : tempActors)
+    for (Actor *actor : tempActors)
     {
         if (actor->GetState() == ActorState::Started)
         {
@@ -359,15 +359,15 @@ void Game::UpdateGame()
         }
     }
 
-    std::vector<PureActor *> destroyActors;
-    for (PureActor *actor : mActors)
+    std::vector<Actor *> destroyActors;
+    for (Actor *actor : mActors)
     {
         if (actor->GetState() == ActorState::Destroy)
             destroyActors.push_back(actor);
     }
 
     // Remove destroyed actors
-    for (PureActor *actor : destroyActors)
+    for (Actor *actor : destroyActors)
         delete actor;
 
     // Sort the actors
@@ -388,7 +388,7 @@ void Game::UpdateGame()
 
 void Game::GenerateOutput()
 {
-    DebugCheckpoint("Renders", mShowDefaultDebugCheckpoints);
+    DebugCheckpoint("Renders", options.showDefaultDebugCheckpoints);
 
     SDL_Rect windowR;
     windowR.x = 0;
@@ -463,12 +463,12 @@ Vec2<int> Game::GetMouseOffset()
     return mMouseOffset;
 }
 
-void Game::AddActor(PureActor *actor)
+void Game::AddActor(Actor *actor)
 {
     mActors.push_back(actor);
 }
 
-void Game::RemoveActor(PureActor *actor)
+void Game::RemoveActor(Actor *actor)
 {
     // Remove from actor list
     mActors.erase(std::remove(mActors.begin(), mActors.end(), actor), mActors.end());
@@ -482,9 +482,17 @@ void Game::RemoveActor(PureActor *actor)
     }
 }
 
-const std::vector<PureActor *> &Game::GetActors() const
+template <typename T>
+T *Game::GetActor(std::string id)
 {
-    return mActors;
+    for (auto actor : mActors)
+    {
+        if (actor->GetId() == id)
+        {
+            return dynamic_cast<T *>(actor);
+        }
+    }
+    return nullptr;
 }
 
 void Game::AddCamera(Camera *camera)

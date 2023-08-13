@@ -4,6 +4,7 @@
 #endif
 
 #include "MathLib.h"
+#include "Game.h"
 #include "Color.h"
 #include "Sprite.h"
 #include "components/Collider.h"
@@ -16,7 +17,7 @@
 namespace junebug
 {
 // Helper macro, see below
-#define __REGISTER_ACTOR__(T) Game::mActorConstructors[#T] = []() -> T * {T* inst = dynamic_cast<T *>(PureActor::__createInstance__<T>()); return inst; };
+#define __REGISTER_ACTOR__(T) Game::mActorConstructors[#T] = []() -> T * {T* inst = dynamic_cast<T *>(Actor::__createInstance__<T>()); return inst; };
 // A macro to register an arbitrary number of custom Actor classes for serialization
 // This allows the engine to do some basic reflection on the classes
 // (basically, to be able to create them from a string, like from a JSON Scene file)
@@ -33,14 +34,14 @@ namespace junebug
         Destroy
     };
 
-    /// @brief A PureActor is the base class for all actors. It contains no private data.
-    class PureActor
+    /// @brief An Actor is the base derivable class for all actors. It contains no private data.
+    class Actor
     {
     public:
         // Default constructor
-        PureActor();
+        Actor();
         // Default destructor
-        virtual ~PureActor();
+        virtual ~Actor();
 
         // ToString
         virtual void ToString(std::ostream &out) const
@@ -48,7 +49,7 @@ namespace junebug
             out << "Depth(" << mDepth << ")";
         }
         // Printable
-        [[nodiscard]] friend std::ostream &operator<<(std::ostream &os, const PureActor &v)
+        [[nodiscard]] friend std::ostream &operator<<(std::ostream &os, const Actor &v)
         {
             v.ToString(os);
             return os;
@@ -58,14 +59,44 @@ namespace junebug
         ActorState GetState() const { return mState; }
         // Set the actor's state
         void SetState(ActorState state) { mState = state; }
+        // Set all actors of type T to have the given state
+        template <typename T = Actor>
+        static void SetAllState(ActorState state)
+        {
+            auto actors = Game::Get()->GetActors<T>();
+            for (auto actor : actors)
+                actor->SetState(state);
+        }
+
         // Mark the actor as paused. This will prevent it from being updated.
         void Pause() { mState = ActorState::Paused; }
+        // Mark all actors of type T as paused
+        template <typename T = Actor>
+        inline static void PauseAll() { SetAllState<T>(ActorState::Paused); }
         // Mark the actor as active (default). This will allow it to be updated
         void Unpause() { mState = ActorState::Active; }
-        // Mark the actor as destroyed. This will remove it from the game.
+        // Mark all actors of type T as active
+        template <typename T = Actor>
+        inline static void UnpauseAll() { SetAllState<T>(ActorState::Active); }
+        // Destroy an actor. This will remove it from the game.
         void Destroy() { mState = ActorState::Destroy; }
+        // Destroy all actors of type T
+        template <typename T = Actor>
+        inline static void DestroyAll() { SetAllState<T>(ActorState::Destroy); }
+
+        // Check if the actor persists between scenes
+        /// @return true if the actor persists between scenes, false otherwise
+        inline bool IsPersistent() const { return mPersistent; }
         // Set whether the actor should persist between scenes
         void SetPersistent(bool persistent) { mPersistent = persistent; }
+        // Set all actors of type T to be persistent
+        template <typename T = Actor>
+        static void SetAllPersistent(bool persistent)
+        {
+            auto actors = Game::Get()->GetActors<T>();
+            for (auto actor : actors)
+                actor->SetPersistent(persistent);
+        }
 
         // Vector of attached components
         std::vector<class Component *> mComponents;
@@ -84,10 +115,6 @@ namespace junebug
 
             return nullptr;
         }
-
-        // Check if the actor persists between scenes
-        /// @return true if the actor persists between scenes, false otherwise
-        inline bool IsPersistent() const { return mPersistent; }
 
         // Internal function to create an instance of a class
         template <typename T>
@@ -127,7 +154,7 @@ namespace junebug
     };
 
     /// @brief A VisualActor is an actor that has a visual representation, including a texture, position, rotation, scale, and color.
-    class VisualActor : public PureActor
+    class VisualActor : public Actor
     {
     public:
         struct Animation
@@ -143,7 +170,7 @@ namespace junebug
             void Update(std::string name, float dt, std::string &nextAnim);
         };
 
-        VisualActor() : PureActor(){};
+        VisualActor() : Actor(){};
         // Position constructor
         VisualActor(Vec2<float> pos);
         VisualActor(Vec2<int> pos);
@@ -169,14 +196,14 @@ namespace junebug
         virtual void ToString(std::ostream &out) const override
         {
             out << "Pos" << mPosition << " Scale" << mScale << " ";
-            PureActor::ToString(out);
+            Actor::ToString(out);
         };
 
         // Set the sprite of the actor
         /// @param path The path to the new sprite
         void SetSprite(std::string path);
         // Get a safe pointer to the sprite of the actor.
-        // This does NOT use shared_ptr. Instaed, it will return a pointer to a temp sprite stored in the Game instance. The temp sprite has no actual impact of the game, but it lets you safely access this actor's sprite without worrying about causing a segfault if an invalid sprite path is used.
+        // This does NOT use shared_ptr. Instead, it will return a pointer to a temp sprite stored in the Game instance. The temp sprite has no actual impact of the game, but it lets you safely access this actor's sprite without worrying about causing a segfault if an invalid sprite path is used.
         class Sprite *GetSprite();
         // Get the sprite of the actor
         class Sprite *GetRawSprite();

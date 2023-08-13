@@ -14,7 +14,6 @@
 #include "Inputs.h"
 #include "Color.h"
 #include "Files.h"
-#include "Actors.h"
 
 #include "SDL2/SDL.h"
 #include "SDL2/SDL_mixer.h"
@@ -55,18 +54,31 @@ namespace junebug
     // Options for initializing the game
     struct GameOptions
     {
+        // The SDL2 flags to use when initializing SDL2
         Uint32 initFlags{SDL_INIT_AUDIO | SDL_INIT_VIDEO};
+        // The SDL2 window flags to use
         Uint32 windowFlags = 0;
+        // The SDL2 renderer flags to use
         Uint32 renderFlags{SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC};
+        // The SDL2 renderer index to use
         int rendererIndex = -1;
 
+        // The window's starting position
         int windowX{SDL_WINDOWPOS_CENTERED}, windowY{SDL_WINDOWPOS_CENTERED};
+        // Whether the window can be manually resized
         bool resizable = false;
+        // Whether the screen should be stretched to fit the window
         bool screenStretch = true;
 
+        // The color to clear the screen to each frame
         int bufferCol[4]{0, 0, 0, 255};
 
+        // The game window title
         std::string title = "Junebug Game";
+        // The game's window icon
+        std::string windowIcon;
+        // Whether the game should show the mouse cursor
+        bool showCursor = true;
 
         // Whether the game should close itself on a SDL_QUIT event
         bool autoCloseOnQuit = true;
@@ -77,9 +89,13 @@ namespace junebug
         // Whether the game should toggle fullscreen after the F11 key
         bool fullscreenOnF11 = true;
 
+        // The name of the starting scene
+        std::string startingScene;
         // Whether the game should automatically create a camera
         bool createDefaultCamera = true;
+        // The default camera's size
         Vec2<float> defaultCameraSize = Vec2(384.0f, 216.0f);
+        // The default camera's position
         Vec2<float> defaultCameraPos = Vec2(0.0f, 0.0f);
 
         // Whether the game should render the colliders of all actors
@@ -99,13 +115,12 @@ namespace junebug
         // Only used if shouldThreadSleep is true
         double sleepMargin = 9.;
 
+        // The game's random seed
         int randomSeed = -1;
 
-        bool showCursor = true;
-
-        std::string windowIcon;
-
-        std::string startingScene;
+        // Whether the game should print the defaults debug info to the console
+        // These allow for easy debugging of the game's logic and render steps
+        bool showDefaultDebugCheckpoints = true;
     };
 
     struct Layer
@@ -140,7 +155,7 @@ namespace junebug
     public:
         // Game constructor
         Game();
-        // Game destructorf
+        // Game destructor
         ~Game();
         // Get the global game instance
         static Game *Get();
@@ -276,42 +291,51 @@ namespace junebug
 #pragma region Actors
         // Add an actor to the game
         /// @param actor The actor to add
-        void AddActor(class PureActor *actor);
+        void AddActor(class Actor *actor);
         // Remove an actor from the game
         /// @param actor The actor to remove
-        void RemoveActor(class PureActor *actor);
+        void RemoveActor(class Actor *actor);
 
-        // Get a const reference to the list of actors
+        // Get a const reference to the list of all actors
         /// @returns A const reference to the list of actors
-        const std::vector<class PureActor *> &GetActors() const;
+        const std::vector<class Actor *> &GetAllActors() const
+        {
+            return mActors;
+        };
+
+        // Get a list of actors of a certain type
+        /// @returns A list of actors
+        template <typename T>
+        const std::vector<T *> GetActors() const
+        {
+            std::vector<T *> res;
+            for (auto actor : mActors)
+            {
+                auto cast = dynamic_cast<T *>(actor);
+                if (cast)
+                    res.push_back(cast);
+            }
+
+            return res;
+        }
 
         // Get an optionally typed actor by id
         /// @param id The id of the actor
         /// @returns A pointer to the actor or nullptr if no actor with the given id exists
-        template <typename T = class PureActor>
-        T *GetActor(std::string id)
-        {
-            for (auto actor : mActors)
-            {
-                if (actor->GetId() == id)
-                {
-                    return dynamic_cast<T *>(actor);
-                }
-            }
-            return nullptr;
-        }
+        template <typename T = class Actor>
+        T *GetActor(std::string id);
 
         typedef std::unordered_map<std::string,
-                                   std::function<class PureActor *()>>
+                                   std::function<class Actor *()>>
             factory_map;
         // Actor name to class map
         factory_map mActorConstructors;
 
         template <typename T>
-        using twerp_map = std::unordered_map<class PureActor *, std::vector<T>>;
+        using twerp_map = std::unordered_map<class Actor *, std::vector<T>>;
         // Register a twerp coroutine
         template <typename T>
-        void RegisterTwerpAsync(class PureActor *actor, T prop, twerp_map<T> &map)
+        void RegisterTwerpAsync(class Actor *actor, T prop, twerp_map<T> &map)
         {
             if (actor)
             {
@@ -323,7 +347,7 @@ namespace junebug
         twerp_map<TwerpPropertyUint8> &GetTwerpAsyncsUint8() { return mTwerpAsyncsUint8; }
 
         template <typename T>
-        bool ToggleTwerpAsync(PureActor *actor, T prop, twerp_map<T> &map, int forceState = -1)
+        bool ToggleTwerpAsync(Actor *actor, T prop, twerp_map<T> &map, int forceState = -1)
         {
             if (actor)
             {
@@ -346,7 +370,7 @@ namespace junebug
         }
 
         template <typename T>
-        bool StopTwerpAsync(PureActor *actor, T prop, twerp_map<T> &map)
+        bool StopTwerpAsync(Actor *actor, T prop, twerp_map<T> &map)
         {
             if (actor)
             {
@@ -567,7 +591,7 @@ namespace junebug
         void GenerateOutput();
 
         // Comparator function for the actor vector
-        static bool CompareActors(PureActor *a1, PureActor *a2);
+        static bool CompareActors(Actor *a1, Actor *a2);
 
         // Overridable function for loading game resources on startup
         virtual void LoadData();
@@ -575,7 +599,7 @@ namespace junebug
         virtual void UnloadData();
 
         // Overridable function for processing an actor loaded from a JSON structure
-        virtual void LoadActor(PureActor *actor, rapidjson::Value &actorRef, Scene &newScene);
+        virtual void LoadActor(Actor *actor, rapidjson::Value &actorRef, Scene &newScene);
 
         // Inputs
         std::vector<std::unordered_map<std::string, std::pair<std::vector<Uint8>, std::pair<int, float>>>> mInputMappings;
@@ -593,7 +617,7 @@ namespace junebug
         Vec2<int> mMouseOffset = Vec2<int>::Zero;
 
         // Actor list
-        std::vector<class PureActor *> mActors;
+        std::vector<class Actor *> mActors;
 
         // Camera list
         std::vector<class Camera *> mCameras;
@@ -613,7 +637,7 @@ namespace junebug
         std::queue<std::string> mSceneQueue;
         // Helper function to load queued scenes
         void LoadQueuedScenes();
-        // Helper function to instantiate an actor from a secene JSON reference
+        // Helper function to instantiate an actor from a scene JSON reference
         void LoadActor(rapidjson::Value &actorRef, Scene &newScene);
         // Gravity
         Vec2<float> mGravity = Vec2<>::Zero;
@@ -706,7 +730,6 @@ namespace junebug
         time_point<system_clock, nanoseconds> mDebugCheckpointStart = system_clock::now();
         void DebugPrintCheckpoints();
         void DebugResetCheckpoints();
-        bool mShowDefaultDebugCheckpoints = true;
 
     private:
         bool _GameLoopIteration();

@@ -11,7 +11,7 @@ namespace junebug
     {
     public:
         // Constructor
-        Component(class PureActor *owner, int updateOrder = 100);
+        Component(class Actor *owner, int updateOrder = 100);
         // Destructor
         virtual ~Component();
         // Update this component by delta time
@@ -22,7 +22,7 @@ namespace junebug
 
     protected:
         // Owning actor
-        class PureActor *mOwner;
+        class Actor *mOwner;
         // Update order
         int mUpdateOrder;
     };

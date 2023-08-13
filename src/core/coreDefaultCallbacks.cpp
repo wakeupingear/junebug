@@ -6,4 +6,4 @@ void Game::LoadData() {}
 
 void Game::UnloadData() {}
 
-void Game::LoadActor(PureActor *actor, rapidjson::Value &actorRef, Scene &newScene) {}
+void Game::LoadActor(Actor *actor, rapidjson::Value &actorRef, Scene &newScene) {}

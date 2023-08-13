@@ -45,7 +45,7 @@ add_library(${LIBNAME} STATIC
     
     src/Camera.cpp
 
-    src/actors/PureActor.cpp
+    src/actors/Actor.cpp
     src/actors/VisualActor.cpp
     src/actors/PhysicalActor.cpp
     src/actors/Background.cpp

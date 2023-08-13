@@ -24,7 +24,7 @@ void Game::LoadActor(rapidjson::Value &actorRef, Scene &newScene)
         return;
     }
 
-    PureActor *actor = it->second();
+    Actor *actor = it->second();
     actor->SetPersistent(Json::GetBool(actorObj, "persistent", false));
     actor->mId = Json::GetString(actorObj, "id");
 
