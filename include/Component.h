@@ -7,22 +7,27 @@
 
 namespace junebug
 {
+    // CRTP base class for singletons
+    template <typename T = class Actor>
     class Component
     {
     public:
         // Constructor
-        Component(class Actor *owner, int updateOrder = 100);
+        Component(T *owner, int updateOrder = 100) : mOwner(owner), mUpdateOrder(updateOrder)
+        {
+            mOwner->AddComponent((Component<class Actor> *)this);
+        }
         // Destructor
-        virtual ~Component();
+        virtual ~Component(){};
         // Update this component by delta time
-        virtual void Update(float dt);
+        virtual void Update(float dt){};
 
         // Return the update order of this component
         int GetUpdateOrder() const { return mUpdateOrder; }
 
     protected:
         // Owning actor
-        class Actor *mOwner;
+        T *mOwner;
         // Update order
         int mUpdateOrder;
     };

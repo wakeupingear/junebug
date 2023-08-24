@@ -52,7 +52,6 @@ add_library(${LIBNAME} STATIC
     src/actors/Tileset.cpp
     src/actors/Transitions.cpp
     
-    src/Component.cpp
     src/components/Rigidbody.cpp
     src/components/Collider.cpp
     src/components/PolygonCollider.cpp
@@ -142,7 +141,3 @@ if(ANDROID)
     set(GCCVERSION $(basename $(dirname $($GXX -print-libgcc-file-name))))
     set(CPLUS_INCLUDE_PATH $PREFIX/$HOST/include/c++/$GCCVERSION:$PREFIX/lib/gcc/$HOST/$GCCVERSION/include)
 endif()
-
-target_include_directories(${GAMENAME}
-  PRIVATE ${junebugIncludeDirs}
-)

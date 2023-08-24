@@ -88,13 +88,7 @@ SDL_Texture *Camera::Render(SDL_Renderer *renderer, float dt)
     game->SetActiveCamera(this);
     for (Actor *actor : game->GetAllActors())
     {
-        VisualActor *visualActor = dynamic_cast<VisualActor *>(actor);
-        if (visualActor)
-        {
-            if (visualActor->Visible())
-                visualActor->Draw();
-            visualActor->mPrevPosition = visualActor->GetPosition();
-        }
+        actor->Draw();
     }
 
     if (game->GetOptions().drawColliders)

@@ -1,11 +1,12 @@
+#include <map>
+#include <cfloat>
+
 #include "components/TileCollider.h"
 #include "components/PolygonCollider.h"
 #include "Game.h"
 #include "Sprite.h"
 #include "Tileset.h"
 #include "Camera.h"
-
-#include <map>
 
 using namespace junebug;
 
@@ -68,8 +69,8 @@ CollSide TileCollider::Intersects(Collider *_other, Vec2<float> &offset)
                     if (tileIndex == -1)
                         continue;
 
-                    //if (tileIndex < squareColliders.size() && squareColliders[tileIndex])
-                    //    continue;
+                    // if (tileIndex < squareColliders.size() && squareColliders[tileIndex])
+                    //     continue;
 
                     auto &collBounds = mColliders[tileIndex];
                     Vec2<float> tilePos = Vec2<float>(mOwner->TileToWorld(tile));

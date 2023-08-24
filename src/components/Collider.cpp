@@ -4,7 +4,7 @@
 
 using namespace junebug;
 
-Collider::Collider(VisualActor *owner, std::string layer) : Component(owner), mOwner(owner), mLayer(layer)
+Collider::Collider(VisualActor *owner, std::string layer) : Component(owner), mLayer(layer)
 {
 }
 

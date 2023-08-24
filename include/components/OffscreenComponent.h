@@ -31,7 +31,7 @@ namespace junebug
 
     // An abstract component that checks if an actor is offscreen and calls the appropriate callback functions for entering and exiting the screen.
     // The component can be used with a camera or the scene bounds.
-    class OffscreenComponent : public Component
+    class OffscreenComponent : public Component<VisualActor>
     {
     public:
         OffscreenComponent(

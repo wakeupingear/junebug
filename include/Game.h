@@ -59,7 +59,7 @@ namespace junebug
         // The SDL2 window flags to use
         Uint32 windowFlags = 0;
         // The SDL2 renderer flags to use
-        Uint32 renderFlags{SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC};
+        Uint32 renderFlags{SDL_RENDERER_ACCELERATED};
         // The SDL2 renderer index to use
         int rendererIndex = -1;
 
@@ -125,10 +125,10 @@ namespace junebug
 
     struct Layer
     {
-        std::string name;
-        int depth = 0;
-        std::string id;
-        bool visible = true;
+        std::string name{""};
+        int depth{0};
+        std::string id{""};
+        bool visible{true};
     };
 
     struct Scene
@@ -210,11 +210,10 @@ namespace junebug
         /// @param key The name of the input
         /// @param inputs A vector of SDL keycodes to map to the input
         void SetInputMapping(std::string key, std::vector<Uint8> inputs, int player = 0);
-        typedef std::pair<std::string, std::vector<Uint8>> input_mapping;
         // Set a list of input mappings
         /// @param inputMapping A list of input mappings, where the each element is a pair with the input name and a vector of SDL keycodes
         void SetInputMappings(
-            std::vector<input_mapping> inputMappings, int player = 0);
+            std::vector<std::pair<std::string, std::vector<Uint8>>> inputMappings, int player = 0);
         // Get an input mapping if it exists
         std::vector<Uint8> *GetInputMapping(std::string key, int player = 0);
         // Check if an input mapping exists
@@ -244,7 +243,7 @@ namespace junebug
 #pragma region Game Loop
         // Run the game
         /// @returns true if successful, false otherwise
-        bool Run(int screenWidth, int screenHeight);
+        bool Run(int screenWidth = -1, int screenHeight = -1);
 
         // Clean up any resources used by the game
         // Should be called after RunLoop() has finished and before the program exits
@@ -537,9 +536,9 @@ namespace junebug
         inline static Game *firstGame = nullptr;
 
         // The game's options
-        GameOptions options;
+        GameOptions options, prevOptions;
         // Internal function to set the game's options
-        void ProcessOptions(GameOptions options);
+        void ProcessOptions(GameOptions options, bool force = false);
         // Tracks whether the options have been changed
         // If true, ProcessOptions() will be called before the next update
         bool mOptionsUpdated = false;
@@ -557,11 +556,11 @@ namespace junebug
         system_clock::duration mInvTargetFps = round<system_clock::duration>(dsec{1. / 60});
         system_clock::duration mSleepMargin = round<system_clock::duration>(dsec{1. / 1000});
         // The previous time in seconds
-        time_point<system_clock, seconds> mPrevSecond = time_point_cast<seconds>(system_clock::now());
+        time_point<system_clock, seconds> mPrevSecond;
         // The accumulated frames in the current second
-        unsigned int mFramesThisSecond = 0;
+        int mFramesThisSecond;
         time_point<system_clock, nanoseconds> mBeginFrame = system_clock::now();
-        time_point<system_clock, nanoseconds> mEndFrame = mBeginFrame;
+        time_point<system_clock, nanoseconds> mEndFrame;
         // The FPS of the previous frame
         unsigned int mFps = 0;
         void HaltFrame();
@@ -572,13 +571,13 @@ namespace junebug
         /// @returns A Vec2<int> containing the display size
         Vec2<int> GetDisplaySize() const;
         // The game's screen size
-        int mScreenWidth = 0, mScreenHeight = 0;
+        int mScreenWidth, mScreenHeight;
         // the Previous screen size (for fullscreen toggling)
         Vec2<int> mPrevScreenSize;
         // The previous window position (for fullscreen toggling)
         Vec2<int> mPrevWindowPos;
         // The game's render size
-        int mRenderWidth = 0, mRenderHeight = 0;
+        int mRenderWidth, mRenderHeight;
 
         // Whether the game is currently in fullscreen mode
         bool mFullscreen = false;
@@ -637,7 +636,7 @@ namespace junebug
         std::queue<std::string> mSceneQueue;
         // Helper function to load queued scenes
         void LoadQueuedScenes();
-        // Helper function to instantiate an actor from a scene JSON reference
+        // Helper function to instantiate an actor from a secene JSON reference
         void LoadActor(rapidjson::Value &actorRef, Scene &newScene);
         // Gravity
         Vec2<float> mGravity = Vec2<>::Zero;
@@ -727,7 +726,7 @@ namespace junebug
         bool mSkipDebugPrintThisFrame = false;
 
         std::vector<std::tuple<std::string, time_point<system_clock, nanoseconds>, bool>> mDebugCheckpoints;
-        time_point<system_clock, nanoseconds> mDebugCheckpointStart = system_clock::now();
+        time_point<system_clock, nanoseconds> mDebugCheckpointStart;
         void DebugPrintCheckpoints();
         void DebugResetCheckpoints();
 

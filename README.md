@@ -136,11 +136,11 @@ Windows users should have an installed copy of the [Visual Studio Build Tools](h
 
 ## Linux
 
-Linux users should have an installed copy of the `g++` compiler and the `libSDL2-dev` library. These can be installed via your package manager. An example for Apt is as follows:
+Linux users should have an installed copy of the `g++` compiler and the core SDL2 libraries. These can be installed via your package manager. An example for Apt is as follows:
 
 ```sh
 sudo apt-get install g++
-sudo apt-get install libsdl2-dev
+sudo apt-get install libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev
 ```
 
 Unlike other platforms, binaries for Linux are not included in the repository. CMake should be able to automatically find the SDL2 library on your system once you run the above installation. If it throws an error, you can manually specify the path to the SDL2 library by editing your `CMakeLists.txt` file.
@@ -330,7 +330,7 @@ The `Rigidbody` component allows an actor to be affected by the physics system. 
 Below are the most useful functions for interacting with a rigidbody:
 
 ```cpp
-class Rigidbody : public Component
+class Rigidbody : public Component<>
 {
     void AddForce(Vec2<float> force); // Adds a force to the rigidbody
     void SetStatic(bool isStatic); // Sets the rigidbody to be static (disables physics) or not
@@ -346,7 +346,7 @@ class Rigidbody : public Component
 The `Collider` component represents an actor's physical shape and size for collision detection. It is an abstract class that must be extended to be used, since different types of collision will need different data to be stored. Any child class must implement the following two functions, which are used by the `Rigidbody` component to check for collisions:
 
 ```cpp
-class Collider : public Component
+class Collider : public Component<>
 {
     // Checks if this collider intersects another collider, and returns the approximate side of intersection
     // The offset reference is set to the minimum translation vector to resolve the collision

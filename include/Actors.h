@@ -99,7 +99,7 @@ namespace junebug
         }
 
         // Vector of attached components
-        std::vector<class Component *> mComponents;
+        std::vector<class Component<Actor> *> mComponents;
         // Returns component of type T, or null if doesn't exist
         template <typename T>
         T *GetComponent() const
@@ -128,11 +128,17 @@ namespace junebug
         // Get the actor's id
         std::string GetId() const { return mId; }
 
-    protected:
-        friend class Component;
-        friend class Game;
         // Add a component to the actor
-        void AddComponent(class Component *c);
+        void AddComponent(class Component<> *c);
+
+    protected:
+        friend class Component<>;
+        friend class Game;
+        friend class Camera;
+
+        // User-defined function to run every frame when the actor draws
+        virtual void Draw(){};
+
         // User-defined function to every frame when the actor updates
         virtual void InternalUpdate(float dt){};
         virtual void Update(float dt){};
@@ -295,8 +301,8 @@ namespace junebug
     protected:
         friend class Camera;
         friend class Game;
-        // User-defined function to run every frame when the actor draws
-        virtual void Draw();
+
+        virtual void Draw() override;
 
         std::string mSpritePath;
         bool mVisible{true};

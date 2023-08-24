@@ -283,14 +283,6 @@ public:
 		return *this;
 	}
 
-	// Vec *=
-	Vec2 &operator*=(Vec2 vec)
-	{
-		x *= vec.x;
-		y *= vec.y;
-		return *this;
-	}
-
 	// Scalar /=
 	Vec2 &operator/=(float scalar)
 	{
@@ -371,6 +363,12 @@ public:
 		return *this;
 	}
 
+	// Convert an angle to a vector
+	[[nodiscard]] static Vec2 FromAngle(float angle)
+	{
+		return Vec2(junebug::Cos(angle), -junebug::Sin(angle));
+	}
+
 	// Normalize the provided vector
 	[[nodiscard]] static Vec2 Normalize(const Vec2 &vec)
 	{
@@ -448,9 +446,9 @@ template <typename T = float>
 struct Vec3
 {
 public:
-	T x;
-	T y;
-	T z;
+	T x = 0;
+	T y = 0;
+	T z = 0;
 
 	Vec3()
 		: x(0.0f), y(0.0f), z(0.0f)
@@ -631,7 +629,7 @@ public:
 class Matrix3
 {
 public:
-	float mat[3][3];
+	float mat[3][3] = {};
 
 	Matrix3()
 	{
@@ -774,7 +772,7 @@ public:
 class Matrix4
 {
 public:
-	float mat[4][4];
+	float mat[4][4] = {};
 
 	Matrix4()
 	{
@@ -1090,10 +1088,10 @@ public:
 class Quaternion
 {
 public:
-	float x;
-	float y;
-	float z;
-	float w;
+	float x = 0.0f;
+	float y = 0.0f;
+	float z = 0.0f;
+	float w = 1.0f;
 
 	Quaternion()
 	{

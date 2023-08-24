@@ -15,7 +15,7 @@ namespace junebug
         Vec2(1.0f, 1.0f),
         Vec2(0.0f, 1.0f)};
 
-    class Collider : public Component
+    class Collider : public Component<>
     {
     public:
         Collider(class VisualActor *owner, std::string layer);

@@ -11,7 +11,7 @@
 
 namespace junebug
 {
-    class Rigidbody : public Component
+    class Rigidbody : public Component<VisualActor>
     {
     public:
         Rigidbody(class VisualActor *owner, class Collider *coll = nullptr);

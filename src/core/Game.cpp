@@ -80,8 +80,9 @@ const GameOptions &Game::GetOptions() const
     return options;
 }
 
-void Game::ProcessOptions(GameOptions newOptions)
+void Game::ProcessOptions(GameOptions newOptions, bool force)
 {
+    prevOptions = options;
     options = newOptions;
 
     if (mWindow)
@@ -111,7 +112,7 @@ void Game::ProcessOptions(GameOptions newOptions)
     if (!InputExists(JB_INPUT_RIGHT_CLICK, MOUSE_RIGHT))
         SetInputMapping(JB_INPUT_RIGHT_CLICK, {MOUSE_RIGHT});
 
-    if (options.detectFps)
+    if (options.detectFps && options.fpsTarget == 0 && (force || prevOptions.detectFps != options.detectFps || prevOptions.fpsTarget != options.fpsTarget))
     {
         int displayIndex = SDL_GetWindowDisplayIndex(mWindow);
         SDL_DisplayMode displayMode;
@@ -136,7 +137,7 @@ void Game::ProcessOptions(GameOptions newOptions)
 
     SDL_ShowCursor(options.showCursor);
 
-    if (options.windowIcon != "" && mWindow)
+    if (options.windowIcon != "" && mWindow && (force || prevOptions.windowIcon != options.windowIcon))
     {
         SDL_Surface *icon = IMG_Load((GetAssetPaths().sprites + options.windowIcon).c_str());
         if (icon)
@@ -180,10 +181,17 @@ void Game::Shutdown()
 
 bool Game::Run(int screenWidth, int screenHeight)
 {
+    if (screenWidth < 0)
+        screenWidth = options.defaultCameraSize.x;
+    if (screenHeight < 0)
+        screenHeight = options.defaultCameraSize.y;
+
     mScreenWidth = screenWidth, mScreenHeight = screenHeight;
     mRenderWidth = screenWidth, mRenderHeight = screenHeight;
     mScene.size.x = mScreenWidth;
     mScene.size.y = mScreenHeight;
+
+    SDL_SetHint(SDL_HINT_RENDER_DRIVER, "opengl");
 
 #ifdef linux
     putenv((char *)"SDL_VIDEO_X11_NET_WM_BYPASS_COMPOSITOR=0");
@@ -225,7 +233,7 @@ bool Game::Run(int screenWidth, int screenHeight)
 
     if (mOptionsUpdated)
     {
-        ProcessOptions(options);
+        ProcessOptions(options, mOptionsUpdated);
         mOptionsUpdated = false;
     }
 
@@ -241,7 +249,7 @@ bool Game::Run(int screenWidth, int screenHeight)
 
     mGameIsRunning = true;
     // Process any options that were changed in LoadData()
-    ProcessOptions(options);
+    ProcessOptions(options, mOptionsUpdated);
 
     mBeginFrame = system_clock::now();
     mEndFrame = mBeginFrame + mInvTargetFps;
@@ -291,6 +299,13 @@ bool Game::_GameLoopIteration()
         DebugPrintCheckpoints();
         mDebugAlreadyCleared = false;
         mSkipDebugPrintThisFrame = false;
+    }
+
+    if (isDebug)
+    {
+        auto error = SDL_GetError();
+        if (error[0] != '\0')
+            Print("SDL Error: " + std::string(error));
     }
 
     return true;
@@ -351,10 +366,7 @@ void Game::UpdateGame()
 
         if (actor->GetState() == ActorState::Active)
         {
-            actor->InternalUpdate(mDeltaTime);
-            actor->Update(mDeltaTime);
-
-            for (Component *comp : actor->mComponents)
+            for (Component<> *comp : actor->mComponents)
                 comp->Update(mDeltaTime);
         }
     }

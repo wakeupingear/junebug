@@ -1,3 +1,5 @@
+#include <cfloat>
+
 #include "components/PolygonCollider.h"
 #include "Actors.h"
 #include "Utils.h"
