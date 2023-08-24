@@ -99,12 +99,13 @@ void Game::ProcessOptions(GameOptions newOptions, bool force)
     }
 
     // Optional window input mappings
+#ifndef __EMSCRIPTEN__
     if (options.quitOnEscape && !InputExists(JB_INPUT_QUIT, KEY_ESCAPE))
         SetInputMapping(JB_INPUT_QUIT, {KEY_ESCAPE});
+
     if (options.fullscreenOnF11 && !InputExists(JB_INPUT_FULLSCREEN, KEY_F11))
-    {
         SetInputMapping(JB_INPUT_FULLSCREEN, {KEY_F11});
-    }
+#endif
 
     // Internal input mappings
     if (!InputExists(JB_INPUT_LEFT_CLICK, MOUSE_LEFT))
@@ -112,7 +113,7 @@ void Game::ProcessOptions(GameOptions newOptions, bool force)
     if (!InputExists(JB_INPUT_RIGHT_CLICK, MOUSE_RIGHT))
         SetInputMapping(JB_INPUT_RIGHT_CLICK, {MOUSE_RIGHT});
 
-    if (options.detectFps && options.fpsTarget == 0 && (force || prevOptions.detectFps != options.detectFps || prevOptions.fpsTarget != options.fpsTarget))
+    if (options.detectFps && (force || prevOptions.detectFps != options.detectFps || prevOptions.fpsTarget != options.fpsTarget))
     {
         int displayIndex = SDL_GetWindowDisplayIndex(mWindow);
         SDL_DisplayMode displayMode;
@@ -190,8 +191,6 @@ bool Game::Run(int screenWidth, int screenHeight)
     mRenderWidth = screenWidth, mRenderHeight = screenHeight;
     mScene.size.x = mScreenWidth;
     mScene.size.y = mScreenHeight;
-
-    SDL_SetHint(SDL_HINT_RENDER_DRIVER, "opengl");
 
 #ifdef linux
     putenv((char *)"SDL_VIDEO_X11_NET_WM_BYPASS_COMPOSITOR=0");
@@ -368,6 +367,12 @@ void Game::UpdateGame()
         {
             for (Component<> *comp : actor->mComponents)
                 comp->Update(mDeltaTime);
+        }
+
+        if (actor->GetState() == ActorState::Active)
+        {
+            actor->InternalUpdate(mDeltaTime);
+            actor->Update(mDeltaTime);
         }
     }
 

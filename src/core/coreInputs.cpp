@@ -117,10 +117,10 @@ void Game::ProcessInput()
     }
     if (InputPressed(JB_INPUT_FULLSCREEN, -1))
     {
+#ifndef __EMSCRIPTEN__
         if (!mFullscreen)
-        {
             SDL_GetWindowPosition(mWindow, &mPrevWindowPos.x, &mPrevWindowPos.y);
-        }
+#endif
 
         mFullscreen = !mFullscreen;
         SDL_SetWindowFullscreen(mWindow, mFullscreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0);
@@ -129,8 +129,12 @@ void Game::ProcessInput()
         if (!mFullscreen)
         {
             SDL_SetWindowSize(mWindow, mPrevScreenSize.x, mPrevScreenSize.y);
+
+#ifndef __EMSCRIPTEN__
             SDL_SetWindowPosition(mWindow, mPrevWindowPos.x, mPrevWindowPos.y);
+#endif
         }
+#ifndef __EMSCRIPTEN__
         else
         {
             SDL_SetWindowPosition(mWindow, mPrevWindowPos.x, mPrevWindowPos.y);
@@ -141,6 +145,7 @@ void Game::ProcessInput()
                 mScreenHeight = displaySize.y;
             }
         }
+#endif
     }
 
     // Store the previous screen size if it changed
